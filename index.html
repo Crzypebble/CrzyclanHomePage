@@ -41,27 +41,48 @@
       text-align: center;
     }
 
-    .leaders {
+    .leaders, .members {
       background-color: #1c1c1c;
       padding: 20px;
       margin: 30px auto;
-      max-width: 600px;
+      max-width: 1000px;
       border: 1px solid crimson;
       border-radius: 8px;
     }
 
-    .leaders h3 {
+    .leaders h3, .members h3 {
       color: crimson;
+      margin-bottom: 20px;
+    }
+
+    .member-card {
+      display: inline-block;
+      background-color: #111;
+      margin: 10px;
+      padding: 15px;
+      width: 200px;
+      border-radius: 10px;
+      border: 2px solid #444;
+      text-align: center;
+    }
+
+    .member-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
       margin-bottom: 10px;
+      border: 2px solid crimson;
     }
 
-    .leaders ul {
-      list-style: none;
-      padding: 0;
+    .member-card h4 {
+      margin: 5px 0;
+      color: crimson;
     }
 
-    .leaders li {
-      padding: 5px 0;
+    .member-card p {
+      font-size: 14px;
+      color: #ccc;
     }
 
     .skull-image {
@@ -88,30 +109,67 @@
     <h1>CRZYCLAN</h1>
     <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
+      <a href="#home">Home</a>
+      <a href="#membership">Membership</a>
       <a href="https://yourshoplink.com" target="_blank">Shop</a>
       <a href="https://yourmusiclink.com" target="_blank">Music</a>
-      <a href="#about">About</a>
     </nav>
   </header>
 
-  <section id="about">
-    <h2>About Crzyclan</h2>
+  <section id="home">
+    <h2>Welcome to Crzyclan</h2>
     <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
 
     <div class="skull-image">
-      <img src="https://i.imgur.com/YohZ74b.jpeg" alt="2022 Skull" />
+      <img src="INSERT_SKULL_IMAGE_URL_HERE" alt="2022 Skull" />
     </div>
+  </section>
 
-    <div class="leaders">
-      <h3>Crzyclan Leaders</h3>
-      <ul>
-        <li>Crzypebble</li>
-        <li>KingKahoona</li>
-        <li>Holy Herb</li>
-        <li>CrzyBooher</li>
-        <!-- Add or change names as needed -->
-      </ul>
+  <section class="leaders">
+    <h3>Crzyclan Leaders</h3>
+    <div class="member-card">
+      <img src="https://via.placeholder.com/100" alt="Crzypebble">
+      <h4>Crzypebble</h4>
+      <p>"Ride the chaos."</p>
+      <p><strong>Skills:</strong> Game Dev, Music</p>
     </div>
+    <div class="member-card">
+      <img src="https://via.placeholder.com/100" alt="Shadow">
+      <h4>Shadow</h4>
+      <p>"Strike from the dark."</p>
+      <p><strong>Skills:</strong> Strategy, FPS</p>
+    </div>
+    <!-- Add more leader cards here -->
+  </section>
+
+  <section id="membership" class="members">
+    <h3>Crzyclan Members</h3>
+    <div class="member-card">
+      <img src="https://via.placeholder.com/100" alt="Blitz">
+      <h4>CrzyPebble</h4>
+      <p>"Speed and fire."</p>
+      <p><strong>Skills:</strong> Streaming, Editing</p>
+    </div>
+    <div class="member-card">
+      <img src="https://via.placeholder.com/100" alt="Raven">
+      <h4>CrzySniper</h4>
+      <p>"Fly above the noise."</p>
+      <p><strong>Skills:</strong> Music Production</p>
+    </div>
+    <div class="member-card">
+  <img src="https://via.placeholder.com/100" alt="USERNAME">
+  <h4>CrzyKahoona</h4>
+  <p>"MOTTO GOES HERE"</p>
+  <p><strong>Skills:</strong> SKILL 1, SKILL 2</p>
+</div>
+<div class="member-card">
+  <img src="https://via.placeholder.com/100" alt="USERNAME">
+  <h4>CrzyBooher</h4>
+  <p>"MOTTO GOES HERE"</p>
+  <p><strong>Skills:</strong> SKILL 1, SKILL 2</p>
+</div>
+
+    <!-- Add more member cards here -->
   </section>
 
   <footer>

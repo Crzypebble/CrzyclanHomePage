@@ -1,146 +1,134 @@
-/* Default Styles */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #111;
-  color: #f0f0f0;
-  transition: background 0.5s, color 0.5s;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-}
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+  authDomain: "crzyclansite.firebaseapp.com",
+  projectId: "crzyclansite",
+  storageBucket: "crzyclansite.appspot.com",
+  messagingSenderId: "534485925500",
+  appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+};
 
-header {
-  background-color: #222;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 3px solid #f00;
-}
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-h1 {
-  margin: 0;
-  font-size: 2.5rem;
-}
-
-nav {
-  margin-top: 10px;
-}
-
-nav a {
-  color: #f0f0f0;
-  margin: 0 10px;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-nav a:hover {
-  text-decoration: underline;
-}
-
-section {
-  padding: 20px;
-}
-
-footer {
-  background-color: #222;
-  text-align: center;
-  padding: 10px;
-  margin-top: 30px;
-  border-top: 3px solid #f00;
-}
-
-.member-card {
-  display: inline-block;
-  background-color: #333;
-  padding: 10px;
-  margin: 10px;
-  border-radius: 10px;
-  width: 220px;
-  text-align: center;
-  box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
-}
-
-.member-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.settings-panel input[type="email"],
-.settings-panel input[type="password"],
-.settings-panel button,
-.settings-panel select {
-  display: block;
-  margin: 10px auto;
-  padding: 10px;
-  width: 90%;
-  max-width: 300px;
-  border-radius: 5px;
-  border: none;
-}
-
-.settings-panel button {
-  background-color: #cc0000;
-  color: white;
-  cursor: pointer;
-}
-
-.settings-panel button:hover {
-  background-color: #ff3333;
-}
-
-input[type="file"] {
-  color: white;
-}
-
-/* Themes */
-body.theme-redmist {
-  background-color: #1a0000;
-  color: #ffcccc;
-}
-
-header.theme-redmist,
-footer.theme-redmist {
-  background-color: #330000;
-  border-color: #990000;
-}
-
-.member-card.theme-redmist {
-  background-color: #440000;
-  box-shadow: 0 0 8px rgba(255, 50, 50, 0.6);
-}
-
-body.theme-bw {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-header.theme-bw,
-footer.theme-bw {
-  background-color: #eeeeee;
-  color: #000000;
-  border-color: #000;
-}
-
-.member-card.theme-bw {
-  background-color: #f4f4f4;
-  color: #000000;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .member-card {
-    width: 90%;
+// Auth State Listener
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('signupForm').style.display = 'none';
+    document.getElementById('logoutSection').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+  } else {
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('signupForm').style.display = 'none';
+    document.getElementById('logoutSection').style.display = 'none';
   }
+});
 
-  nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+// Login Function
+function login() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
+}
 
-  nav a {
-    margin: 5px;
+// Signup Function
+function signup() {
+  const email = document.getElementById('signupEmail').value;
+  const password = document.getElementById('signupPassword').value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(() => {
+      alert('Signup successful!');
+      showLogin();
+    })
+    .catch(err => alert(err.message));
+}
+
+// Logout
+function logout() {
+  auth.signOut().catch(err => alert(err.message));
+}
+
+// Toggle Login/Signup
+function showSignup() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('signupForm').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+}
+
+// Tab Navigation
+function showSection(id) {
+  const sections = document.querySelectorAll("section");
+  sections.forEach(section => {
+    section.style.display = section.id === id ? "block" : "none";
+  });
+}
+
+// Theme Application
+function applyTheme(theme) {
+  document.body.classList.remove("theme-default", "theme-red", "theme-bw");
+  if (theme === "Red Mist") {
+    document.body.classList.add("theme-red");
+  } else if (theme === "Black & White") {
+    document.body.classList.add("theme-bw");
+  } else {
+    document.body.classList.add("theme-default");
   }
 }
+
+// Load saved settings
+function loadSettings() {
+  const savedTheme = localStorage.getItem("theme");
+  const background = localStorage.getItem("backgroundImage");
+
+  if (savedTheme) {
+    applyTheme(savedTheme);
+    document.getElementById("themeSelect").value = savedTheme;
+  }
+
+  if (background) {
+    document.body.style.backgroundImage = `url(${background})`;
+  }
+}
+
+// Save user settings
+function saveSettings() {
+  const selectedTheme = document.getElementById("themeSelect").value;
+  const fileInput = document.getElementById("bgUpload");
+  applyTheme(selectedTheme);
+  localStorage.setItem("theme", selectedTheme);
+
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      localStorage.setItem("backgroundImage", dataUrl);
+      document.body.style.backgroundImage = `url(${dataUrl})`;
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    localStorage.removeItem("backgroundImage");
+    document.body.style.backgroundImage = "";
+  }
+
+  alert("Settings saved!");
+}
+
+// Navigation Events
+document.addEventListener("DOMContentLoaded", () => {
+  showSection("home");
+  loadSettings();
+
+  document.querySelectorAll("nav a[href^='#']").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const target = link.getAttribute("href").substring(1);
+      showSection(target);
+    });
+  });
+
+  document.getElementById("saveSettingsBtn").addEventListener("click", saveSettings);
+});

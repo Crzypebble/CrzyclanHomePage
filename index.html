@@ -13,6 +13,7 @@
     <nav>
       <a href="#home">Home</a>
       <a href="#membership">Membership</a>
+      <a href="#settings">Settings</a>
       <a href="https://yourshoplink.com" target="_blank">Shop</a>
       <a href="https://yourmusiclink.com" target="_blank">Music</a>
     </nav>
@@ -21,7 +22,6 @@
   <section id="home">
     <h2>Welcome to Crzyclan</h2>
     <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
-
     <div class="skull-image">
       <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
     </div>
@@ -36,7 +36,7 @@
       <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
     </div>
     <div class="member-card">
-      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/main/BurgerkingDonny.webp" alt="CrzySniper">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
       <h4>CrzySniper</h4>
       <p>"Shake up the place?"</p>
       <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
@@ -45,28 +45,24 @@
 
   <section id="membership" class="members">
     <h3>Crzyclan Members</h3>
-
     <div class="member-card">
-      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/main/Popnigel.webp" alt="CrzyDevotion">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
       <h4>CrzyDevotion</h4>
       <p>"Win sum lose sum fight sum cause we all lose it all"</p>
       <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
     </div>
-
     <div class="member-card">
-      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/main/biggie%20trev.webp" alt="CrzyKahoona">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
       <h4>CrzyKahoona</h4>
-      <p>"I aint giving up yet"</p>
+      <p>"I ain't giving up yet"</p>
       <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
     </div>
-
     <div class="member-card">
-      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/main/BigBooey.webp" alt="CrzyDemon">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
       <h4>CrzyDemon</h4>
       <p>"It's Demon Time!"</p>
       <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
     </div>
-
     <div class="member-card">
       <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
       <h4>CrzyWraith</h4>
@@ -75,8 +71,68 @@
     </div>
   </section>
 
+  <section id="settings" class="settings-panel">
+    <h3>Account Settings</h3>
+
+    <div id="loginForm">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="Enter email" />
+
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password" />
+
+      <button onclick="login()">Login</button>
+      <button onclick="showSignup()">Sign Up</button>
+    </div>
+
+    <div id="signupForm" style="display: none;">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" placeholder="Enter email" />
+
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Create password" />
+
+      <button onclick="signup()">Create Account</button>
+      <button onclick="showLogin()">Back to Login</button>
+    </div>
+
+    <div id="logoutSection" style="display: none;">
+      <p>Logged in as <span id="userEmail">example@example.com</span></p>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </section>
+
   <footer>
     &copy; 2025 Crzyclan. All rights reserved.
   </footer>
+
+  <script>
+    function showSignup() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupForm').style.display = 'block';
+    }
+
+    function showLogin() {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('logoutSection').style.display = 'block';
+      document.getElementById('userEmail').textContent = email;
+    }
+
+    function signup() {
+      alert('Signup feature coming soon!');
+      showLogin();
+    }
+
+    function logout() {
+      document.getElementById('logoutSection').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+    }
+  </script>
 </body>
 </html>

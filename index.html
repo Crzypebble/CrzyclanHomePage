@@ -22,7 +22,6 @@
   <section id="home">
     <h2>Welcome to Crzyclan</h2>
     <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
-    
     <div class="skull-image">
       <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
     </div>
@@ -73,71 +72,65 @@
   </section>
 
   <section id="membership" style="display: none;">
-    <h3>Membership</h3>
-    <p>Buy Crzyclan Membership to unlock special perks, recognition, and insider access.</p>
-    <!-- Add future buttons/features here -->
+    <h3>Membership Perks</h3>
+    <p>Coming soon: Buy a membership to unlock exclusive features, early access content, and special ranks in the Crzyclan community.</p>
+    <!-- Add purchase buttons later -->
   </section>
 
-  <section id="settings" style="display: none;">
-    <h3>Settings</h3>
+  <section id="settings" class="settings-panel" style="display: none;">
+    <h3>Account Settings</h3>
 
-    <div class="theme-settings">
-      <h4>Theme</h4>
-      <select id="themeSelect">
-        <option value="default">Default</option>
-        <option value="blackwhite">Black & White</option>
-        <option value="redmist">Red Mist</option>
-      </select>
+    <div id="loginForm">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="Enter email" />
+
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password" />
+
+      <button onclick="login()">Login</button>
+      <button onclick="showSignup()">Sign Up</button>
     </div>
 
-    <div class="bg-upload">
-      <h4>Custom Background</h4>
-      <input type="file" id="bgUpload" accept="image/*" />
+    <div id="signupForm" style="display: none;">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" placeholder="Enter email" />
+
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Create password" />
+
+      <button onclick="signup()">Create Account</button>
+      <button onclick="showLogin()">Back to Login</button>
     </div>
 
-    <div class="account-settings">
-      <h4>Account</h4>
-
-      <div id="loginForm">
-        <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" placeholder="Enter email" />
-        <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter password" />
-        <button onclick="login()">Login</button>
-        <button onclick="showSignup()">Sign Up</button>
-        <p><a href="#" onclick="forgotPassword()">Forgot Password?</a></p>
-      </div>
-
-      <div id="signupForm" style="display: none;">
-        <label for="signupEmail">Email</label>
-        <input type="email" id="signupEmail" placeholder="Enter email" />
-        <label for="signupPassword">Password</label>
-        <input type="password" id="signupPassword" placeholder="Create password" />
-        <button onclick="signup()">Create Account</button>
-        <button onclick="showLogin()">Back to Login</button>
-      </div>
-
-      <div id="logoutSection" style="display: none;">
-        <p>Logged in as <span id="userEmail">example@example.com</span></p>
-        <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" placeholder="New password" />
-        <button onclick="changePassword()">Change Password</button>
-        <button onclick="logout()">Logout</button>
-      </div>
+    <div id="logoutSection" style="display: none;">
+      <p>Logged in as <span id="userEmail">example@example.com</span></p>
+      <button onclick="logout()">Logout</button>
     </div>
 
-    <button onclick="saveSettings()">Save Settings</button>
+    <hr>
+
+    <h4>Appearance Settings</h4>
+    <label for="themeSelect">Theme</label>
+    <select id="themeSelect">
+      <option value="Default">Default</option>
+      <option value="Red Mist">Red Mist</option>
+      <option value="Black & White">Black & White</option>
+    </select>
+
+    <label for="bgUpload">Custom Background Image</label>
+    <input type="file" id="bgUpload" accept="image/*" />
+
+    <button id="saveSettingsBtn">Save Settings</button>
   </section>
 
   <footer>
     &copy; 2025 Crzyclan. All rights reserved.
   </footer>
 
-  <!-- Firebase -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-
-  <!-- Custom Script -->
+  <!-- External Script -->
   <script src="script.js"></script>
 </body>
 </html>

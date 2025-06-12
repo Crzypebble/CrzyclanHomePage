@@ -1,31 +1,30 @@
-/* Base Styling */
+/* General Styles */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #111;
-  color: #fff;
   margin: 0;
-  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #1a1a1a;
+  color: #fff;
   background-size: cover;
   background-repeat: no-repeat;
-  background-attachment: fixed;
-  transition: background 0.3s ease;
+  background-position: center;
+  transition: background-image 0.5s;
 }
 
 header {
-  text-align: center;
-  padding: 20px;
   background-color: #222;
-  border-bottom: 2px solid #444;
+  padding: 20px;
+  text-align: center;
 }
 
 header h1 {
-  font-size: 3rem;
-  margin-bottom: 0.3rem;
+  margin: 0;
+  font-size: 36px;
+  color: #ff0000;
 }
 
 header p {
-  font-style: italic;
-  color: #aaa;
+  margin: 5px 0 15px;
+  color: #ccc;
 }
 
 nav {
@@ -33,155 +32,117 @@ nav {
 }
 
 nav a {
-  color: #fff;
+  color: white;
+  margin: 0 10px;
   text-decoration: none;
-  margin: 0 15px;
   font-weight: bold;
-  padding: 5px 10px;
-  border-radius: 6px;
-  transition: background 0.3s;
+  cursor: pointer;
 }
 
 nav a:hover {
-  background-color: #444;
+  color: #ff0000;
 }
 
 section {
   padding: 30px;
-  display: none;
-}
-
-#home {
-  display: block;
-}
-
-h2, h3, h4 {
-  margin-bottom: 10px;
 }
 
 .skull-image img {
-  max-width: 100%;
+  max-width: 300px;
+  width: 100%;
   height: auto;
-  margin: 20px 0;
+  display: block;
+  margin: 0 auto 20px;
+  border-radius: 20px;
 }
 
 .member-card {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
+  background-color: #333;
   border-radius: 10px;
   padding: 15px;
-  margin: 15px 0;
-  display: inline-block;
-  text-align: center;
-  width: 220px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .member-card img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  object-fit: cover;
 }
 
 .member-card h4 {
-  margin: 10px 0 5px;
-}
-
-.settings-panel input, .settings-panel select, .settings-panel button {
-  display: block;
-  margin: 10px 0;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  width: 100%;
-  max-width: 400px;
-}
-
-.settings-panel input, .settings-panel select {
-  background-color: #2a2a2a;
-  color: #fff;
-}
-
-.settings-panel button {
-  background-color: #ff3333;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.settings-panel button:hover {
-  background-color: #cc0000;
+  margin: 0 0 5px;
 }
 
 footer {
   text-align: center;
-  padding: 20px;
-  background-color: #222;
-  color: #aaa;
-  margin-top: 40px;
+  padding: 10px;
+  background-color: #111;
+  color: #777;
 }
 
-/* Theme: Red Mist */
-.theme-redmist {
-  background-color: #1b0000;
-  color: #ffcccc;
-}
-
-.theme-redmist nav a:hover {
-  background-color: #660000;
-}
-
-.theme-redmist .member-card {
-  background-color: #330000;
-  border-color: #660000;
-}
-
-/* Theme: Black & White */
-.theme-bw {
-  background-color: #fff;
-  color: #000;
-}
-
-.theme-bw nav a {
-  color: #000;
-}
-
-.theme-bw nav a:hover {
-  background-color: #ddd;
-}
-
-.theme-bw .member-card {
-  background-color: #f0f0f0;
-  border-color: #aaa;
-  color: #000;
-}
-
-.theme-bw input, .theme-bw select {
-  background-color: #eee;
-  color: #000;
-}
-
-.theme-bw button {
+/* Settings */
+input, select, button, label {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 400px;
   background-color: #222;
   color: #fff;
 }
 
-/* Custom background image support */
-body.custom-bg {
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+button {
+  background-color: #ff0000;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* Responsive tweaks */
-@media (max-width: 768px) {
-  .member-card {
-    width: 100%;
-    max-width: 100%;
-  }
+button:hover {
+  background-color: #cc0000;
+}
 
-  nav a {
-    display: inline-block;
-    margin: 5px 5px;
-  }
+/* Themes */
+body.theme-blackwhite {
+  background-color: #fff;
+  color: #000;
+}
+
+body.theme-blackwhite header,
+body.theme-blackwhite footer,
+body.theme-blackwhite .member-card {
+  background-color: #ccc;
+  color: #000;
+}
+
+body.theme-blackwhite nav a {
+  color: #000;
+}
+
+body.theme-blackwhite nav a:hover {
+  color: #ff0000;
+}
+
+body.theme-redmist {
+  background-color: #1a0000;
+  color: #ffcccc;
+}
+
+body.theme-redmist header,
+body.theme-redmist footer,
+body.theme-redmist .member-card {
+  background-color: #330000;
+}
+
+body.theme-redmist nav a {
+  color: #ff6666;
+}
+
+body.theme-redmist nav a:hover {
+  color: #ff0000;
 }

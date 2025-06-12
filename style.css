@@ -1,33 +1,31 @@
-/* ========== Default Styles (your original look) ========== */
-
+/* Default Theme */
 body {
   margin: 0;
-  font-family: "Arial", sans-serif;
-  background: #fff;
-  color: #222;
-  background-repeat: no-repeat;
+  font-family: 'Segoe UI', sans-serif;
+  background: #121212;
+  color: #fff;
   background-size: cover;
-  transition: background 0.5s ease, color 0.5s ease;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  transition: background 0.3s ease;
 }
 
 header {
-  background: #191919;
-  color: #eee;
-  padding: 1rem 2rem;
+  background: #1e1e1e;
+  padding: 1rem;
   text-align: center;
+  border-bottom: 2px solid #c62828;
 }
 
 header h1 {
   margin: 0;
-  font-size: 2.8rem;
-  font-weight: bold;
-  letter-spacing: 0.05em;
+  color: #ff3c3c;
+  font-size: 2.5rem;
 }
 
 header p {
-  margin: 0.3rem 0 0.8rem 0;
-  font-weight: lighter;
-  font-size: 1.1rem;
+  margin: 0;
+  color: #ccc;
   font-style: italic;
 }
 
@@ -36,179 +34,172 @@ nav {
 }
 
 nav a {
-  color: #eee;
-  text-decoration: none;
   margin: 0 1rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  transition: color 0.3s ease;
+  color: #ff3c3c;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 nav a:hover {
-  color: #ff2f2f;
+  text-decoration: underline;
 }
 
 section {
-  max-width: 900px;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.6);
   margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 1000px;
+  border-radius: 12px;
 }
 
-h2, h3, h4 {
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #191919;
+h2, h3 {
+  color: #ff3c3c;
+  text-align: center;
 }
 
-p {
-  line-height: 1.5;
-  margin-bottom: 1rem;
+.member-card {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem;
+  display: inline-block;
+  vertical-align: top;
+  width: 250px;
+  box-shadow: 0 0 10px #000;
+  text-align: center;
+}
+
+.member-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
 }
 
 .settings-panel {
-  background: #f0f0f0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea,
-select {
-  width: 100%;
-  padding: 0.5rem;
+.form-group {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 1rem;
-  border-radius: 4px;
-  border: 1px solid #bbb;
+}
+
+.form-group label {
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+  color: #ff3c3c;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.5rem;
   font-size: 1rem;
-  box-sizing: border-box;
+  border-radius: 5px;
+  border: none;
+  background: #2c2c2c;
+  color: white;
 }
 
 button {
-  background: #ff2f2f;
-  color: #fff;
+  background: #ff3c3c;
+  color: white;
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 4px;
-  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  font-weight: bold;
+  margin-top: 0.5rem;
 }
 
 button:hover {
-  background: #d12a2a;
+  background: #e53935;
 }
 
 footer {
   text-align: center;
-  padding: 1rem 0;
-  font-size: 0.9rem;
-  color: #666;
-  border-top: 1px solid #ddd;
-  margin-top: 3rem;
+  padding: 1rem;
+  background: #1e1e1e;
+  color: #888;
+  border-top: 1px solid #444;
 }
 
-.skull-image img {
+img {
   max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 1rem auto;
+  border-radius: 12px;
 }
 
-label {
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.3rem;
-}
-
-/* ========== Theme: Black & White ========== */
-
-body.theme-bw {
+/* Black & White Theme */
+.theme-bw {
   background: #fff;
   color: #000;
 }
 
-body.theme-bw header {
-  background: #000;
-  color: #fff;
+.theme-bw header {
+  background: #ddd;
+  color: #000;
 }
 
-body.theme-bw nav a {
-  color: #fff;
+.theme-bw nav a {
+  color: #000;
 }
 
-body.theme-bw nav a:hover {
-  color: #999;
+.theme-bw section {
+  background: #f2f2f2;
+  color: #000;
 }
 
-body.theme-bw .settings-panel {
+.theme-bw .member-card {
+  background: #fff;
+  color: #000;
+}
+
+.theme-bw .form-group input,
+.theme-bw .form-group select {
   background: #e0e0e0;
   color: #000;
-  box-shadow: none;
-  border: 1px solid #bbb;
 }
 
-body.theme-bw button {
+.theme-bw button {
   background: #000;
   color: #fff;
 }
 
-body.theme-bw button:hover {
-  background: #333;
-}
-
-/* ========== Theme: Red ========== */
-
-body.theme-red {
-  background: #330000;
-  color: #ffdddd;
-}
-
-body.theme-red header {
-  background: #660000;
-  color: #ffbbbb;
-}
-
-body.theme-red nav a {
-  color: #ff9999;
-}
-
-body.theme-red nav a:hover {
+/* Red Theme */
+.theme-red {
+  background: #2c0000;
   color: #fff;
 }
 
-body.theme-red .settings-panel {
-  background: #660000;
-  color: #ffdede;
-  box-shadow: 0 0 12px #ff4444;
-  border: 1px solid #ff5555;
-}
-
-body.theme-red button {
-  background: #ff4444;
+.theme-red header {
+  background: #400000;
   color: #fff;
 }
 
-body.theme-red button:hover {
-  background: #ff2222;
+.theme-red nav a {
+  color: #ff4d4d;
 }
 
-/* ========== Responsive tweaks ========== */
+.theme-red section {
+  background: rgba(80, 0, 0, 0.7);
+}
 
-@media (max-width: 600px) {
-  nav a {
-    display: inline-block;
-    margin: 0 0.4rem;
-    font-size: 1rem;
-  }
+.theme-red .member-card {
+  background: #4a0000;
+}
 
-  header h1 {
-    font-size: 2rem;
-  }
+.theme-red .form-group input,
+.theme-red .form-group select {
+  background: #5a0000;
+  color: white;
+}
 
-  section {
-    margin: 1rem;
-  }
+.theme-red button {
+  background: #ff1a1a;
+  color: #fff;
+}
+
+.theme-red button:hover {
+  background: #e60000;
 }

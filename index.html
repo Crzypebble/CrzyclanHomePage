@@ -40,96 +40,85 @@
         <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
       </div>
     </div>
-
-    <div class="members">
-      <h3>Crzyclan Members</h3>
-      <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
-        <h4>CrzyDevotion</h4>
-        <p>"Win sum lose sum fight sum cause we all lose it all"</p>
-        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-      </div>
-      <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
-        <h4>CrzyKahoona</h4>
-        <p>"I ain't giving up yet"</p>
-        <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
-      </div>
-      <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
-        <h4>CrzyDemon</h4>
-        <p>"It's Demon Time!"</p>
-        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-      </div>
-      <div class="member-card">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
-        <h4>CrzyWraith</h4>
-        <p>"Swervin the corners"</p>
-        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-      </div>
-    </div>
   </section>
 
-  <section id="membership" class="settings-panel" style="display: none;">
-    <h3>Support Crzyclan</h3>
-    <p>Become a Crzyclan member and support the movement. Members may receive exclusive content, early access, and more!</p>
-    <label for="email">Email</label>
-    <input type="email" id="email" placeholder="Your email" />
-
-    <label for="card">Card Info</label>
-    <input type="text" id="card" placeholder="Card number" />
-
-    <button onclick="alert('Membership purchase flow coming soon')">Join Now</button>
+  <section id="membership" class="members" style="display: none;">
+    <h3>Crzyclan Members</h3>
+    <div class="member-card">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
+      <h4>CrzyDevotion</h4>
+      <p>"Win sum lose sum fight sum cause we all lose it all"</p>
+      <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+    </div>
+    <div class="member-card">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
+      <h4>CrzyKahoona</h4>
+      <p>"I ain't giving up yet"</p>
+      <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
+    </div>
+    <div class="member-card">
+      <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
+      <h4>CrzyDemon</h4>
+      <p>"It's Demon Time!"</p>
+      <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+    </div>
+    <div class="member-card">
+      <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
+      <h4>CrzyWraith</h4>
+      <p>"Swervin the corners"</p>
+      <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+    </div>
   </section>
 
   <section id="settings" class="settings-panel" style="display: none;">
     <h3>Account Settings</h3>
+
     <div id="loginForm">
       <label for="loginEmail">Email</label>
       <input type="email" id="loginEmail" placeholder="Enter email" />
+
       <label for="loginPassword">Password</label>
       <input type="password" id="loginPassword" placeholder="Enter password" />
+
       <button onclick="login()">Login</button>
       <button onclick="showSignup()">Sign Up</button>
     </div>
+
     <div id="signupForm" style="display: none;">
       <label for="signupEmail">Email</label>
       <input type="email" id="signupEmail" placeholder="Enter email" />
+
       <label for="signupPassword">Password</label>
       <input type="password" id="signupPassword" placeholder="Create password" />
+
       <button onclick="signup()">Create Account</button>
       <button onclick="showLogin()">Back to Login</button>
     </div>
+
     <div id="logoutSection" style="display: none;">
       <p>Logged in as <span id="userEmail">example@example.com</span></p>
       <button onclick="logout()">Logout</button>
     </div>
-    <h3>Website Preferences</h3>
-    <label for="themeSelect">Theme</label>
-    <select id="themeSelect" onchange="setTheme(this.value)">
-      <option value="dark">Dark</option>
-      <option value="light">Light</option>
-    </select>
-    <label>
-      <input type="checkbox" id="notificationsToggle" /> Enable Notifications
-    </label>
   </section>
 
   <footer>
     &copy; 2025 Crzyclan. All rights reserved.
   </footer>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
       authDomain: "crzyclansite.firebaseapp.com",
       projectId: "crzyclansite",
-      storageBucket: "crzyclansite.appspot.com",
+      storageBucket: "crzyclansite.firebasestorage.app",
       messagingSenderId: "534485925500",
       appId: "1:534485925500:web:56c7c798780e477e7e13f9"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
@@ -159,46 +148,52 @@
     function login() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      auth.signInWithEmailAndPassword(email, password).catch(error => alert(error.message));
+
+      auth.signInWithEmailAndPassword(email, password)
+        .catch(error => {
+          alert(error.message);
+        });
     }
 
     function signup() {
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
+
       auth.createUserWithEmailAndPassword(email, password)
         .then(() => {
           alert('Signup successful!');
           showLogin();
         })
-        .catch(error => alert(error.message));
+        .catch(error => {
+          alert(error.message);
+        });
     }
 
     function logout() {
-      auth.signOut().catch(error => alert(error.message));
-    }
-
-    function setTheme(theme) {
-      if (theme === "light") {
-        document.body.style.backgroundColor = "#f4f4f4";
-        document.body.style.color = "#111";
-      } else {
-        document.body.style.backgroundColor = "#0a0a0a";
-        document.body.style.color = "#e6e6e6";
-      }
+      auth.signOut().catch(error => {
+        alert(error.message);
+      });
     }
 
     function showSection(id) {
-      document.querySelectorAll("section").forEach(section => {
-        section.style.display = section.id === id || section.classList.contains(id) ? "block" : "none";
+      const sections = document.querySelectorAll("section");
+      sections.forEach(section => {
+        if (section.id === id || section.classList.contains(id)) {
+          section.style.display = "block";
+        } else {
+          section.style.display = "none";
+        }
       });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       showSection("home");
+
       document.querySelectorAll("nav a[href^='#']").forEach(link => {
         link.addEventListener("click", e => {
           e.preventDefault();
-          showSection(link.getAttribute("href").substring(1));
+          const target = link.getAttribute("href").substring(1);
+          showSection(target);
         });
       });
     });

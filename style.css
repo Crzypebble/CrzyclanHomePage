@@ -1,41 +1,34 @@
 /* Default Theme */
-body {
+body, body.theme-default {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #121212;
+  font-family: "Arial", sans-serif;
+  background-color: #0a0a0a;
   color: #fff;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  transition: background 0.3s ease;
 }
 
 header {
-  background: #1e1e1e;
+  background-color: #111;
   padding: 1rem;
   text-align: center;
-  border-bottom: 2px solid #c62828;
 }
 
 header h1 {
   margin: 0;
-  color: #ff3c3c;
   font-size: 2.5rem;
 }
 
 header p {
-  margin: 0;
-  color: #ccc;
+  margin: 0.5rem 0;
   font-style: italic;
 }
 
 nav {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
 }
 
 nav a {
   margin: 0 1rem;
-  color: #ff3c3c;
+  color: #f33;
   text-decoration: none;
   font-weight: bold;
 }
@@ -46,160 +39,159 @@ nav a:hover {
 
 section {
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.6);
-  margin: 2rem auto;
-  max-width: 1000px;
-  border-radius: 12px;
 }
 
 h2, h3 {
-  color: #ff3c3c;
-  text-align: center;
+  margin-top: 0;
 }
 
 .member-card {
-  background: #1e1e1e;
+  display: inline-block;
+  background-color: #222;
+  margin: 1rem;
   padding: 1rem;
   border-radius: 10px;
-  margin: 1rem;
-  display: inline-block;
-  vertical-align: top;
-  width: 250px;
-  box-shadow: 0 0 10px #000;
   text-align: center;
+  width: 200px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
 }
 
 .member-card img {
   width: 100%;
   height: auto;
-  border-radius: 8px;
-}
-
-.settings-panel {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  margin-bottom: 0.25rem;
-  font-weight: bold;
-  color: #ff3c3c;
-}
-
-.form-group input,
-.form-group select {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: none;
-  background: #2c2c2c;
-  color: white;
-}
-
-button {
-  background: #ff3c3c;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 0.5rem;
-}
-
-button:hover {
-  background: #e53935;
+  border-radius: 10px;
 }
 
 footer {
+  background-color: #111;
+  color: #999;
   text-align: center;
   padding: 1rem;
-  background: #1e1e1e;
-  color: #888;
-  border-top: 1px solid #444;
+  margin-top: 2rem;
 }
 
-img {
-  max-width: 100%;
-  border-radius: 12px;
+/* Panels (Settings/Membership) */
+.settings-panel {
+  background-color: #111;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-/* Black & White Theme */
-.theme-bw {
-  background: #fff;
+input, select, button {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+}
+
+button {
+  background-color: #f33;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #d22;
+}
+
+/* Skull Image Centered */
+.skull-image {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.skull-image img {
+  max-width: 300px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px red;
+}
+
+/* ---------------------------- */
+/* Black & White Theme (.theme-bw) */
+/* ---------------------------- */
+body.theme-bw {
+  background-color: #fff;
   color: #000;
 }
 
-.theme-bw header {
-  background: #ddd;
+body.theme-bw header,
+body.theme-bw footer,
+body.theme-bw .settings-panel,
+body.theme-bw .member-card {
+  background-color: #f0f0f0;
   color: #000;
 }
 
-.theme-bw nav a {
+body.theme-bw nav a {
   color: #000;
 }
 
-.theme-bw section {
-  background: #f2f2f2;
-  color: #000;
-}
-
-.theme-bw .member-card {
-  background: #fff;
-  color: #000;
-}
-
-.theme-bw .form-group input,
-.theme-bw .form-group select {
-  background: #e0e0e0;
-  color: #000;
-}
-
-.theme-bw button {
-  background: #000;
+body.theme-bw button {
+  background-color: #000;
   color: #fff;
 }
 
-/* Red Theme */
-.theme-red {
-  background: #2c0000;
-  color: #fff;
+body.theme-bw button:hover {
+  background-color: #333;
 }
 
-.theme-red header {
-  background: #400000;
-  color: #fff;
+body.theme-bw .member-card {
+  box-shadow: 0 0 10px #000;
 }
 
-.theme-red nav a {
-  color: #ff4d4d;
+/* ---------------------------- */
+/* Red Theme (.theme-red) */
+/* ---------------------------- */
+body.theme-red {
+  background-color: #1a0000;
+  color: #ffeaea;
 }
 
-.theme-red section {
-  background: rgba(80, 0, 0, 0.7);
+body.theme-red header,
+body.theme-red footer,
+body.theme-red .settings-panel,
+body.theme-red .member-card {
+  background-color: #330000;
+  color: #ffeaea;
 }
 
-.theme-red .member-card {
-  background: #4a0000;
+body.theme-red nav a {
+  color: #ff5555;
 }
 
-.theme-red .form-group input,
-.theme-red .form-group select {
-  background: #5a0000;
+body.theme-red button {
+  background-color: #ff2222;
   color: white;
 }
 
-.theme-red button {
-  background: #ff1a1a;
-  color: #fff;
+body.theme-red button:hover {
+  background-color: #cc0000;
 }
 
-.theme-red button:hover {
-  background: #e60000;
+body.theme-red .member-card {
+  box-shadow: 0 0 10px #ff0000;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .member-card {
+    width: 90%;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  nav a {
+    margin: 0.5rem;
+  }
 }

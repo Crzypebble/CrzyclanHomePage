@@ -1,197 +1,214 @@
-/* Default Theme */
-body, body.theme-default {
+/* ========== Default Styles (your original look) ========== */
+
+body {
   margin: 0;
   font-family: "Arial", sans-serif;
-  background-color: #0a0a0a;
-  color: #fff;
+  background: #fff;
+  color: #222;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
 header {
-  background-color: #111;
-  padding: 1rem;
+  background: #191919;
+  color: #eee;
+  padding: 1rem 2rem;
   text-align: center;
 }
 
 header h1 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
 }
 
 header p {
-  margin: 0.5rem 0;
+  margin: 0.3rem 0 0.8rem 0;
+  font-weight: lighter;
+  font-size: 1.1rem;
   font-style: italic;
 }
 
 nav {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 nav a {
-  margin: 0 1rem;
-  color: #f33;
+  color: #eee;
   text-decoration: none;
-  font-weight: bold;
+  margin: 0 1rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
 }
 
 nav a:hover {
-  text-decoration: underline;
+  color: #ff2f2f;
 }
 
 section {
-  padding: 2rem;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
-h2, h3 {
-  margin-top: 0;
-}
-
-.member-card {
-  display: inline-block;
-  background-color: #222;
-  margin: 1rem;
-  padding: 1rem;
-  border-radius: 10px;
-  text-align: center;
-  width: 200px;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-}
-
-.member-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-}
-
-footer {
-  background-color: #111;
-  color: #999;
-  text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
-}
-
-/* Panels (Settings/Membership) */
-.settings-panel {
-  background-color: #111;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 1rem;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-input, select, button {
-  display: block;
-  width: 100%;
+h2, h3, h4 {
+  font-weight: 700;
   margin-bottom: 1rem;
-  padding: 0.6rem;
+  color: #191919;
+}
+
+p {
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.settings-panel {
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #bbb;
   font-size: 1rem;
-  border-radius: 5px;
-  border: none;
+  box-sizing: border-box;
 }
 
 button {
-  background-color: #f33;
-  color: white;
+  background: #ff2f2f;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 700;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background-color: #d22;
+  background: #d12a2a;
 }
 
-/* Skull Image Centered */
-.skull-image {
+footer {
   text-align: center;
-  margin: 2rem 0;
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  border-top: 1px solid #ddd;
+  margin-top: 3rem;
 }
 
 .skull-image img {
-  max-width: 300px;
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 0 20px red;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
 }
 
-/* ---------------------------- */
-/* Black & White Theme (.theme-bw) */
-/* ---------------------------- */
+label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+/* ========== Theme: Black & White ========== */
+
 body.theme-bw {
-  background-color: #fff;
+  background: #fff;
   color: #000;
 }
 
-body.theme-bw header,
-body.theme-bw footer,
-body.theme-bw .settings-panel,
-body.theme-bw .member-card {
-  background-color: #f0f0f0;
-  color: #000;
+body.theme-bw header {
+  background: #000;
+  color: #fff;
 }
 
 body.theme-bw nav a {
+  color: #fff;
+}
+
+body.theme-bw nav a:hover {
+  color: #999;
+}
+
+body.theme-bw .settings-panel {
+  background: #e0e0e0;
   color: #000;
+  box-shadow: none;
+  border: 1px solid #bbb;
 }
 
 body.theme-bw button {
-  background-color: #000;
+  background: #000;
   color: #fff;
 }
 
 body.theme-bw button:hover {
-  background-color: #333;
+  background: #333;
 }
 
-body.theme-bw .member-card {
-  box-shadow: 0 0 10px #000;
-}
+/* ========== Theme: Red ========== */
 
-/* ---------------------------- */
-/* Red Theme (.theme-red) */
-/* ---------------------------- */
 body.theme-red {
-  background-color: #1a0000;
-  color: #ffeaea;
+  background: #330000;
+  color: #ffdddd;
 }
 
-body.theme-red header,
-body.theme-red footer,
-body.theme-red .settings-panel,
-body.theme-red .member-card {
-  background-color: #330000;
-  color: #ffeaea;
+body.theme-red header {
+  background: #660000;
+  color: #ffbbbb;
 }
 
 body.theme-red nav a {
-  color: #ff5555;
+  color: #ff9999;
+}
+
+body.theme-red nav a:hover {
+  color: #fff;
+}
+
+body.theme-red .settings-panel {
+  background: #660000;
+  color: #ffdede;
+  box-shadow: 0 0 12px #ff4444;
+  border: 1px solid #ff5555;
 }
 
 body.theme-red button {
-  background-color: #ff2222;
-  color: white;
+  background: #ff4444;
+  color: #fff;
 }
 
 body.theme-red button:hover {
-  background-color: #cc0000;
+  background: #ff2222;
 }
 
-body.theme-red .member-card {
-  box-shadow: 0 0 10px #ff0000;
-}
+/* ========== Responsive tweaks ========== */
 
-/* Responsive */
-@media screen and (max-width: 768px) {
-  .member-card {
-    width: 90%;
-  }
-
-  nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
+@media (max-width: 600px) {
   nav a {
-    margin: 0.5rem;
+    display: inline-block;
+    margin: 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  section {
+    margin: 1rem;
   }
 }

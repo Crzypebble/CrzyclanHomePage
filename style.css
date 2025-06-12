@@ -1,184 +1,130 @@
-/* Base Styling – Default (Dark Theme) */
-body.theme-default, body:not([class*="theme-"]) {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #0a0a0a;
-  color: #e6e6e6;
+/* Default Theme */
+body, body.theme-default {
   margin: 0;
-  padding: 0;
+  font-family: "Arial", sans-serif;
+  background-color: #0a0a0a;
+  color: #fff;
 }
 
 header {
   background-color: #111;
-  color: #b30000;
+  padding: 1rem;
   text-align: center;
-  padding: 30px 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+header p {
+  margin: 0.5rem 0;
+  font-style: italic;
 }
 
 nav {
-  margin-top: 10px;
+  margin-top: 1rem;
 }
 
 nav a {
-  margin: 0 15px;
-  color: #ccc;
+  margin: 0 1rem;
+  color: #f33;
   text-decoration: none;
   font-weight: bold;
-  transition: color 0.3s;
 }
 
 nav a:hover {
-  color: #b30000;
+  text-decoration: underline;
 }
 
 section {
-  padding: 40px 20px;
-  text-align: center;
+  padding: 2rem;
 }
 
-.leaders, .members {
-  background-color: #1c1c1c;
-  padding: 20px;
-  margin: 30px auto;
-  max-width: 1000px;
-  border: 1px solid #b30000;
-  border-radius: 8px;
-}
-
-.leaders h3, .members h3 {
-  color: #b30000;
-  margin-bottom: 20px;
+h2, h3 {
+  margin-top: 0;
 }
 
 .member-card {
   display: inline-block;
-  background-color: #111;
-  margin: 10px;
-  padding: 15px;
-  width: 200px;
+  background-color: #222;
+  margin: 1rem;
+  padding: 1rem;
   border-radius: 10px;
-  border: 2px solid #333;
   text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.member-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 15px #b30000;
+  width: 200px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
 }
 
 .member-card img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 10px;
-  border: 2px solid #b30000;
-}
-
-.member-card h4 {
-  margin: 5px 0;
-  color: #b30000;
-}
-
-.member-card p {
-  font-size: 14px;
-  color: #ccc;
-}
-
-.skull-image {
-  margin: 40px 0;
-}
-
-.skull-image img {
-  width: 200px;
-  border: 3px solid #b30000;
+  width: 100%;
+  height: auto;
   border-radius: 10px;
 }
 
 footer {
   background-color: #111;
+  color: #999;
   text-align: center;
-  padding: 15px;
-  color: #777;
-  font-size: 14px;
+  padding: 1rem;
+  margin-top: 2rem;
 }
 
-/* Responsive layout */
-@media (max-width: 600px) {
-  .member-card {
-    width: 100%;
-    margin: 10px 0;
-  }
-
-  nav a {
-    display: block;
-    margin: 10px 0;
-  }
-
-  .leaders, .members {
-    padding: 15px;
-  }
-}
-
-/* Settings Panel */
+/* Panels (Settings/Membership) */
 .settings-panel {
-  max-width: 600px;
-  margin: 40px auto;
-  background-color: #1c1c1c;
-  padding: 30px;
-  border: 1px solid #b30000;
-  border-radius: 10px;
-  text-align: left;
-  color: #e6e6e6;
-}
-
-.settings-panel h3 {
-  color: #b30000;
-  margin-bottom: 20px;
-}
-
-.settings-panel label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-.settings-panel input[type="text"],
-.settings-panel input[type="password"],
-.settings-panel input[type="email"],
-.settings-panel select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  margin-bottom: 15px;
   background-color: #111;
-  color: #e6e6e6;
   border: 1px solid #333;
-  border-radius: 5px;
+  border-radius: 10px;
+  padding: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.settings-panel button {
-  background-color: #b30000;
-  color: #fff;
+input, select, button {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 5px;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+}
+
+button {
+  background-color: #f33;
+  color: white;
   cursor: pointer;
-  margin-right: 10px;
-  transition: background-color 0.3s;
 }
 
-.settings-panel button:hover {
-  background-color: #d40000;
+button:hover {
+  background-color: #d22;
 }
 
-/* ===================== THEME: BLACK & WHITE ===================== */
+/* Skull Image Centered */
+.skull-image {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.skull-image img {
+  max-width: 300px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px red;
+}
+
+/* ---------------------------- */
+/* Black & White Theme (.theme-bw) */
+/* ---------------------------- */
 body.theme-bw {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #fff;
+  color: #000;
 }
 
-body.theme-bw header {
+body.theme-bw header,
+body.theme-bw footer,
+body.theme-bw .settings-panel,
+body.theme-bw .member-card {
   background-color: #f0f0f0;
   color: #000;
 }
@@ -187,99 +133,65 @@ body.theme-bw nav a {
   color: #000;
 }
 
-body.theme-bw nav a:hover {
-  color: #555;
+body.theme-bw button {
+  background-color: #000;
+  color: #fff;
 }
 
-body.theme-bw .leaders,
-body.theme-bw .members,
-body.theme-bw .settings-panel {
-  background-color: #ffffff;
-  border: 1px solid #000;
-  color: #000;
+body.theme-bw button:hover {
+  background-color: #333;
 }
 
 body.theme-bw .member-card {
-  background-color: #f9f9f9;
-  border-color: #ccc;
+  box-shadow: 0 0 10px #000;
 }
 
-body.theme-bw .member-card h4 {
-  color: #000;
-}
-
-body.theme-bw .member-card p {
-  color: #333;
-}
-
-body.theme-bw .skull-image img {
-  border-color: #000;
-}
-
-body.theme-bw footer {
-  background-color: #f0f0f0;
-  color: #555;
-}
-
-body.theme-bw .settings-panel input,
-body.theme-bw .settings-panel select {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #aaa;
-}
-
-/* ===================== THEME: RED ===================== */
+/* ---------------------------- */
+/* Red Theme (.theme-red) */
+/* ---------------------------- */
 body.theme-red {
-  background-color: #200000;
-  color: #ffe6e6;
+  background-color: #1a0000;
+  color: #ffeaea;
 }
 
-body.theme-red header {
+body.theme-red header,
+body.theme-red footer,
+body.theme-red .settings-panel,
+body.theme-red .member-card {
   background-color: #330000;
-  color: #ff4444;
+  color: #ffeaea;
 }
 
 body.theme-red nav a {
-  color: #ffcccc;
+  color: #ff5555;
 }
 
-body.theme-red nav a:hover {
-  color: #ff4444;
+body.theme-red button {
+  background-color: #ff2222;
+  color: white;
 }
 
-body.theme-red .leaders,
-body.theme-red .members,
-body.theme-red .settings-panel {
-  background-color: #290000;
-  border: 1px solid #ff4444;
-  color: #ffe6e6;
+body.theme-red button:hover {
+  background-color: #cc0000;
 }
 
 body.theme-red .member-card {
-  background-color: #330000;
-  border-color: #661111;
+  box-shadow: 0 0 10px #ff0000;
 }
 
-body.theme-red .member-card h4 {
-  color: #ff4444;
-}
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .member-card {
+    width: 90%;
+  }
 
-body.theme-red .member-card p {
-  color: #ffcccc;
-}
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-body.theme-red .skull-image img {
-  border-color: #ff4444;
-}
-
-body.theme-red footer {
-  background-color: #330000;
-  color: #ff9999;
-}
-
-body.theme-red .settings-panel input,
-body.theme-red .settings-panel select {
-  background-color: #200000;
-  color: #ffe6e6;
-  border: 1px solid #661111;
+  nav a {
+    margin: 0.5rem;
+  }
 }

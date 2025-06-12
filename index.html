@@ -84,25 +84,58 @@
 
   <section id="settings" class="settings-panel" style="display: none;">
     <h3>Account Settings</h3>
-    <div id="loginForm">
-      <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" placeholder="Enter email" />
-      <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter password" />
-      <button onclick="login()">Login</button>
-      <button onclick="showSignup()">Sign Up</button>
+    <div id="accountSettings">
+      <div id="loginForm">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="Enter email" />
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+        <button onclick="login()">Login</button>
+        <button onclick="showSignup()">Sign Up</button>
+      </div>
+
+      <div id="signupForm" style="display: none;">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="Enter email" />
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="Create password" />
+        <button onclick="signup()">Create Account</button>
+        <button onclick="showLogin()">Back to Login</button>
+      </div>
+
+      <div id="logoutSection" style="display: none;">
+        <p>Logged in as <span id="userEmail">example@example.com</span></p>
+        <button onclick="logout()">Logout</button>
+      </div>
     </div>
-    <div id="signupForm" style="display: none;">
-      <label for="signupEmail">Email</label>
-      <input type="email" id="signupEmail" placeholder="Enter email" />
-      <label for="signupPassword">Password</label>
-      <input type="password" id="signupPassword" placeholder="Create password" />
-      <button onclick="signup()">Create Account</button>
-      <button onclick="showLogin()">Back to Login</button>
-    </div>
-    <div id="logoutSection" style="display: none;">
-      <p>Logged in as <span id="userEmail">example@example.com</span></p>
-      <button onclick="logout()">Logout</button>
+
+    <h3>Website Settings</h3>
+    <div id="websiteSettings">
+      <label>
+        <input type="checkbox" id="darkModeToggle" />
+        Enable Dark Mode
+      </label>
+
+      <label>
+        Font Size:
+        <select id="fontSizeSelect">
+          <option value="small">Small</option>
+          <option value="normal" selected>Normal</option>
+          <option value="large">Large</option>
+        </select>
+      </label>
+
+      <label>
+        Site Theme:
+        <select id="themeSelect">
+          <option value="default" selected>Crzy Classic</option>
+          <option value="chaos">Red Mist</option>
+          <option value="night">Night Ops</option>
+        </select>
+      </label>
+
+      <button onclick="applySettings()">Apply Settings</button>
+      <button onclick="resetSettings()">Reset</button>
     </div>
   </section>
 
@@ -174,8 +207,36 @@
       });
     }
 
+    function applySettings() {
+      const darkMode = document.getElementById("darkModeToggle").checked;
+      const fontSize = document.getElementById("fontSizeSelect").value;
+      const theme = document.getElementById("themeSelect").value;
+
+      document.body.classList.toggle("dark-mode", darkMode);
+      document.body.style.fontSize = fontSize === "small" ? "14px" : fontSize === "large" ? "18px" : "16px";
+      document.body.dataset.theme = theme;
+
+      localStorage.setItem("settings", JSON.stringify({ darkMode, fontSize, theme }));
+    }
+
+    function resetSettings() {
+      localStorage.removeItem("settings");
+      location.reload();
+    }
+
+    function loadSettings() {
+      const settings = JSON.parse(localStorage.getItem("settings"));
+      if (settings) {
+        document.getElementById("darkModeToggle").checked = settings.darkMode;
+        document.getElementById("fontSizeSelect").value = settings.fontSize;
+        document.getElementById("themeSelect").value = settings.theme;
+        applySettings();
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       showSection("home");
+      loadSettings();
       document.querySelectorAll("nav a[href^='#']").forEach(link => {
         link.addEventListener("click", e => {
           e.preventDefault();

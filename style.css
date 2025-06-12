@@ -118,4 +118,54 @@ footer {
   .leaders, .members {
     padding: 15px;
   }
-} 
+}
+
+/* Settings panel */
+.settings-panel {
+  max-width: 400px;
+  margin: 40px auto;
+  background-color: #1c1c1c;
+  padding: 30px;
+  border: 1px solid #b30000;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.settings-panel h3 {
+  color: #b30000;
+  margin-bottom: 20px;
+}
+
+.settings-panel label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.settings-panel input[type="text"],
+.settings-panel input[type="password"],
+.settings-panel input[type="email"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  background-color: #111;
+  color: #e6e6e6;
+  border: 1px solid #333;
+  border-radius: 5px;
+}
+
+.settings-panel button {
+  background-color: #b30000;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.settings-panel button:hover {
+  background-color: #d40000;
+}

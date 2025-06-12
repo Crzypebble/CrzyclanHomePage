@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <header>
@@ -23,75 +23,114 @@
     <h2>Welcome to Crzyclan</h2>
     <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
     <div class="skull-image">
-      <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
+      <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull"/>
     </div>
 
     <div class="leaders">
       <h3>Crzyclan Leaders</h3>
-      <!-- Leader Cards -->
+      <div class="member-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
+        <h4>Crzypebble</h4>
+        <p>"pimpin is the way"</p>
+        <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
+      </div>
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
+        <h4>CrzySniper</h4>
+        <p>"Shake up the place?"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
+      </div>
     </div>
 
     <div class="members">
       <h3>Crzyclan Members</h3>
-      <!-- Member Cards -->
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
+        <h4>CrzyDevotion</h4>
+        <p>"Win sum lose sum fight sum cause we all lose it all"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+      </div>
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
+        <h4>CrzyKahoona</h4>
+        <p>"I ain't giving up yet"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
+      </div>
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
+        <h4>CrzyDemon</h4>
+        <p>"It's Demon Time!"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+      </div>
+      <div class="member-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
+        <h4>CrzyWraith</h4>
+        <p>"Swervin the corners"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+      </div>
     </div>
   </section>
 
   <section id="membership" class="settings-panel" style="display: none;">
     <h3>Support Crzyclan</h3>
     <p>Become a Crzyclan member and support the movement. Members may receive exclusive content, early access, and more!</p>
-    <label for="email">Email</label>
-    <input type="email" id="email" placeholder="Your email" />
-    <label for="card">Card Info</label>
-    <input type="text" id="card" placeholder="Card number" />
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Your email"/>
+    </div>
+    <div class="form-group">
+      <label for="card">Card Info</label>
+      <input type="text" id="card" placeholder="Card number"/>
+    </div>
     <button onclick="alert('Membership purchase flow coming soon')">Join Now</button>
   </section>
 
   <section id="settings" class="settings-panel" style="display: none;">
-    <h3>Account Settings</h3>
+    <h3>Account & Website Settings</h3>
+
     <div id="loginForm">
-      <label>Email</label>
-      <input type="email" id="loginEmail" placeholder="Enter email" />
-      <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter password" />
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="Enter email"/>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password"/>
+      </div>
       <button onclick="login()">Login</button>
       <button onclick="showSignup()">Sign Up</button>
     </div>
 
     <div id="signupForm" style="display: none;">
-      <label>Email</label>
-      <input type="email" id="signupEmail" placeholder="Enter email" />
-      <label>Password</label>
-      <input type="password" id="signupPassword" placeholder="Create password" />
+      <div class="form-group">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="Enter email"/>
+      </div>
+      <div class="form-group">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="Create password"/>
+      </div>
       <button onclick="signup()">Create Account</button>
       <button onclick="showLogin()">Back to Login</button>
     </div>
 
-    <div id="userSettings" style="display: none;">
+    <div id="logoutSection" style="display: none;">
       <p>Logged in as <span id="userEmail">example@example.com</span></p>
       <button onclick="logout()">Logout</button>
+    </div>
 
-      <h4>Customize Settings</h4>
-
-      <label>Display Name</label>
-      <input type="text" id="displayName" placeholder="e.g., CrzyMaster" />
-
-      <label>Bio</label>
-      <textarea id="bio" rows="3" placeholder="Tell us about you..."></textarea>
-
-      <label>Theme</label>
+    <div class="form-group">
+      <label for="themeSelect">Theme</label>
       <select id="themeSelect">
         <option value="default">Default</option>
         <option value="bw">Black & White</option>
         <option value="red">Red</option>
       </select>
+    </div>
 
-      <label>Upload Background</label>
-      <input type="file" id="bgUpload" accept="image/*" />
-
-      <label><input type="checkbox" id="emailNotif" /> Receive email notifications</label>
-
-      <button onclick="saveUserSettings()">Save Settings</button>
+    <div class="form-group">
+      <label for="bgUpload">Custom Background</label>
+      <input type="file" id="bgUpload" accept="image/*"/>
     </div>
   </section>
 
@@ -99,11 +138,8 @@
     &copy; 2025 Crzyclan. All rights reserved.
   </footer>
 
-  <!-- Firebase & JS -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
@@ -113,16 +149,27 @@
       messagingSenderId: "534485925500",
       appId: "1:534485925500:web:56c7c798780e477e7e13f9"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
-    function showSection(id) {
-      document.querySelectorAll("section").forEach(section => {
-        section.style.display = section.id === id ? "block" : "none";
-      });
-    }
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('signupForm').style.display = 'none';
+        document.getElementById('logoutSection').style.display = 'block';
+        document.getElementById('userEmail').textContent = user.email;
+
+        // Load settings
+        const savedTheme = localStorage.getItem(`theme_${user.uid}`);
+        const savedBg = localStorage.getItem(`bg_${user.uid}`);
+        if (savedTheme) applyTheme(savedTheme);
+        if (savedBg) document.body.style.backgroundImage = `url(${savedBg})`;
+      } else {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('signupForm').style.display = 'none';
+        document.getElementById('logoutSection').style.display = 'none';
+      }
+    });
 
     function showSignup() {
       document.getElementById('loginForm').style.display = 'none';
@@ -137,93 +184,68 @@
     function login() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      auth.signInWithEmailAndPassword(email, password).catch(err => alert(err.message));
+      auth.signInWithEmailAndPassword(email, password).catch(error => alert(error.message));
     }
 
     function signup() {
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
-      auth.createUserWithEmailAndPassword(email, password).then(() => {
-        alert("Signup successful!");
-        showLogin();
-      }).catch(err => alert(err.message));
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          alert('Signup successful!');
+          showLogin();
+        })
+        .catch(error => alert(error.message));
     }
 
     function logout() {
-      auth.signOut();
+      auth.signOut().catch(error => alert(error.message));
     }
 
-    function saveUserSettings() {
-      const uid = auth.currentUser.uid;
-      const settings = {
-        displayName: document.getElementById("displayName").value,
-        bio: document.getElementById("bio").value,
-        theme: document.getElementById("themeSelect").value,
-        emailNotif: document.getElementById("emailNotif").checked
-      };
-
-      // Save image to base64
-      const fileInput = document.getElementById("bgUpload");
-      if (fileInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          settings.backgroundImage = reader.result;
-          db.collection("users").doc(uid).set(settings);
-          applySettings(settings);
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        db.collection("users").doc(uid).set(settings);
-        applySettings(settings);
-      }
+    function showSection(id) {
+      document.querySelectorAll("section").forEach(section => {
+        section.style.display = section.id === id ? "block" : "none";
+      });
     }
-
-    function applySettings(data) {
-      if (data.backgroundImage) {
-        document.body.style.backgroundImage = `url(${data.backgroundImage})`;
-        document.body.style.backgroundSize = "cover";
-        document.body.style.backgroundRepeat = "no-repeat";
-      }
-
-      document.body.className = "";
-      if (data.theme === "bw") document.body.classList.add("theme-bw");
-      else if (data.theme === "red") document.body.classList.add("theme-red");
-    }
-
-    auth.onAuthStateChanged(async user => {
-      if (user) {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('signupForm').style.display = 'none';
-        document.getElementById('userSettings').style.display = 'block';
-        document.getElementById('userEmail').textContent = user.email;
-
-        const doc = await db.collection("users").doc(user.uid).get();
-        if (doc.exists) {
-          const data = doc.data();
-          document.getElementById("displayName").value = data.displayName || "";
-          document.getElementById("bio").value = data.bio || "";
-          document.getElementById("themeSelect").value = data.theme || "default";
-          document.getElementById("emailNotif").checked = data.emailNotif || false;
-          applySettings(data);
-        }
-      } else {
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('signupForm').style.display = 'none';
-        document.getElementById('userSettings').style.display = 'none';
-        document.body.style.backgroundImage = "";
-        document.body.className = "";
-      }
-    });
 
     document.addEventListener("DOMContentLoaded", () => {
       showSection("home");
+
       document.querySelectorAll("nav a[href^='#']").forEach(link => {
         link.addEventListener("click", e => {
           e.preventDefault();
           showSection(link.getAttribute("href").substring(1));
         });
       });
+
+      document.getElementById("themeSelect").addEventListener("change", () => {
+        const theme = document.getElementById("themeSelect").value;
+        applyTheme(theme);
+        const user = auth.currentUser;
+        if (user) localStorage.setItem(`theme_${user.uid}`, theme);
+      });
+
+      document.getElementById("bgUpload").addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          document.body.style.backgroundImage = `url(${reader.result})`;
+          const user = auth.currentUser;
+          if (user) localStorage.setItem(`bg_${user.uid}`, reader.result);
+        };
+        reader.readAsDataURL(file);
+      });
     });
+
+    function applyTheme(theme) {
+      document.body.className = "";
+      if (theme === "bw") {
+        document.body.classList.add("theme-bw");
+      } else if (theme === "red") {
+        document.body.classList.add("theme-red");
+      }
+    }
   </script>
 </body>
 </html>

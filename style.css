@@ -39,6 +39,7 @@ nav a:hover {
 
 section {
   padding: 2rem;
+  transition: opacity 0.3s ease-in-out;
 }
 
 h2, h3 {
@@ -179,7 +180,18 @@ body.theme-red .member-card {
   box-shadow: 0 0 10px #ff0000;
 }
 
-/* Responsive */
+/* ---------------------------- */
+/* Custom Background Class */
+/* ---------------------------- */
+body.custom-bg {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* ---------------------------- */
+/* Responsive Design */
+/* ---------------------------- */
 @media screen and (max-width: 768px) {
   .member-card {
     width: 90%;

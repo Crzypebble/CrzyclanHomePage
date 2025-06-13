@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
@@ -22,7 +22,7 @@
   <main>
     <section id="home" class="tab-section">
       <h2>Welcome to Crzyclan</h2>
-      <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
+      <p>We're a movement. A crew. A mindset...</p>
       <div class="skull-image">
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
       </div>
@@ -43,25 +43,25 @@
 
       <h3>Crzyclan Members</h3>
       <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp">
         <h4>CrzyDevotion</h4>
-        <p>"Win sum lose sum fight sum cause we all lose it all"</p>
+        <p>"Win sum lose sum..."</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
       </div>
       <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp">
         <h4>CrzyKahoona</h4>
         <p>"I ain't giving up yet"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
       </div>
       <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp">
         <h4>CrzyDemon</h4>
         <p>"It's Demon Time!"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
       </div>
       <div class="member-card">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true">
         <h4>CrzyWraith</h4>
         <p>"Swervin the corners"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
@@ -70,46 +70,43 @@
 
     <section id="membership" class="tab-section" style="display: none;">
       <h2>Membership Perks</h2>
-      <p>Coming soon: Buy a membership to unlock exclusive features, early access content, and special ranks in the Crzyclan community.</p>
+      <p>Coming soon: Exclusive features, early access, special ranks, etc.</p>
     </section>
 
     <section id="settings" class="tab-section" style="display: none;">
       <h2>Settings</h2>
-      <div id="auth-section">
-        <div id="loginForm">
-          <input type="email" id="loginEmail" placeholder="Email">
-          <input type="password" id="loginPassword" placeholder="Password">
-          <button onclick="login()">Login</button>
-          <button onclick="showSignup()">Sign Up</button>
-        </div>
-        <div id="signupForm" style="display: none;">
-          <input type="email" id="signupEmail" placeholder="Email">
-          <input type="password" id="signupPassword" placeholder="Password">
-          <button onclick="signup()">Create Account</button>
-          <button onclick="showLogin()">Back to Login</button>
-        </div>
-        <div id="logoutSection" style="display: none;">
-          <p>Logged in as <span id="userEmail">example@example.com</span></p>
-          <button onclick="logout()">Logout</button>
-        </div>
-        <p id="auth-status"></p>
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <button onclick="showSignup()">Sign Up</button>
+      </div>
+
+      <div id="signupForm" style="display: none;">
+        <input type="email" id="signupEmail" placeholder="Email">
+        <input type="password" id="signupPassword" placeholder="Password">
+        <button onclick="signup()">Create Account</button>
+        <button onclick="showLogin()">Back to Login</button>
+      </div>
+
+      <div id="logoutSection" style="display: none;">
+        <p>Logged in as <span id="userEmail"></span></p>
+        <button onclick="logout()">Logout</button>
       </div>
 
       <hr>
 
-      <h3>Appearance Settings</h3>
-      <label for="themeSelect">Theme</label>
+      <h4>Theme Settings</h4>
+      <label for="themeSelect">Choose Theme:</label>
       <select id="themeSelect">
         <option value="Default">Default</option>
         <option value="Red Mist">Red Mist</option>
         <option value="Black & White">Black & White</option>
       </select>
 
-      <label for="bgUpload">Custom Background Image</label>
+      <label for="bgUpload">Upload Custom Background:</label>
       <input type="file" id="bgUpload" accept="image/*" />
-      <button onclick="clearBackground()">Clear Background</button>
-
-      <button onclick="saveSettings()">Save Settings</button>
+      <button onclick="clearCustomBackground()">Clear Custom Background</button>
     </section>
   </main>
 
@@ -121,9 +118,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
-  <!-- Separate Scripts -->
+  <!-- Custom Scripts -->
+  <script src="main.js"></script>
   <script src="auth.js"></script>
   <script src="theme.js"></script>
-  <script src="ui.js"></script>
 </body>
 </html>

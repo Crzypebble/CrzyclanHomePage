@@ -1,31 +1,20 @@
-/* Base Styling */
+/* Base styles */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #111;
-  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0a0a0a;
+  color: #e6e6e6;
   margin: 0;
   padding: 0;
   background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
-  transition: background 0.3s ease;
 }
 
 header {
+  background-color: #111;
+  color: crimson;
   text-align: center;
-  padding: 20px;
-  background-color: #222;
-  border-bottom: 2px solid #444;
-}
-
-header h1 {
-  font-size: 3rem;
-  margin-bottom: 0.3rem;
-}
-
-header p {
-  font-style: italic;
-  color: #aaa;
+  padding: 30px 20px;
 }
 
 nav {
@@ -33,47 +22,39 @@ nav {
 }
 
 nav a {
-  color: #fff;
-  text-decoration: none;
   margin: 0 15px;
+  color: #ccc;
+  text-decoration: none;
   font-weight: bold;
-  padding: 5px 10px;
-  border-radius: 6px;
-  transition: background 0.3s;
+  transition: color 0.3s;
 }
 
 nav a:hover {
-  background-color: #444;
+  color: crimson;
 }
 
-section {
-  padding: 30px;
-  display: none;
-}
-
-#home {
-  display: block;
-}
-
-h2, h3, h4 {
-  margin-bottom: 10px;
+main > section,
+section.tab-section {
+  padding: 40px 20px;
+  text-align: center;
 }
 
 .skull-image img {
-  max-width: 100%;
-  height: auto;
+  width: 200px;
+  border: 3px solid crimson;
+  border-radius: 10px;
   margin: 20px 0;
 }
 
 .member-card {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 15px;
-  margin: 15px 0;
   display: inline-block;
+  background-color: #111;
+  margin: 10px;
+  padding: 15px;
+  width: 200px;
+  border-radius: 10px;
+  border: 2px solid #444;
   text-align: center;
-  width: 220px;
 }
 
 .member-card img {
@@ -81,107 +62,113 @@ h2, h3, h4 {
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid crimson;
 }
 
 .member-card h4 {
-  margin: 10px 0 5px;
+  margin: 5px 0;
+  color: crimson;
 }
 
-.settings-panel input, .settings-panel select, .settings-panel button {
-  display: block;
-  margin: 10px 0;
+.member-card p {
+  font-size: 14px;
+  color: #ccc;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="file"],
+select {
+  width: 250px;
   padding: 10px;
+  margin: 10px auto;
+  display: block;
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 6px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: crimson;
+  color: white;
   border: none;
   border-radius: 6px;
-  width: 100%;
-  max-width: 400px;
-}
-
-.settings-panel input, .settings-panel select {
-  background-color: #2a2a2a;
-  color: #fff;
-}
-
-.settings-panel button {
-  background-color: #ff3333;
-  color: white;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background-color 0.3s;
 }
 
-.settings-panel button:hover {
-  background-color: #cc0000;
+button:hover {
+  background-color: darkred;
 }
 
 footer {
+  background-color: #111;
   text-align: center;
-  padding: 20px;
-  background-color: #222;
-  color: #aaa;
-  margin-top: 40px;
+  padding: 15px;
+  color: #777;
+  font-size: 14px;
 }
 
-/* Theme: Red Mist */
-.theme-redmist {
-  background-color: #1b0000;
+/* Settings Panel */
+.settings-panel {
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-top: 1px solid #333;
+  text-align: center;
+}
+
+/* Theme support */
+.theme-RedMist {
+  background-color: #1a0000;
   color: #ffcccc;
 }
 
-.theme-redmist nav a:hover {
-  background-color: #660000;
-}
-
-.theme-redmist .member-card {
+.theme-RedMist header {
   background-color: #330000;
-  border-color: #660000;
+  color: #ff6666;
 }
 
-/* Theme: Black & White */
-.theme-bw {
+.theme-RedMist nav a:hover {
+  color: #ff3333;
+}
+
+.theme-BW {
   background-color: #fff;
   color: #000;
 }
 
-.theme-bw nav a {
-  color: #000;
-}
-
-.theme-bw nav a:hover {
+.theme-BW header {
   background-color: #ddd;
-}
-
-.theme-bw .member-card {
-  background-color: #f0f0f0;
-  border-color: #aaa;
   color: #000;
 }
 
-.theme-bw input, .theme-bw select {
-  background-color: #eee;
+.theme-BW nav a {
+  color: #333;
+}
+
+.theme-BW nav a:hover {
   color: #000;
 }
 
-.theme-bw button {
-  background-color: #222;
+.theme-BW .member-card {
+  background-color: #f5f5f5;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+.theme-BW .member-card h4 {
+  color: #000;
+}
+
+.theme-BW button {
+  background-color: #000;
   color: #fff;
 }
 
-/* Custom background image support */
-body.custom-bg {
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-/* Responsive tweaks */
-@media (max-width: 768px) {
-  .member-card {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  nav a {
-    display: inline-block;
-    margin: 5px 5px;
-  }
+.theme-BW button:hover {
+  background-color: #444;
 }

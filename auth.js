@@ -1,5 +1,14 @@
-// auth.js
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+  authDomain: "crzyclansite.firebaseapp.com",
+  projectId: "crzyclansite",
+  storageBucket: "crzyclansite.appspot.com",
+  messagingSenderId: "534485925500",
+  appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+};
 
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 function login() {
@@ -7,11 +16,14 @@ function login() {
   const password = document.getElementById("loginPassword").value;
 
   auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      updateAuthUI(userCredential.user);
+    .then((userCredential) => {
+      const user = userCredential.user;
+      document.getElementById("userEmail").textContent = user.email;
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("logoutSection").style.display = "block";
     })
-    .catch(error => {
-      alert("Login Failed: " + error.message);
+    .catch((error) => {
+      alert("Login failed: " + error.message);
     });
 }
 
@@ -20,36 +32,33 @@ function signup() {
   const password = document.getElementById("signupPassword").value;
 
   auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      updateAuthUI(userCredential.user);
+    .then((userCredential) => {
+      alert("Account created! You can now log in.");
+      showLogin();
     })
-    .catch(error => {
-      alert("Signup Failed: " + error.message);
+    .catch((error) => {
+      alert("Sign-up failed: " + error.message);
     });
 }
 
 function logout() {
   auth.signOut().then(() => {
-    updateAuthUI(null);
+    document.getElementById("logoutSection").style.display = "none";
+    document.getElementById("loginForm").style.display = "block";
   });
 }
 
-function updateAuthUI(user) {
-  const loginForm = document.getElementById("loginForm");
-  const signupForm = document.getElementById("signupForm");
-  const logoutSection = document.getElementById("logoutSection");
-
+auth.onAuthStateChanged((user) => {
   if (user) {
-    loginForm.style.display = "none";
-    signupForm.style.display = "none";
-    logoutSection.style.display = "block";
     document.getElementById("userEmail").textContent = user.email;
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("signupForm").style.display = "none";
+    document.getElementById("logoutSection").style.display = "block";
   } else {
-    loginForm.style.display = "block";
-    signupForm.style.display = "none";
-    logoutSection.style.display = "none";
+    document.getElementById("logoutSection").style.display = "none";
+    document.getElementById("loginForm").style.display = "block";
   }
-}
+});
 
 function showSignup() {
   document.getElementById("loginForm").style.display = "none";
@@ -60,8 +69,3 @@ function showLogin() {
   document.getElementById("signupForm").style.display = "none";
   document.getElementById("loginForm").style.display = "block";
 }
-
-// Listen for auth state changes
-auth.onAuthStateChanged(user => {
-  updateAuthUI(user);
-});

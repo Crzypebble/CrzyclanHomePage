@@ -2,32 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1>CRZYCLAN</h1>
     <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
-      <a href="#home">Home</a>
-      <a href="#membership">Membership</a>
-      <a href="#settings">Settings</a>
+      <a href="#" onclick="showTab('home')">Home</a>
+      <a href="#" onclick="showTab('membership')">Membership</a>
+      <a href="#" onclick="showTab('settings')">Settings</a>
       <a href="https://yourshoplink.com" target="_blank">Shop</a>
       <a href="https://yourmusiclink.com" target="_blank">Music</a>
     </nav>
   </header>
 
-  <section id="home">
-    <h2>Welcome to Crzyclan</h2>
-    <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
-    <div class="skull-image">
-      <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
-    </div>
+  <main>
+    <section id="home" class="tab-section">
+      <h2>Welcome to Crzyclan</h2>
+      <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
+      <div class="skull-image">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
+      </div>
+    </section>
 
-    <div class="leaders">
-      <h3>Crzyclan Leaders</h3>
+    <section id="membership" class="tab-section" style="display: none;">
+      <h2>Crzyclan Leaders</h2>
       <div class="member-card">
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
         <h4>Crzypebble</h4>
@@ -40,10 +42,8 @@
         <p>"Shake up the place?"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
       </div>
-    </div>
 
-    <div class="members">
-      <h3>Crzyclan Members</h3>
+      <h2>Crzyclan Members</h2>
       <div class="member-card">
         <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
         <h4>CrzyDevotion</h4>
@@ -68,60 +68,43 @@
         <p>"Swervin the corners"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="membership" style="display: none;">
-    <h3>Membership Perks</h3>
-    <p>Coming soon: Buy a membership to unlock exclusive features, early access content, and special ranks in the Crzyclan community.</p>
-    <!-- Add purchase buttons later -->
-  </section>
+    <section id="settings" class="tab-section" style="display: none;">
+      <h2>Settings</h2>
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Enter email" />
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+        <button onclick="login()">Login</button>
+        <button onclick="showSignup()">Sign Up</button>
+      </div>
 
-  <section id="settings" class="settings-panel" style="display: none;">
-    <h3>Account Settings</h3>
+      <div id="signupForm" style="display: none;">
+        <input type="email" id="signupEmail" placeholder="Enter email" />
+        <input type="password" id="signupPassword" placeholder="Create password" />
+        <button onclick="signup()">Create Account</button>
+        <button onclick="showLogin()">Back to Login</button>
+      </div>
 
-    <div id="loginForm">
-      <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" placeholder="Enter email" />
+      <div id="logoutSection" style="display: none;">
+        <p>Logged in as <span id="userEmail">example@example.com</span></p>
+        <button onclick="logout()">Logout</button>
+      </div>
 
-      <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" placeholder="Enter password" />
+      <hr>
+      <h4>Appearance Settings</h4>
+      <label for="themeSelect">Theme</label>
+      <select id="themeSelect">
+        <option value="Default">Default</option>
+        <option value="Red Mist">Red Mist</option>
+        <option value="Black & White">Black & White</option>
+      </select>
 
-      <button onclick="login()">Login</button>
-      <button onclick="showSignup()">Sign Up</button>
-    </div>
-
-    <div id="signupForm" style="display: none;">
-      <label for="signupEmail">Email</label>
-      <input type="email" id="signupEmail" placeholder="Enter email" />
-
-      <label for="signupPassword">Password</label>
-      <input type="password" id="signupPassword" placeholder="Create password" />
-
-      <button onclick="signup()">Create Account</button>
-      <button onclick="showLogin()">Back to Login</button>
-    </div>
-
-    <div id="logoutSection" style="display: none;">
-      <p>Logged in as <span id="userEmail">example@example.com</span></p>
-      <button onclick="logout()">Logout</button>
-    </div>
-
-    <hr>
-
-    <h4>Appearance Settings</h4>
-    <label for="themeSelect">Theme</label>
-    <select id="themeSelect">
-      <option value="Default">Default</option>
-      <option value="Red Mist">Red Mist</option>
-      <option value="Black & White">Black & White</option>
-    </select>
-
-    <label for="bgUpload">Custom Background Image</label>
-    <input type="file" id="bgUpload" accept="image/*" />
-
-    <button id="saveSettingsBtn">Save Settings</button>
-  </section>
+      <label for="bgUpload">Custom Background Image</label>
+      <input type="file" id="bgUpload" accept="image/*" />
+      <button id="saveSettingsBtn">Save Settings</button>
+    </section>
+  </main>
 
   <footer>
     &copy; 2025 Crzyclan. All rights reserved.
@@ -130,7 +113,14 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <!-- External Script -->
   <script src="script.js"></script>
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-section').forEach(section => {
+        section.style.display = 'none';
+      });
+      document.getElementById(tabId).style.display = 'block';
+    }
+  </script>
 </body>
 </html>

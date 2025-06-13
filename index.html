@@ -2,131 +2,213 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crzyclan Home</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script defer src="script.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      color: #eee;
+    }
+    header {
+      background-color: #222;
+      padding: 20px;
+      text-align: center;
+    }
+    nav a {
+      color: #eee;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    section {
+      padding: 30px;
+    }
+    .skull-image {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .skull-image img {
+      width: 250px;
+      height: auto;
+      border-radius: 10px;
+    }
+    .leaders, .members {
+      margin-top: 40px;
+    }
+    .leaders h3, .members h3 {
+      text-align: center;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+    }
+    .member-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .member-card {
+      background-color: #1c1c1c;
+      border-radius: 10px;
+      padding: 20px;
+      width: 250px;
+      text-align: center;
+    }
+    .member-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    .settings-panel input,
+    .settings-panel select,
+    .settings-panel button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 1em;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #222;
+      margin-top: 50px;
+    }
+  </style>
 </head>
-<body class="theme-default">
+<body>
   <header>
     <h1>CRZYCLAN</h1>
-    <p>The Official Clan Page</p>
+    <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
       <a href="#home">Home</a>
-      <a href="#members">Members</a>
+      <a href="#membership">Membership</a>
       <a href="#settings">Settings</a>
-      <a href="#auth">Login</a>
+      <a href="https://yourshoplink.com" target="_blank">Shop</a>
+      <a href="https://yourmusiclink.com" target="_blank">Music</a>
     </nav>
   </header>
 
-  <!-- Home Tab -->
   <section id="home">
+    <h2>Welcome to Crzyclan</h2>
+    <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
+
     <div class="skull-image">
-      <img src="Badass irl edited.png" alt="Skull" />
+      <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
     </div>
-    <h2 style="text-align: center;">Leaders</h2>
-    <div class="member-card">
-      <img src="ChillAustinPFP.jpg" alt="ChillAustin" />
-      <div>
-        <h4>ChillAustin</h4>
-        <p>"chillest in the clan, craziest in the code."</p>
+
+    <div class="leaders">
+      <h3>Crzyclan Leaders</h3>
+      <div class="member-grid">
+        <div class="member-card">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
+          <h4>Crzypebble</h4>
+          <p>"pimpin is the way"</p>
+          <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
+          <h4>CrzySniper</h4>
+          <p>"Shake up the place?"</p>
+          <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
+        </div>
       </div>
     </div>
-    <div class="member-card">
-      <img src="BurgerkingDonny.webp" alt="BurgerkingDonny" />
-      <div>
-        <h4>BurgerkingDonny</h4>
-        <p>"flame-grilled and full of skill."</p>
+
+    <div class="members">
+      <h3>Crzyclan Members</h3>
+      <div class="member-grid">
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
+          <h4>CrzyDevotion</h4>
+          <p>"Win sum lose sum fight sum cause we all lose it all"</p>
+          <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
+          <h4>CrzyKahoona</h4>
+          <p>"I ain't giving up yet"</p>
+          <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
+          <h4>CrzyDemon</h4>
+          <p>"It's Demon Time!"</p>
+          <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+        </div>
+        <div class="member-card">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
+          <h4>CrzyWraith</h4>
+          <p>"Swervin the corners"</p>
+          <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Members Tab -->
-  <section id="members" style="display: none;">
-    <h2 style="text-align: center;">Members</h2>
-    <div class="member-card">
-      <img src="Tyler and cat.jpg" alt="Tyler" />
-      <div>
-        <h4>Tyler</h4>
-        <p>"running the game and petting the cat."</p>
-      </div>
-    </div>
-    <div class="member-card">
-      <img src="BigBoovey.webp" alt="BigBoovey" />
-      <div>
-        <h4>BigBoovey</h4>
-        <p>"boove nation rise."</p>
-      </div>
-    </div>
-    <div class="member-card">
-      <img src="biggie tre.webp" alt="Biggie Tre" />
-      <div>
-        <h4>Biggie Tre</h4>
-        <p>"biggie but deadlier."</p>
-      </div>
-    </div>
-    <div class="member-card">
-      <img src="Pongpiel.webp" alt="Pongpiel" />
-      <div>
-        <h4>Pongpiel</h4>
-        <p>"pong but with a vengeance."</p>
-      </div>
-    </div>
-    <div class="member-card">
-      <img src="slipboovey.webp" alt="SlipBoovey" />
-      <div>
-        <h4>SlipBoovey</h4>
-        <p>"slippery moves. deadly shots."</p>
-      </div>
-    </div>
+  <section id="membership" style="display: none;">
+    <h3>Membership Perks</h3>
+    <p>Coming soon: Buy a membership to unlock exclusive features, early access content, and special ranks in the Crzyclan community.</p>
   </section>
 
-  <!-- Settings Tab -->
-  <section id="settings" style="display: none;">
-    <h2>Settings</h2>
-    <label for="themeSelect">Select Theme:</label>
+  <section id="settings" class="settings-panel" style="display: none;">
+    <h3>Account Settings</h3>
+
+    <div id="loginForm">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="Enter email" />
+
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter password" />
+
+      <button onclick="login()">Login</button>
+      <button onclick="showSignup()">Sign Up</button>
+    </div>
+
+    <div id="signupForm" style="display: none;">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" placeholder="Enter email" />
+
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Create password" />
+
+      <button onclick="signup()">Create Account</button>
+      <button onclick="showLogin()">Back to Login</button>
+    </div>
+
+    <div id="logoutSection" style="display: none;">
+      <p>Logged in as <span id="userEmail">example@example.com</span></p>
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <hr>
+
+    <h4>Appearance Settings</h4>
+    <label for="themeSelect">Theme</label>
     <select id="themeSelect">
       <option value="Default">Default</option>
       <option value="Red Mist">Red Mist</option>
       <option value="Black & White">Black & White</option>
     </select>
 
-    <label for="bgUpload">Upload Background Image:</label>
+    <label for="bgUpload">Custom Background Image</label>
     <input type="file" id="bgUpload" accept="image/*" />
 
     <button id="saveSettingsBtn">Save Settings</button>
   </section>
 
-  <!-- Auth/Login Tab -->
-  <section id="auth" style="display: none;">
-    <h2>Authentication</h2>
-
-    <div id="loginForm">
-      <h3>Login</h3>
-      <input type="email" id="loginEmail" placeholder="Email" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <p><a href="#" onclick="showSignup()">Don't have an account? Sign up</a></p>
-    </div>
-
-    <div id="signupForm" style="display: none;">
-      <h3>Sign Up</h3>
-      <input type="email" id="signupEmail" placeholder="Email" />
-      <input type="password" id="signupPassword" placeholder="Password" />
-      <button onclick="signup()">Sign Up</button>
-      <p><a href="#" onclick="showLogin()">Already have an account? Login</a></p>
-    </div>
-
-    <div id="logoutSection" style="display: none;">
-      <p>Logged in as <span id="userEmail"></span></p>
-      <button onclick="logout()">Logout</button>
-    </div>
-  </section>
-
   <footer>
-    <p>&copy; 2025 Crzyclan. All rights reserved.</p>
+    &copy; 2025 Crzyclan. All rights reserved.
   </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

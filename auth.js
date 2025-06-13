@@ -1,71 +1,44 @@
-// Initialize Firebase
-const firebaseConfig = {
+// Initialize Firebase App (make sure Firebase SDKs are included in HTML)
+firebase.initializeApp({
   apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
   authDomain: "crzyclansite.firebaseapp.com",
   projectId: "crzyclansite",
   storageBucket: "crzyclansite.appspot.com",
   messagingSenderId: "534485925500",
   appId: "1:534485925500:web:56c7c798780e477e7e13f9"
-};
+});
 
-firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-function login() {
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      document.getElementById("userEmail").textContent = user.email;
-      document.getElementById("loginForm").style.display = "none";
-      document.getElementById("logoutSection").style.display = "block";
-    })
-    .catch((error) => {
-      alert("Login failed: " + error.message);
-    });
+function updateAuthStatus(user) {
+  const status = document.getElementById('auth-status');
+  if (user) {
+    status.textContent = `Logged in as ${user.email}`;
+  } else {
+    status.textContent = 'Not logged in.';
+  }
 }
 
-function signup() {
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
-
+function signUp() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
   auth.createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      alert("Account created! You can now log in.");
-      showLogin();
-    })
-    .catch((error) => {
-      alert("Sign-up failed: " + error.message);
-    });
+    .then(() => alert("Sign up successful!"))
+    .catch(error => alert(error.message));
+}
+
+function login() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => alert("Login successful!"))
+    .catch(error => alert(error.message));
 }
 
 function logout() {
-  auth.signOut().then(() => {
-    document.getElementById("logoutSection").style.display = "none";
-    document.getElementById("loginForm").style.display = "block";
-  });
+  auth.signOut()
+    .then(() => alert("Logged out successfully!"))
+    .catch(error => alert(error.message));
 }
 
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    document.getElementById("userEmail").textContent = user.email;
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("signupForm").style.display = "none";
-    document.getElementById("logoutSection").style.display = "block";
-  } else {
-    document.getElementById("logoutSection").style.display = "none";
-    document.getElementById("loginForm").style.display = "block";
-  }
-});
-
-function showSignup() {
-  document.getElementById("loginForm").style.display = "none";
-  document.getElementById("signupForm").style.display = "block";
-}
-
-function showLogin() {
-  document.getElementById("signupForm").style.display = "none";
-  document.getElementById("loginForm").style.display = "block";
-}
+auth.onAuthStateChanged(updateAuthStatus);

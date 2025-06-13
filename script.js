@@ -69,11 +69,12 @@ function showSection(id) {
 
 // Theme Application
 function applyTheme(theme) {
-  document.body.classList.remove("theme-default", "theme-red", "theme-bw");
+  document.body.classList.remove("theme-default", "theme-redmist", "theme-blackwhite");
+
   if (theme === "Red Mist") {
-    document.body.classList.add("theme-red");
+    document.body.classList.add("theme-redmist");
   } else if (theme === "Black & White") {
-    document.body.classList.add("theme-bw");
+    document.body.classList.add("theme-blackwhite");
   } else {
     document.body.classList.add("theme-default");
   }

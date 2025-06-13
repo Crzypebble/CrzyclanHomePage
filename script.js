@@ -1,108 +1,115 @@
-<script>
-  // === FIREBASE INIT ===
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+  authDomain: "crzyclansite.firebaseapp.com",
+  projectId: "crzyclansite",
+  storageBucket: "crzyclansite.firebasestorage.app",
+  messagingSenderId: "534485925500",
+  appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+};
 
-  // === TAB SWITCHING ===
-  function showTab(tabId) {
-    document.querySelectorAll('.tab-section').forEach(section => {
-      section.style.display = 'none';
-    });
-    document.getElementById(tabId).style.display = 'block';
-  }
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-  // === AUTH FUNCTIONS ===
-  function signUp() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById('auth-status').textContent = `Signed up as ${email}`;
-      })
-      .catch(error => {
-        alert(error.message);
-      });
-  }
+// Tabs
+function showTab(tabId) {
+  document.querySelectorAll('section').forEach(section => {
+    section.style.display = 'none';
+  });
+  document.getElementById(tabId).style.display = 'block';
+}
 
-  function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById('auth-status').textContent = `Logged in as ${email}`;
-      })
-      .catch(error => {
-        alert(error.message);
-      });
-  }
+// Show Home tab on load
+document.addEventListener("DOMContentLoaded", () => {
+  showTab("home");
 
-  function logout() {
-    auth.signOut()
-      .then(() => {
-        document.getElementById('auth-status').textContent = 'Logged out';
-      });
-  }
+  // Load saved theme and background
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) applyTheme(savedTheme);
+
+  const savedBg = localStorage.getItem("customBackground");
+  if (savedBg) document.body.style.backgroundImage = `url(${savedBg})`;
 
   auth.onAuthStateChanged(user => {
-    const status = document.getElementById('auth-status');
     if (user) {
-      status.textContent = `Logged in as ${user.email}`;
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("signupForm").style.display = "none";
+      document.getElementById("logoutSection").style.display = "block";
+      document.getElementById("userEmail").textContent = user.email;
     } else {
-      status.textContent = 'Not logged in';
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("signupForm").style.display = "none";
+      document.getElementById("logoutSection").style.display = "none";
     }
   });
+});
 
-  // === THEME HANDLING ===
-  function applyTheme(theme) {
-    document.body.className = ''; // Clear old themes
-    if (theme && theme !== 'Default') {
-      document.body.classList.add(`theme-${theme}`);
-    }
+// Authentication
+function login() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => alert("Logged in!"))
+    .catch(err => alert(err.message));
+}
+
+function signup() {
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(() => alert("Account created!"))
+    .catch(err => alert(err.message));
+}
+
+function logout() {
+  auth.signOut();
+}
+
+// Toggle login/signup forms
+function showSignup() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("signupForm").style.display = "block";
+}
+
+function showLogin() {
+  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+}
+
+// Theme selection
+document.getElementById("themeSelect").addEventListener("change", (e) => {
+  const theme = e.target.value;
+  applyTheme(theme);
+  localStorage.setItem("theme", theme);
+});
+
+function applyTheme(theme) {
+  switch (theme) {
+    case "Red Mist":
+      document.body.style.backgroundColor = "#1a0000";
+      document.body.style.color = "#ffcccc";
+      break;
+    case "Black & White":
+      document.body.style.backgroundColor = "#fff";
+      document.body.style.color = "#000";
+      break;
+    default:
+      document.body.style.backgroundColor = "#0a0a0a";
+      document.body.style.color = "#e6e6e6";
   }
+}
 
-  function handleThemeChange(event) {
-    const selectedTheme = event.target.value;
-    localStorage.setItem('crzyclanTheme', selectedTheme);
-    applyTheme(selectedTheme);
-  }
+// Background image upload
+document.getElementById("bgUpload").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-  // === BACKGROUND IMAGE HANDLING ===
-  function handleBackgroundUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const imageUrl = e.target.result;
-      document.body.style.backgroundImage = `url('${imageUrl}')`;
-      localStorage.setItem('crzyclanBackground', imageUrl);
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // === ON LOAD ===
-  window.addEventListener('DOMContentLoaded', () => {
-    // Load theme
-    const savedTheme = localStorage.getItem('crzyclanTheme') || 'Default';
-    applyTheme(savedTheme);
-
-    const themeSelect = document.getElementById('theme-select');
-    if (themeSelect) {
-      themeSelect.value = savedTheme;
-      themeSelect.addEventListener('change', handleThemeChange);
-    }
-
-    // Load background
-    const savedBackground = localStorage.getItem('crzyclanBackground');
-    if (savedBackground) {
-      document.body.style.backgroundImage = `url('${savedBackground}')`;
-    }
-
-    const bgInput = document.getElementById('bg-upload');
-    if (bgInput) {
-      bgInput.addEventListener('change', handleBackgroundUpload);
-    }
-
-    showTab('home');
-  });
-</script>
+  const reader = new FileReader();
+  reader.onload = () => {
+    const imageUrl = reader.result;
+    document.body.style.backgroundImage = `url(${imageUrl})`;
+    localStorage.setItem("customBackground", imageUrl);
+  };
+  reader.readAsDataURL(file);
+});

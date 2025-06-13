@@ -2,25 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
-      authDomain: "crzyclansite.firebaseapp.com",
-      projectId: "crzyclansite",
-      storageBucket: "crzyclansite.firebasestorage.app",
-      messagingSenderId: "534485925500",
-      appId: "1:534485925500:web:56c7c798780e477e7e13f9"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-  </script>
 </head>
 <body>
   <header>
@@ -36,6 +20,7 @@
   </header>
 
   <main>
+    <!-- Home Tab -->
     <section id="home" class="tab-section">
       <h2>Welcome to Crzyclan</h2>
       <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
@@ -51,7 +36,7 @@
         <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
       </div>
       <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
         <h4>CrzySniper</h4>
         <p>"Shake up the place?"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
@@ -67,7 +52,7 @@
       <div class="member-card">
         <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
         <h4>CrzyKahoona</h4>
-        <p>"I aint giving up yet"</p>
+        <p>"I ain't giving up yet"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
       </div>
       <div class="member-card">
@@ -84,22 +69,57 @@
       </div>
     </section>
 
+    <!-- Membership Tab -->
     <section id="membership" class="tab-section" style="display: none;">
-      <h2>Membership Plans</h2>
-      <p>Unlock exclusive perks, early releases, and Crzyclan gear.</p>
-      <!-- Add payment integration or placeholder here -->
+      <h3>Membership Perks</h3>
+      <p>Coming soon: Buy a membership to unlock exclusive features, early access content, and special ranks in the Crzyclan community.</p>
     </section>
 
+    <!-- Settings Tab -->
     <section id="settings" class="tab-section" style="display: none;">
-      <h2>Settings</h2>
-      <div id="auth-section">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="signUp()">Sign Up</button>
+      <h3>Account Settings</h3>
+
+      <div id="loginForm">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="Enter email" />
+
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+
         <button onclick="login()">Login</button>
+        <button onclick="showSignup()">Sign Up</button>
+      </div>
+
+      <div id="signupForm" style="display: none;">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="Enter email" />
+
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="Create password" />
+
+        <button onclick="signup()">Create Account</button>
+        <button onclick="showLogin()">Back to Login</button>
+      </div>
+
+      <div id="logoutSection" style="display: none;">
+        <p>Logged in as <span id="userEmail">example@example.com</span></p>
         <button onclick="logout()">Logout</button>
       </div>
-      <p id="auth-status"></p>
+
+      <hr>
+
+      <h4>Appearance Settings</h4>
+      <label for="themeSelect">Theme</label>
+      <select id="themeSelect">
+        <option value="Default">Default</option>
+        <option value="Red Mist">Red Mist</option>
+        <option value="Black & White">Black & White</option>
+      </select>
+
+      <label for="bgUpload">Custom Background Image</label>
+      <input type="file" id="bgUpload" accept="image/*" />
+
+      <button id="saveSettingsBtn">Save Settings</button>
     </section>
   </main>
 
@@ -107,48 +127,14 @@
     &copy; 2025 Crzyclan. All rights reserved.
   </footer>
 
-  <script>
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-section').forEach(section => {
-        section.style.display = 'none';
-      });
-      const tab = document.getElementById(tabId);
-      if (tab) tab.style.display = 'block';
-    }
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
-    window.addEventListener('DOMContentLoaded', () => {
-      showTab('home');
-    });
-
-    function signUp() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          document.getElementById('auth-status').innerText = 'Signed up successfully!';
-        })
-        .catch(error => {
-          document.getElementById('auth-status').innerText = error.message;
-        });
-    }
-
-    function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          document.getElementById('auth-status').innerText = 'Logged in successfully!';
-        })
-        .catch(error => {
-          document.getElementById('auth-status').innerText = error.message;
-        });
-    }
-
-    function logout() {
-      auth.signOut().then(() => {
-        document.getElementById('auth-status').innerText = 'Logged out successfully!';
-      });
-    }
-  </script>
+  <!-- JavaScript Files -->
+  <script type="module" src="auth.js"></script>
+  <script src="tabs.js"></script>
+  <script src="settings.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>

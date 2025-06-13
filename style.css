@@ -50,7 +50,7 @@ main > section {
   border-radius: 10px;
   border: 2px solid #444;
   text-align: center;
-  transition: border 0.3s;
+  transition: border 0.3s ease;
 }
 
 .member-card:hover {
@@ -77,9 +77,7 @@ main > section {
 }
 
 input[type="email"],
-input[type="password"],
-input[type="file"],
-select {
+input[type="password"] {
   width: 250px;
   padding: 10px;
   margin: 10px auto;
@@ -111,4 +109,31 @@ footer {
   padding: 15px;
   color: #777;
   font-size: 14px;
+}
+
+body.light {
+  background-color: #f8f8f8;
+  color: #111;
+}
+
+body.light header,
+body.light footer {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+body.light .member-card {
+  background-color: #fff;
+  border: 2px solid #aaa;
+}
+
+body.light .member-card:hover {
+  border-color: red;
+}
+
+body.light input,
+body.light button {
+  background-color: #fff;
+  color: #111;
+  border: 1px solid #888;
 }

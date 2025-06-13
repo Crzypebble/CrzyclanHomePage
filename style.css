@@ -4,9 +4,6 @@ body {
   color: #e6e6e6;
   margin: 0;
   padding: 0;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
 }
 
 header {
@@ -81,6 +78,7 @@ main > section {
 
 input[type="email"],
 input[type="password"],
+input[type="file"],
 select {
   width: 250px;
   padding: 10px;
@@ -113,19 +111,4 @@ footer {
   padding: 15px;
   color: #777;
   font-size: 14px;
-}
-
-/* Themes */
-.theme-Red\ Mist body,
-.theme-Red\ Mist header,
-.theme-Red\ Mist nav {
-  background-color: #2a0000 !important;
-  color: #ff4d4d !important;
-}
-
-.theme-Black\ \&\ White body,
-.theme-Black\ \&\ White header,
-.theme-Black\ \&\ White nav {
-  background-color: #000 !important;
-  color: #fff !important;
 }

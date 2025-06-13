@@ -20,7 +20,6 @@
   </header>
 
   <main>
-    <!-- Home Tab -->
     <section id="home" class="tab-section">
       <h2>Welcome to Crzyclan</h2>
       <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
@@ -28,7 +27,7 @@
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
       </div>
 
-      <h2>Crzyclan Leaders</h2>
+      <h3>Crzyclan Leaders</h3>
       <div class="member-card">
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
         <h4>Crzypebble</h4>
@@ -36,13 +35,13 @@
         <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
       </div>
       <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp">
         <h4>CrzySniper</h4>
         <p>"Shake up the place?"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
       </div>
 
-      <h2>Crzyclan Members</h2>
+      <h3>Crzyclan Members</h3>
       <div class="member-card">
         <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
         <h4>CrzyDevotion</h4>
@@ -69,51 +68,36 @@
       </div>
     </section>
 
-<script src="main.js"></script>
-<script src="settings.js"></script>
-<script src="effects.js"></script>
-
-    
-    <!-- Membership Tab -->
     <section id="membership" class="tab-section" style="display: none;">
-      <h3>Membership Perks</h3>
+      <h2>Membership Perks</h2>
       <p>Coming soon: Buy a membership to unlock exclusive features, early access content, and special ranks in the Crzyclan community.</p>
     </section>
 
-    <!-- Settings Tab -->
     <section id="settings" class="tab-section" style="display: none;">
-      <h3>Account Settings</h3>
-
-      <div id="loginForm">
-        <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" placeholder="Enter email" />
-
-        <label for="loginPassword">Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter password" />
-
-        <button onclick="login()">Login</button>
-        <button onclick="showSignup()">Sign Up</button>
-      </div>
-
-      <div id="signupForm" style="display: none;">
-        <label for="signupEmail">Email</label>
-        <input type="email" id="signupEmail" placeholder="Enter email" />
-
-        <label for="signupPassword">Password</label>
-        <input type="password" id="signupPassword" placeholder="Create password" />
-
-        <button onclick="signup()">Create Account</button>
-        <button onclick="showLogin()">Back to Login</button>
-      </div>
-
-      <div id="logoutSection" style="display: none;">
-        <p>Logged in as <span id="userEmail">example@example.com</span></p>
-        <button onclick="logout()">Logout</button>
+      <h2>Settings</h2>
+      <div id="auth-section">
+        <div id="loginForm">
+          <input type="email" id="loginEmail" placeholder="Email">
+          <input type="password" id="loginPassword" placeholder="Password">
+          <button onclick="login()">Login</button>
+          <button onclick="showSignup()">Sign Up</button>
+        </div>
+        <div id="signupForm" style="display: none;">
+          <input type="email" id="signupEmail" placeholder="Email">
+          <input type="password" id="signupPassword" placeholder="Password">
+          <button onclick="signup()">Create Account</button>
+          <button onclick="showLogin()">Back to Login</button>
+        </div>
+        <div id="logoutSection" style="display: none;">
+          <p>Logged in as <span id="userEmail">example@example.com</span></p>
+          <button onclick="logout()">Logout</button>
+        </div>
+        <p id="auth-status"></p>
       </div>
 
       <hr>
 
-      <h4>Appearance Settings</h4>
+      <h3>Appearance Settings</h3>
       <label for="themeSelect">Theme</label>
       <select id="themeSelect">
         <option value="Default">Default</option>
@@ -123,8 +107,9 @@
 
       <label for="bgUpload">Custom Background Image</label>
       <input type="file" id="bgUpload" accept="image/*" />
+      <button onclick="clearBackground()">Clear Background</button>
 
-      <button id="saveSettingsBtn">Save Settings</button>
+      <button onclick="saveSettings()">Save Settings</button>
     </section>
   </main>
 
@@ -136,14 +121,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
-  <!-- JavaScript Files -->
-  <script type="module" src="auth.js"></script>
-<script src="js/auth.js" type="module"></script>
-<script src="js/themes.js"></script>
-<script src="js/main.js"></script> <!-- Your navigation and tab logic -->
-
-  <script src="tabs.js"></script>
-  <script src="settings.js"></script>
-  <script src="main.js"></script>
+  <!-- Separate Scripts -->
+  <script src="auth.js"></script>
+  <script src="theme.js"></script>
+  <script src="ui.js"></script>
 </body>
 </html>

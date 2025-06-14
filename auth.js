@@ -1,4 +1,3 @@
-// auth.js
 function signUp() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -35,6 +34,9 @@ function updateAuthStatus() {
   const changePasswordBtn = document.getElementById("change-password-button");
   const resetPasswordBtn = document.getElementById("reset-password-button");
 
+  const customBgInput = document.getElementById("custom-background");
+  const clearBgBtn = document.getElementById("clear-background");
+
   if (user) {
     status.textContent = `Logged in as: ${user.email}`;
     emailInput.style.display = "none";
@@ -46,6 +48,9 @@ function updateAuthStatus() {
     changeEmailBtn.style.display = "inline-block";
     changePasswordBtn.style.display = "inline-block";
     resetPasswordBtn.style.display = "inline-block";
+
+    if (customBgInput) customBgInput.style.display = "inline-block";
+    if (clearBgBtn) clearBgBtn.style.display = "inline-block";
   } else {
     status.textContent = "";
     emailInput.style.display = "inline-block";
@@ -57,6 +62,9 @@ function updateAuthStatus() {
     changeEmailBtn.style.display = "none";
     changePasswordBtn.style.display = "none";
     resetPasswordBtn.style.display = "none";
+
+    if (customBgInput) customBgInput.style.display = "none";
+    if (clearBgBtn) clearBgBtn.style.display = "none";
   }
 }
 

@@ -4,6 +4,9 @@ body {
   color: #e6e6e6;
   margin: 0;
   padding: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 header {
@@ -34,6 +37,14 @@ main > section {
   text-align: center;
 }
 
+.tab-section {
+  display: none;
+}
+
+.tab-section.active {
+  display: block;
+}
+
 .skull-image img {
   width: 200px;
   border: 3px solid crimson;
@@ -50,11 +61,11 @@ main > section {
   border-radius: 10px;
   border: 2px solid #444;
   text-align: center;
-  transition: border 0.3s ease;
+  transition: border 0.3s;
 }
 
 .member-card:hover {
-  border: 2px solid red;
+  border: 2px solid crimson;
 }
 
 .member-card img {
@@ -111,29 +122,13 @@ footer {
   font-size: 14px;
 }
 
-body.light {
-  background-color: #f8f8f8;
-  color: #111;
-}
-
-body.light header,
-body.light footer {
-  background-color: #e0e0e0;
-  color: #333;
-}
-
-body.light .member-card {
-  background-color: #fff;
-  border: 2px solid #aaa;
-}
-
-body.light .member-card:hover {
-  border-color: red;
-}
-
-body.light input,
-body.light button {
-  background-color: #fff;
-  color: #111;
-  border: 1px solid #888;
+select,
+input[type="file"] {
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #555;
+  padding: 10px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 6px;
 }

@@ -79,5 +79,16 @@
 
   <!-- Optional: Add music.js or main.js here -->
   <script src="music.js"></script>
+<script>
+  function toggleAlbum(id) {
+    const el = document.getElementById(id);
+    if (el.style.display === "none" || el.style.display === "") {
+      el.style.display = "block";
+    } else {
+      el.style.display = "none";
+    }
+  }
+</script>
+
 </body>
 </html>

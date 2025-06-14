@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crzyclan Settings</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>CRZYCLAN</h1>
+    <p>Home of Chaos, Music, and Mayhem</p>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="membership.html">Membership</a>
+      <a href="music.html">Music</a>
+      <a href="shop.html">Shop</a>
+      <a href="settings.html" class="active">Settings</a>
+    </nav>
+  </header>
 
+  <main>
+    <section id="settings">
+      <h2>Settings</h2>
+      <div id="auth-section">
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="signUp()">Sign Up</button>
+        <button onclick="login()">Login</button>
+        <button id="logout-btn" onclick="logout()" style="display: none;">Logout</button>
+      </div>
+      <p id="auth-status"></p>
+
+      <h3>Account Settings</h3>
+      <input type="file" id="custom-background" accept="image/*" />
+      <button id="clear-background">Clear Background</button>
+      <hr />
+      <button id="change-email-button">Change Email</button>
+      <button id="change-password-button">Change Password</button>
+      <button id="reset-password-button">Send Password Reset Email</button>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 CRZYCLAN. All rights reserved.
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+      authDomain: "crzyclansite.firebaseapp.com",
+      projectId: "crzyclansite",
+      storageBucket: "crzyclansite.appspot.com",
+      messagingSenderId: "534485925500",
+      appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="auth.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -3,89 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRZYCLAN</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Crzyclan Home</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="top-bar">
-    <h1 class="logo">CRZYCLAN</h1>
-    <p class="tagline">Home of Chaos, Music, and Mayhem</p>
+  <header id="site-header">
+    <h1>CRZYCLAN</h1>
+    <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
-      <ul class="nav-tabs">
-        <li data-tab="home">Home</li>
-        <li data-tab="membership">Membership</li>
-        <li data-tab="music">Music</li>
-        <li data-tab="shop">Shop</li>
-        <li data-tab="settings">Settings</li>
-      </ul>
+      <a href="#" onclick="showTab('home')">Home</a>
+      <a href="#" onclick="showTab('membership')">Membership</a>
+      <a href="#" onclick="showTab('music')">Music</a>
+      <a href="#" onclick="showTab('shop')">Shop</a>
+      <a href="#" onclick="showTab('settings')">Settings</a>
     </nav>
-  </div>
+  </header>
 
-  <!-- Tabs -->
-  <div id="home" class="tab active">
-    <h2>Crzyclan Leaders</h2>
-    <div class="card-container" id="leader-cards"></div>
+  <main>
+    <section id="home" class="tab-section">
+      <h2>Welcome to Crzyclan</h2>
+      <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
+      <div class="skull-image">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/copy.png?raw=true" alt="2022 Skull" />
+      </div>
 
-    <h2>Crzyclan Members</h2>
-    <div class="card-container" id="member-cards"></div>
-  </div>
+      <h2>Crzyclan Leaders</h2>
+      <div class="member-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
+        <h4>Crzypebble</h4>
+        <p>"pimpin is the way"</p>
+        <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
+      </div>
+      <!-- Add more leader/member cards here -->
+    </section>
 
-  <div id="membership" class="tab"><h2>Membership</h2></div>
-  <div id="music" class="tab"><h2>Music</h2></div>
-  <div id="shop" class="tab"><h2>Shop</h2></div>
+    <section id="membership" class="tab-section" style="display: none;">
+      <h2>Join the Membership</h2>
+      <p>Get exclusive content, merch drops, early access to releases, and more.</p>
+    </section>
 
-  <div id="settings" class="tab">
-    <h2>Settings</h2>
-    <div id="login-section">
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button id="login-btn">Log In</button>
-      <button id="signup-btn">Sign Up</button>
-    </div>
+    <section id="music" class="tab-section" style="display: none;">
+      <h2>Crzyclan Music</h2>
+      <p>Explore upcoming tracks, LPs, and releases from Crzyclan members.</p>
+    </section>
 
-    <div id="account-settings" style="display: none;">
-      <p id="user-email"></p>
-      <button id="logout-btn">Log Out</button>
-      <button id="change-email-btn">Change Email</button>
-      <button id="change-password-btn">Change Password</button>
-      <button id="send-password-reset-btn">Send Password Reset Email</button>
+    <section id="shop" class="tab-section" style="display: none;">
+      <h2>Crzyclan Shop</h2>
+      <p>Merch, digital content, collectibles coming soon.</p>
+    </section>
 
-      <h3>Theme</h3>
-      <select id="theme-select">
-        <option value="red-mist">Red Mist</option>
-        <option value="black-white">Black and White</option>
-      </select>
+    <section id="settings" class="tab-section" style="display: none;">
+      <h2>Settings</h2>
+      <div id="auth-section">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="signUp()">Sign Up</button>
+        <button onclick="login()">Login</button>
+        <button id="logout-btn" onclick="logout()" style="display: none;">Logout</button>
+      </div>
+      <p id="auth-status"></p>
 
-      <h3>Custom Background</h3>
-      <input type="file" id="bg-upload" accept="image/*" />
-      <button id="clear-bg-btn">Clear Background</button>
-    </div>
-  </div>
+      <div class="theme-options">
+        <h3>Select Theme</h3>
+        <button onclick="setTheme('red')">Red Mist</button>
+        <button onclick="setTheme('bw')">Black and White</button>
+      </div>
 
-  <footer>&copy; 2025 Crzyclan. All rights reserved.</footer>
+      <div class="bg-options">
+        <h3>Custom Background</h3>
+        <input type="file" id="custom-bg-file" accept="image/*">
+        <button onclick="clearCustomBackground()">Clear Custom Background</button>
+      </div>
+    </section>
+  </main>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
-      authDomain: "crzyclansite.firebaseapp.com",
-      projectId: "crzyclansite",
-      storageBucket: "crzyclansite.firebasestorage.app",
-      messagingSenderId: "534485925500",
-      appId: "1:534485925500:web:56c7c798780e477e7e13f9"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
+  <footer>
+    &copy; 2025 Crzyclan. All rights reserved.
+  </footer>
 
-  <!-- Modular Scripts -->
-  <script src="auth.js"></script>
+  <!-- JavaScript -->
+  <script src="ui.js"></script>
   <script src="tabs.js"></script>
   <script src="theme.js"></script>
   <script src="settings.js"></script>
-  <script src="ui.js"></script>
   <script src="effects.js"></script>
+  <script src="auth.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

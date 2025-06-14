@@ -54,7 +54,7 @@ main > section {
 }
 
 .member-card:hover {
-  border: 2px solid red;
+  border-color: crimson;
 }
 
 .member-card img {
@@ -77,8 +77,7 @@ main > section {
 }
 
 input[type="email"],
-input[type="password"],
-input[type="file"] {
+input[type="password"] {
   width: 250px;
   padding: 10px;
   margin: 10px auto;
@@ -110,32 +109,4 @@ footer {
   padding: 15px;
   color: #777;
   font-size: 14px;
-}
-
-/* Theme overrides */
-body.theme-bw {
-  background-color: #fff;
-  color: #111;
-}
-
-body.theme-bw header {
-  background-color: #ccc;
-  color: #111;
-}
-
-body.theme-bw .member-card {
-  background-color: #eee;
-  border-color: #999;
-}
-
-body.theme-bw .member-card h4 {
-  color: #000;
-}
-
-body.theme-bw nav a {
-  color: #222;
-}
-
-body.theme-bw nav a:hover {
-  color: #555;
 }

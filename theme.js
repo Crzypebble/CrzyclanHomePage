@@ -1,36 +1,32 @@
-function applyTheme(theme) {
-  const root = document.documentElement;
-  const header = document.querySelector("header");
-
-  if (theme === "redmist") {
-    root.style.setProperty("--bg-color", "#0a0a0a");
-    root.style.setProperty("--text-color", "#e6e6e6");
-    header.style.backgroundColor = "#111";
-    header.style.color = "crimson";
-  } else if (theme === "blackwhite") {
-    root.style.setProperty("--bg-color", "#ffffff");
-    root.style.setProperty("--text-color", "#000000");
-    header.style.backgroundColor = "#ddd";
-    header.style.color = "#000";
-  }
-
-  localStorage.setItem("selectedTheme", theme);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("selectedTheme");
-  if (savedTheme) {
-    applyTheme(savedTheme);
-    document.querySelectorAll('input[name="theme"]').forEach(radio => {
-      if (radio.value === savedTheme) {
-        radio.checked = true;
-      }
-    });
+
+  function applyTheme(theme) {
+    document.body.classList.remove("red-mist", "black-white");
+
+    if (theme) {
+      document.body.classList.add(theme);
+    }
+
+    const header = document.querySelector("header");
+    const nav = document.querySelector("nav");
+
+    if (theme === "red-mist") {
+      header.style.backgroundColor = "#8B0000";
+      nav.style.backgroundColor = "#8B0000";
+      document.body.style.color = "#fff";
+    } else if (theme === "black-white") {
+      header.style.backgroundColor = "#000";
+      nav.style.backgroundColor = "#000";
+      document.body.style.color = "#fff";
+    } else {
+      header.style.backgroundColor = "";
+      nav.style.backgroundColor = "";
+      document.body.style.color = "";
+    }
   }
 
-  document.querySelectorAll('input[name="theme"]').forEach(radio => {
-    radio.addEventListener("change", e => {
-      applyTheme(e.target.value);
-    });
-  });
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  }
 });

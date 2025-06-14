@@ -19,59 +19,55 @@
     </nav>
   </header>
 
- <main class="music-library">
-  <h2>Crzyclan Music Library</h2>
-  <p>Explore our sounds — from raw tracks to game scores and AI experiments.</p>
+  <main>
+    <section id="music">
+      <h2>Crzyclan Music Library</h2>
+      <p>Explore our sounds — from raw tracks to game scores and AI experiments.</p>
 
-  <!-- 🎧 Albums Section -->
-  <section class="music-section">
-    <h3>Albums</h3>
-    <div class="album-grid">
-      <div class="album" onclick="toggleAlbum('album1')">
-        <img src="album1.jpg" alt="Broken Circuits" />
-        <p><strong>Broken Circuits</strong><br>2025 – Crzypebble</p>
+      <!-- Albums Section -->
+      <div class="music-section">
+        <h3>Albums</h3>
+        <img src="images/album1.jpg" alt="Album 1" class="album-cover" />
+        <div class="album-info">
+          <strong>Broken Circuits</strong><br />
+          2025 - Crzypebble
+        </div>
+        <ul class="album-tracks">
+          <li>Track 1</li>
+          <li>Track 2</li>
+        </ul>
       </div>
-      <div class="album" onclick="toggleAlbum('album2')">
-        <img src="album2.jpg" alt="Red Mist Rising" />
-        <p><strong>Red Mist Rising</strong><br>2025 – Crzyclan</p>
+
+      <!-- Genre Sections -->
+      <div class="music-section">
+        <h3>Metal</h3>
+        <img src="images/metal-track.jpg" alt="Metal Track" class="album-cover" />
+        <div class="album-info">
+          <strong>Flesh and Signal</strong><br />
+          Crzypebble
+        </div>
       </div>
-    </div>
 
-    <div id="album1" class="album-tracks" style="display: none;">
-      <h4>Broken Circuits – Tracklist</h4>
-      <audio controls src="audio/track1.mp3"></audio>
-      <audio controls src="audio/track2.mp3"></audio>
-    </div>
-    <div id="album2" class="album-tracks" style="display: none;">
-      <h4>Red Mist Rising – Tracklist</h4>
-      <audio controls src="audio/redmist1.mp3"></audio>
-      <audio controls src="audio/redmist2.mp3"></audio>
-    </div>
-  </section>
+      <div class="music-section">
+        <h3>Rap</h3>
+        <img src="images/rap-track.jpg" alt="Rap Track" class="album-cover" />
+        <div class="album-info">
+          <strong>Mind in Red</strong><br />
+          Crzypebble
+        </div>
+      </div>
 
-  <!-- 🎸 Genre Section Example -->
-  <section class="music-section">
-    <h3>Metal</h3>
-    <audio controls src="audio/flesh_and_signal.mp3"></audio>
-    <audio controls src="audio/metal_extra_track.mp3"></audio>
-  </section>
+      <div class="music-section">
+        <h3>Game Music</h3>
+        <p>Tracks used in our games and AI scenarios.</p>
+      </div>
 
-  <section class="music-section">
-    <h3>Rap</h3>
-    <audio controls src="audio/mind_in_red.mp3"></audio>
-    <audio controls src="audio/rap_extra.mp3"></audio>
-  </section>
-
-  <section class="music-section">
-    <h3>Game Music</h3>
-    <audio controls src="audio/zombie_theme.mp3"></audio>
-  </section>
-
-  <section class="music-section">
-    <h3>AI Generated</h3>
-    <audio controls src="audio/ai_beats_01.mp3"></audio>
-  </section>
-</main>
+      <div class="music-section">
+        <h3>AI Generated</h3>
+        <p>Experimental tracks composed with neural networks and machine learning.</p>
+      </div>
+    </section>
+  </main>
 
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.
@@ -79,16 +75,5 @@
 
   <!-- Optional: Add music.js or main.js here -->
   <script src="music.js"></script>
-<script>
-  function toggleAlbum(id) {
-    const el = document.getElementById(id);
-    if (el.style.display === "none" || el.style.display === "") {
-      el.style.display = "block";
-    } else {
-      el.style.display = "none";
-    }
-  }
-</script>
-
 </body>
 </html>

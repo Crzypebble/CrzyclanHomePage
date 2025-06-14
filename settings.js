@@ -1,20 +1,34 @@
-window.uploadBackground = function () {
-  const fileInput = document.getElementById('bg-file');
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
+document.addEventListener('DOMContentLoaded', () => {
+  const themeButtons = document.querySelectorAll('[data-theme]');
+  themeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const selectedTheme = button.getAttribute('data-theme');
+      applyTheme(selectedTheme);
+    });
+  });
+
+  const backgroundInput = document.getElementById('background-file');
+  const clearBtn = document.getElementById('clear-background');
+
+  backgroundInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
-
-    reader.onload = function (e) {
-      const url = e.target.result;
-      document.body.style.backgroundImage = `url('${url}')`;
-      localStorage.setItem('customBackground', url);
+    reader.onload = () => {
+      document.body.style.backgroundImage = `url(${reader.result})`;
+      localStorage.setItem('customBackground', reader.result);
     };
-
     reader.readAsDataURL(file);
-  }
-};
+  });
 
-window.clearCustomBackground = function () {
-  document.body.style.backgroundImage = '';
-  localStorage.removeItem('customBackground');
-};
+  clearBtn.addEventListener('click', () => {
+    document.body.style.backgroundImage = '';
+    localStorage.removeItem('customBackground');
+  });
+
+  const savedBackground = localStorage.getItem('customBackground');
+  if (savedBackground) {
+    document.body.style.backgroundImage = `url(${savedBackground})`;
+  }
+});

@@ -1,4 +1,6 @@
-// Firebase Setup
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
   authDomain: "crzyclansite.firebaseapp.com",
@@ -8,48 +10,48 @@ const firebaseConfig = {
   appId: "1:534485925500:web:56c7c798780e477e7e13f9"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-// Authentication Functions
-function login() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => updateUI(auth.currentUser))
-    .catch(err => alert(err.message));
+const loginBtn = document.getElementById("login-btn");
+const signupBtn = document.getElementById("signup-btn");
+const logoutBtn = document.getElementById("logout-btn");
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+const loginSection = document.getElementById("login-section");
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    signInWithEmailAndPassword(auth, email, password)
+      .catch(err => alert("Login Failed: " + err.message));
+  });
 }
 
-function signUp() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => updateUI(auth.currentUser))
-    .catch(err => alert(err.message));
+if (signupBtn) {
+  signupBtn.addEventListener("click", () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    createUserWithEmailAndPassword(auth, email, password)
+      .catch(err => alert("Signup Failed: " + err.message));
+  });
 }
 
-function logout() {
-  auth.signOut().then(() => updateUI(null));
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth);
+  });
 }
 
-function updateUI(user) {
-  const status = document.getElementById('auth-status');
-  const emailInput = document.getElementById('email');
-  const passInput = document.getElementById('password');
-  const logoutBtn = document.getElementById('logout-btn');
-
+onAuthStateChanged(auth, user => {
   if (user) {
-    status.textContent = `Signed in as: ${user.email}`;
-    emailInput.style.display = 'none';
-    passInput.style.display = 'none';
-    logoutBtn.style.display = 'inline-block';
+    if (loginSection) loginSection.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
   } else {
-    status.textContent = 'Not signed in';
-    emailInput.style.display = 'block';
-    passInput.style.display = 'block';
-    logoutBtn.style.display = 'none';
+    if (loginSection) loginSection.style.display = "block";
+    if (logoutBtn) logoutBtn.style.display = "none";
   }
-}
-
-// Auto update on login state change
-auth.onAuthStateChanged(updateUI);
+});

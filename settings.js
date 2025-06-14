@@ -1,18 +1,16 @@
-document.getElementById('bg-upload')?.addEventListener('change', function () {
-  const file = this.files[0];
-  if (!file) return;
+function setCustomBackground(url) {
+  document.body.style.backgroundImage = `url('${url}')`;
+  localStorage.setItem('customBackground', url);
+}
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const imageUrl = e.target.result;
-    document.body.style.backgroundImage = `url(${imageUrl})`;
-    localStorage.setItem('customBackground', imageUrl);
-  };
-  reader.readAsDataURL(file);
-});
+function clearCustomBackground() {
+  document.body.style.backgroundImage = '';
+  localStorage.removeItem('customBackground');
+}
 
-document.getElementById('clear-bg')?.addEventListener('click', clearBackgroundImage);
-
-document.getElementById('theme-select')?.addEventListener('change', function () {
-  applyTheme(this.value);
-});
+function loadCustomBackground() {
+  const url = localStorage.getItem('customBackground');
+  if (url) {
+    document.body.style.backgroundImage = `url('${url}')`;
+  }
+}

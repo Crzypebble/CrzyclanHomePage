@@ -5,6 +5,13 @@ body {
   margin: 0;
   padding: 0;
   transition: background-color 0.3s, color 0.3s;
+
+  /* Fix for background image tiling */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  transition: background-image 0.3s ease-in-out;
 }
 
 header {

@@ -1,65 +1,39 @@
-// Firebase setup should already be in your HTML <head> before this script is loaded
+// auth.js
 
-// Sign Up
-function signUp() {
-  const email = document.getElementById("email")?.value;
-  const password = document.getElementById("password")?.value;
-  if (!email || !password) {
-    alert("Please enter email and password");
-    return;
-  }
-
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(() => {
-      alert("Sign-up successful!");
-    })
-    .catch((error) => {
-      alert("Error signing up: " + error.message);
-    });
-}
-
-// Login
-function login() {
-  const email = document.getElementById("email")?.value;
-  const password = document.getElementById("password")?.value;
-  if (!email || !password) {
-    alert("Please enter email and password");
-    return;
-  }
-
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(() => {
-      alert("Logged in successfully!");
-    })
-    .catch((error) => {
-      alert("Error logging in: " + error.message);
-    });
-}
-
-// Logout
-function logout() {
-  firebase.auth().signOut()
-    .then(() => {
-      alert("Logged out successfully.");
-    })
-    .catch((error) => {
-      alert("Error logging out: " + error.message);
-    });
-}
-
-// Handle auth state changes
 firebase.auth().onAuthStateChanged((user) => {
-  const authSection = document.getElementById("auth-section");
-  const authStatus = document.getElementById("auth-status");
-  const logoutBtn = document.getElementById("logout-btn");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const signInBtn = document.getElementById("sign-in-button");
+  const signUpBtn = document.getElementById("sign-up-button");
+  const logoutBtn = document.getElementById("logout-button");
 
   if (user) {
-    if (authSection) authSection.style.display = "none";
-    if (authStatus) authStatus.textContent = `Signed in as: ${user.email}`;
+    // Hide login form
+    if (emailInput) emailInput.style.display = "none";
+    if (passwordInput) passwordInput.style.display = "none";
+    if (signInBtn) signInBtn.style.display = "none";
+    if (signUpBtn) signUpBtn.style.display = "none";
     if (logoutBtn) logoutBtn.style.display = "inline-block";
   } else {
-    if (authSection) authSection.style.display = "block";
-    if (authStatus) authStatus.textContent = "Not signed in.";
+    // Show login form
+    if (emailInput) emailInput.style.display = "block";
+    if (passwordInput) passwordInput.style.display = "block";
+    if (signInBtn) signInBtn.style.display = "inline-block";
+    if (signUpBtn) signUpBtn.style.display = "inline-block";
     if (logoutBtn) logoutBtn.style.display = "none";
   }
 });
+
+function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .catch((error) => alert("Login error: " + error.message));
+}
+
+function signUp() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .catch((error) => alert("Sign up error: " + error.message));
+}

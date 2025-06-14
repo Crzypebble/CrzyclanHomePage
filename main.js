@@ -1,16 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Show home tab by default
   const defaultTab = document.getElementById("home");
-  if (defaultTab) {
-    defaultTab.style.display = "block";
-  }
+  if (defaultTab) defaultTab.style.display = "block";
 
-  const customBg = localStorage.getItem("customBackground");
-  if (customBg) {
-    document.body.style.backgroundImage = `url('${customBg}')`;
-  }
-
-  const savedTheme = localStorage.getItem("selectedTheme");
-  if (savedTheme) {
-    applyTheme(savedTheme);
-  }
+  // Hide logout button initially
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) logoutBtn.style.display = "none";
 });

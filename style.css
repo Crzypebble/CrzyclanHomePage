@@ -144,3 +144,33 @@ footer {
   background-color: crimson;
   color: #fff;
 }
+
+.music-section {
+  border: 2px solid crimson;
+  border-radius: 10px;
+  padding: 30px 20px;
+  margin: 30px auto;
+  max-width: 800px;
+  background-color: #111;
+  box-shadow: 0 0 10px #000;
+}
+
+.music-section h3 {
+  color: crimson;
+  margin-top: 0;
+  border-bottom: 1px solid crimson;
+  padding-bottom: 10px;
+}
+
+.album-cover {
+  width: 150px;
+  border: 2px solid crimson;
+  border-radius: 10px;
+  margin: 15px auto;
+  display: block;
+}
+
+.album-info {
+  color: #ccc;
+  margin-bottom: 10px;
+}

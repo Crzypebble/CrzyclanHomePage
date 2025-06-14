@@ -1,62 +1,31 @@
+// ui.js
 document.addEventListener("DOMContentLoaded", () => {
-  const authSection = document.getElementById("auth-section");
-  const authStatus = document.getElementById("auth-status");
-  const logoutBtn = document.getElementById("logout-btn");
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const loginBtn = document.getElementById("login-btn");
-  const signupBtn = document.getElementById("signup-btn");
+  const bgInput = document.getElementById('custom-background');
+  const clearBgBtn = document.getElementById('clear-background');
 
-  function updateUIForUser(user) {
-    if (user) {
-      authStatus.textContent = `Logged in as: ${user.email}`;
-      if (authSection) authSection.style.display = "none";
-      if (logoutBtn) logoutBtn.style.display = "block";
-    } else {
-      authStatus.textContent = "";
-      if (authSection) authSection.style.display = "block";
-      if (logoutBtn) logoutBtn.style.display = "none";
-    }
-  }
-
-  // Show logout button on load if already signed in
-  firebase.auth().onAuthStateChanged((user) => {
-    updateUIForUser(user);
-  });
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      firebase.auth().signOut().then(() => {
-        updateUIForUser(null);
-      });
+  if (bgInput) {
+    bgInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.body.style.backgroundImage = `url('${e.target.result}')`;
+          localStorage.setItem('customBackground', e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
 
-  if (loginBtn) {
-    loginBtn.addEventListener("click", () => {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          updateUIForUser(userCredential.user);
-        })
-        .catch((error) => {
-          authStatus.textContent = error.message;
-        });
+  if (clearBgBtn) {
+    clearBgBtn.addEventListener('click', () => {
+      document.body.style.backgroundImage = '';
+      localStorage.removeItem('customBackground');
     });
   }
 
-  if (signupBtn) {
-    signupBtn.addEventListener("click", () => {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          updateUIForUser(userCredential.user);
-        })
-        .catch((error) => {
-          authStatus.textContent = error.message;
-        });
-    });
+  const savedBg = localStorage.getItem('customBackground');
+  if (savedBg) {
+    document.body.style.backgroundImage = `url('${savedBg}')`;
   }
 });

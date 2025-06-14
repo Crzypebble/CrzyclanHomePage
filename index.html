@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 </head>
 <body>
   <header>
@@ -20,7 +24,7 @@
   </header>
 
   <main>
-    <section id="home" class="tab-section active">
+    <section id="home" class="tab-section">
       <h2>Welcome to Crzyclan</h2>
       <p>We're a movement. A crew. A mindset. Born from chaos and raised in the red mist — Crzyclan stands for expression, rebellion, and art.</p>
       <div class="skull-image">
@@ -28,58 +32,80 @@
       </div>
 
       <h2>Crzyclan Leaders</h2>
-      <!-- Leader Cards Here -->
       <div class="member-card">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
         <h4>Crzypebble</h4>
         <p>"pimpin is the way"</p>
         <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
       </div>
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp">
+        <h4>CrzySniper</h4>
+        <p>"Shake up the place?"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
+      </div>
 
       <h2>Crzyclan Members</h2>
-      <!-- Member Cards Here -->
       <div class="member-card">
-        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
         <h4>CrzyDevotion</h4>
         <p>"Win sum lose sum fight sum cause we all lose it all"</p>
         <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
       </div>
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
+        <h4>CrzyKahoona</h4>
+        <p>"I aint giving up yet"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
+      </div>
+      <div class="member-card">
+        <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
+        <h4>CrzyDemon</h4>
+        <p>"It's Demon Time!"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+      </div>
+      <div class="member-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
+        <h4>CrzyWraith</h4>
+        <p>"Swervin the corners"</p>
+        <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
+      </div>
     </section>
 
-    <section id="membership" class="tab-section">
-      <h2>Membership</h2>
-      <p>Coming soon — exclusive access and perks for our dedicated supporters.</p>
+    <section id="membership" class="tab-section" style="display: none;">
+      <h2>Crzyclan Membership</h2>
+      <p>Coming soon: join the inner circle with exclusive merch, sneak peeks, early drops, and more.</p>
     </section>
 
-    <section id="shop" class="tab-section">
-      <h2>Shop</h2>
-      <p>Buy Crzyclan gear, digital content, and support the movement.</p>
+    <section id="shop" class="tab-section" style="display: none;">
+      <h2>Crzyclan Shop</h2>
+      <p>Merch and gear will drop here soon.</p>
     </section>
 
-    <section id="music" class="tab-section">
+    <section id="music" class="tab-section" style="display: none;">
       <h2>Music</h2>
-      <p>Listen to our latest tracks and explore the sound of chaos.</p>
+      <p>Stream and explore our catalog (feature coming soon).</p>
     </section>
 
-    <section id="settings" class="tab-section">
+    <section id="settings" class="tab-section" style="display: none;">
       <h2>Settings</h2>
+
       <div id="auth-section">
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
         <button onclick="signUp()">Sign Up</button>
         <button onclick="login()">Login</button>
-        <button onclick="logout()" style="display:none;">Logout</button>
+        <button onclick="logout()">Logout</button>
       </div>
       <p id="auth-status"></p>
 
-      <h3>Theme</h3>
-      <select id="themeSelector">
-        <option value="default">Red Mist</option>
-        <option value="bw">Black and White</option>
-      </select>
+      <h3>Theme Options</h3>
+      <button onclick="applyTheme('red')">Red Mist</button>
+      <button onclick="applyTheme('bw')">Black & White</button>
 
       <h3>Custom Background</h3>
-      <input type="file" id="bgUpload" accept="image/*">
+      <input type="text" id="bg-url" placeholder="Enter image URL">
+      <button onclick="setCustomBackground(document.getElementById('bg-url').value)">Set Background</button>
       <button onclick="clearCustomBackground()">Clear Background</button>
     </section>
   </main>
@@ -88,29 +114,11 @@
     &copy; 2025 Crzyclan. All rights reserved.
   </footer>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
-      authDomain: "crzyclansite.firebaseapp.com",
-      projectId: "crzyclansite",
-      storageBucket: "crzyclansite.appspot.com",
-      messagingSenderId: "534485925500",
-      appId: "1:534485925500:web:56c7c798780e477e7e13f9"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-
-  <!-- Modular Scripts -->
-  <script src="auth.js"></script>
-  <script src="theme.js"></script>
-  <script src="tabs.js"></script>
-  <script src="effects.js"></script>
-  <script src="ui.js"></script>
-  <script src="settings.js"></script>
+  <!-- Load scripts -->
   <script src="script.js"></script>
-  <script src="main.js"></script>
+  <script src="tabs.js"></script>
+  <script src="theme.js"></script>
+  <script src="auth.js"></script>
+  <script src="settings.js"></script>
 </body>
 </html>

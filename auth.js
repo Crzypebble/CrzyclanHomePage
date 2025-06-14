@@ -1,57 +1,65 @@
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+// Firebase setup should already be in your HTML <head> before this script is loaded
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
-  authDomain: "crzyclansite.firebaseapp.com",
-  projectId: "crzyclansite",
-  storageBucket: "crzyclansite.appspot.com",
-  messagingSenderId: "534485925500",
-  appId: "1:534485925500:web:56c7c798780e477e7e13f9"
-};
+// Sign Up
+function signUp() {
+  const email = document.getElementById("email")?.value;
+  const password = document.getElementById("password")?.value;
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-const loginBtn = document.getElementById("login-btn");
-const signupBtn = document.getElementById("signup-btn");
-const logoutBtn = document.getElementById("logout-btn");
-
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-
-const loginSection = document.getElementById("login-section");
-
-if (loginBtn) {
-  loginBtn.addEventListener("click", () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    signInWithEmailAndPassword(auth, email, password)
-      .catch(err => alert("Login Failed: " + err.message));
-  });
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(() => {
+      alert("Sign-up successful!");
+    })
+    .catch((error) => {
+      alert("Error signing up: " + error.message);
+    });
 }
 
-if (signupBtn) {
-  signupBtn.addEventListener("click", () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    createUserWithEmailAndPassword(auth, email, password)
-      .catch(err => alert("Signup Failed: " + err.message));
-  });
+// Login
+function login() {
+  const email = document.getElementById("email")?.value;
+  const password = document.getElementById("password")?.value;
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(() => {
+      alert("Logged in successfully!");
+    })
+    .catch((error) => {
+      alert("Error logging in: " + error.message);
+    });
 }
 
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    signOut(auth);
-  });
+// Logout
+function logout() {
+  firebase.auth().signOut()
+    .then(() => {
+      alert("Logged out successfully.");
+    })
+    .catch((error) => {
+      alert("Error logging out: " + error.message);
+    });
 }
 
-onAuthStateChanged(auth, user => {
+// Handle auth state changes
+firebase.auth().onAuthStateChanged((user) => {
+  const authSection = document.getElementById("auth-section");
+  const authStatus = document.getElementById("auth-status");
+  const logoutBtn = document.getElementById("logout-btn");
+
   if (user) {
-    if (loginSection) loginSection.style.display = "none";
+    if (authSection) authSection.style.display = "none";
+    if (authStatus) authStatus.textContent = `Signed in as: ${user.email}`;
     if (logoutBtn) logoutBtn.style.display = "inline-block";
   } else {
-    if (loginSection) loginSection.style.display = "block";
+    if (authSection) authSection.style.display = "block";
+    if (authStatus) authStatus.textContent = "Not signed in.";
     if (logoutBtn) logoutBtn.style.display = "none";
   }
 });

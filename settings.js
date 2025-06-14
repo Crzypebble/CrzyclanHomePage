@@ -1,34 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const themeButtons = document.querySelectorAll('[data-theme]');
-  themeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const selectedTheme = button.getAttribute('data-theme');
-      applyTheme(selectedTheme);
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById('custom-bg');
+  const clearBtn = document.getElementById('clear-bg');
+
+  if (fileInput) {
+    fileInput.addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        localStorage.setItem("customBackground", e.target.result);
+        document.body.style.backgroundImage = `url('${e.target.result}')`;
+      };
+      reader.readAsDataURL(file);
     });
-  });
+  }
 
-  const backgroundInput = document.getElementById('background-file');
-  const clearBtn = document.getElementById('clear-background');
-
-  backgroundInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      document.body.style.backgroundImage = `url(${reader.result})`;
-      localStorage.setItem('customBackground', reader.result);
-    };
-    reader.readAsDataURL(file);
-  });
-
-  clearBtn.addEventListener('click', () => {
-    document.body.style.backgroundImage = '';
-    localStorage.removeItem('customBackground');
-  });
-
-  const savedBackground = localStorage.getItem('customBackground');
-  if (savedBackground) {
-    document.body.style.backgroundImage = `url(${savedBackground})`;
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem("customBackground");
+      document.body.style.backgroundImage = "none";
+    });
   }
 });

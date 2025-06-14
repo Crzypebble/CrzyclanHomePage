@@ -1,7 +1,14 @@
+:root {
+  --bg-color: #0a0a0a;
+  --text-color: #e6e6e6;
+  --accent-color: crimson;
+  --card-hover: 2px solid red;
+}
+
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #0a0a0a;
-  color: #e6e6e6;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   margin: 0;
   padding: 0;
   background-size: cover;
@@ -11,7 +18,7 @@ body {
 
 header {
   background-color: #111;
-  color: crimson;
+  color: var(--accent-color);
   text-align: center;
   padding: 30px 20px;
 }
@@ -29,7 +36,7 @@ nav a {
 }
 
 nav a:hover {
-  color: crimson;
+  color: var(--accent-color);
 }
 
 main > section {
@@ -37,17 +44,9 @@ main > section {
   text-align: center;
 }
 
-.tab-section {
-  display: none;
-}
-
-.tab-section.active {
-  display: block;
-}
-
 .skull-image img {
   width: 200px;
-  border: 3px solid crimson;
+  border: 3px solid var(--accent-color);
   border-radius: 10px;
   margin: 20px 0;
 }
@@ -65,7 +64,7 @@ main > section {
 }
 
 .member-card:hover {
-  border: 2px solid crimson;
+  border: var(--card-hover);
 }
 
 .member-card img {
@@ -74,12 +73,12 @@ main > section {
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 10px;
-  border: 2px solid crimson;
+  border: 2px solid var(--accent-color);
 }
 
 .member-card h4 {
   margin: 5px 0;
-  color: crimson;
+  color: var(--accent-color);
 }
 
 .member-card p {
@@ -88,7 +87,8 @@ main > section {
 }
 
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="text"] {
   width: 250px;
   padding: 10px;
   margin: 10px auto;
@@ -102,7 +102,7 @@ input[type="password"] {
 button {
   padding: 10px 20px;
   margin: 5px;
-  background-color: crimson;
+  background-color: var(--accent-color);
   color: white;
   border: none;
   border-radius: 6px;
@@ -120,15 +120,4 @@ footer {
   padding: 15px;
   color: #777;
   font-size: 14px;
-}
-
-select,
-input[type="file"] {
-  background-color: #222;
-  color: #eee;
-  border: 1px solid #555;
-  padding: 10px;
-  margin: 10px auto;
-  display: block;
-  border-radius: 6px;
 }

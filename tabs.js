@@ -1,6 +1,8 @@
+// tabs.js
 function showTab(tabId) {
-  const sections = document.querySelectorAll(".tab-section");
-  sections.forEach(section => {
-    section.style.display = section.id === tabId ? "block" : "none";
+  document.querySelectorAll('.tab-section').forEach(tab => {
+    tab.style.display = 'none';
   });
+  const target = document.getElementById(tabId);
+  if (target) target.style.display = 'block';
 }

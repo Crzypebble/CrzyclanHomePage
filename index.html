@@ -91,10 +91,77 @@
       <p>Get exclusive content, merch drops, early access to releases, and more.</p>
     </section>
 
-    <section id="music" class="tab-section" style="display: none;">
-      <h2>Crzyclan Music</h2>
-      <p>Explore upcoming tracks, LPs, and releases from Crzyclan members.</p>
-    </section>
+   <section id="music" class="tab-section" style="display: none;">
+  <h2>Crzyclan Music Library</h2>
+  <p>Explore our sounds — from raw tracks to game scores and AI experiments.</p>
+
+  <!-- Albums Section -->
+  <h3>Albums</h3>
+  <div class="music-grid">
+    <div class="music-card" onclick="toggleAlbum('album1')">
+      <img src="https://via.placeholder.com/200x200.png?text=Album+1" alt="Album 1">
+      <h4>Broken Circuits</h4>
+      <p>2025 - Crzypebble</p>
+    </div>
+  </div>
+  <div id="album1-tracks" class="album-tracks" style="display: none;">
+    <ul>
+      <li onclick="playTrack('track1')">Track 1 - Signal Collapse</li>
+      <li onclick="playTrack('track2')">Track 2 - Digital Ghosts</li>
+    </ul>
+  </div>
+
+  <!-- Genre Sections -->
+  <h3>By Genre</h3>
+
+  <h4>Metal</h4>
+  <div class="music-grid">
+    <div class="music-card" onclick="playTrack('track3')">
+      <img src="https://via.placeholder.com/200x200.png?text=Metal+Track" alt="Metal Track">
+      <h4>Flesh and Signal</h4>
+      <p>Crzypebble</p>
+    </div>
+  </div>
+
+  <h4>Rap</h4>
+  <div class="music-grid">
+    <div class="music-card" onclick="playTrack('track4')">
+      <img src="https://via.placeholder.com/200x200.png?text=Rap+Track" alt="Rap Track">
+      <h4>Mind in Red</h4>
+      <p>CrzySniper</p>
+    </div>
+  </div>
+
+  <!-- Game Music Section -->
+  <h3>Music from Our Games</h3>
+  <div class="music-grid">
+    <div class="music-card" onclick="playTrack('track5')">
+      <img src="https://via.placeholder.com/200x200.png?text=OST" alt="OST Track">
+      <h4>Zed Hunt OST</h4>
+      <p>Main Menu Theme</p>
+    </div>
+  </div>
+
+  <!-- AI Generated Section -->
+  <h3>AI Generated Music</h3>
+  <div class="music-grid">
+    <div class="music-card" onclick="playTrack('track6')">
+      <img src="https://via.placeholder.com/200x200.png?text=AI+Track" alt="AI Track">
+      <h4>Rust & Dreams</h4>
+      <p>Created by NeuralDrip™</p>
+    </div>
+  </div>
+
+  <!-- Music Player -->
+  <div id="music-player" class="music-player" style="display: none;">
+    <h3 id="track-title"></h3>
+    <audio id="audio-player" controls>
+      <source id="audio-source" src="" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+</section>
+
 
     <section id="shop" class="tab-section" style="display: none;">
       <h2>Crzyclan Shop</h2>

@@ -1,30 +1,36 @@
-function applyTheme(themeName) {
-  document.body.className = '';
-  document.body.classList.add(themeName);
+function applyTheme(theme) {
+  const root = document.documentElement;
+  const header = document.querySelector("header");
 
-  const header = document.querySelector('header');
-  const footer = document.querySelector('footer');
-  const nav = document.querySelector('nav');
-  const h1 = document.querySelector('header h1');
-
-  if (themeName === 'red-mist') {
-    header.style.backgroundColor = '#111';
-    footer.style.backgroundColor = '#111';
-    nav.style.backgroundColor = 'transparent';
-    h1.style.color = 'crimson';
-  } else if (themeName === 'black-white') {
-    header.style.backgroundColor = '#f0f0f0';
-    footer.style.backgroundColor = '#f0f0f0';
-    nav.style.backgroundColor = 'transparent';
-    h1.style.color = '#111';
+  if (theme === "redmist") {
+    root.style.setProperty("--bg-color", "#0a0a0a");
+    root.style.setProperty("--text-color", "#e6e6e6");
+    header.style.backgroundColor = "#111";
+    header.style.color = "crimson";
+  } else if (theme === "blackwhite") {
+    root.style.setProperty("--bg-color", "#ffffff");
+    root.style.setProperty("--text-color", "#000000");
+    header.style.backgroundColor = "#ddd";
+    header.style.color = "#000";
   }
 
-  localStorage.setItem('selectedTheme', themeName);
+  localStorage.setItem("selectedTheme", theme);
 }
 
-function loadSavedTheme() {
-  const savedTheme = localStorage.getItem('selectedTheme') || 'red-mist';
-  applyTheme(savedTheme);
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("selectedTheme");
+  if (savedTheme) {
+    applyTheme(savedTheme);
+    document.querySelectorAll('input[name="theme"]').forEach(radio => {
+      if (radio.value === savedTheme) {
+        radio.checked = true;
+      }
+    });
+  }
 
-document.addEventListener('DOMContentLoaded', loadSavedTheme);
+  document.querySelectorAll('input[name="theme"]').forEach(radio => {
+    radio.addEventListener("change", e => {
+      applyTheme(e.target.value);
+    });
+  });
+});

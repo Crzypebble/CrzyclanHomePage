@@ -174,3 +174,35 @@ footer {
   color: #ccc;
   margin-bottom: 10px;
 }
+
+.music-library {
+  text-align: center;
+  padding: 2rem;
+}
+
+.music-section {
+  border-top: 2px solid #cc0000;
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.album-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.album {
+  cursor: pointer;
+  max-width: 150px;
+  transition: transform 0.2s ease;
+}
+
+.album:hover {
+  transform: scale(1.05);
+}
+
+.album-tracks {
+  margin-top: 1rem;
+}

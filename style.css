@@ -1,115 +1,162 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #0a0a0a;
-  color: #e6e6e6;
+/* General Reset and Defaults */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
   transition: background-color 0.3s, color 0.3s;
 }
 
-header {
-  background-color: #111;
-  color: crimson;
+h1, h2, h3, p {
   text-align: center;
-  padding: 30px 20px;
-  transition: background-color 0.3s, color 0.3s;
+  margin: 1em 0;
 }
 
+/* Navigation */
 nav {
-  margin-top: 10px;
+  background: #111;
+  color: #ff0055;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 2px solid #ff0055;
 }
 
-nav a {
-  margin: 0 15px;
-  color: #ccc;
+nav h1 {
+  font-size: 2rem;
+  letter-spacing: 2px;
+}
+
+nav p {
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+nav ul li {
+  margin: 0 1rem;
+}
+
+nav ul li a {
+  color: #fff;
   text-decoration: none;
-  font-weight: bold;
+  padding: 0.5rem;
   transition: color 0.3s;
 }
 
-nav a:hover {
-  color: crimson;
+nav ul li a:hover,
+nav ul li a.active {
+  color: #ff0055;
+  border-bottom: 2px solid #ff0055;
 }
 
-main > section {
-  padding: 40px 20px;
+/* Tab Content Layout */
+.tab-content {
+  display: none;
+  padding: 2rem;
   text-align: center;
 }
 
-.skull-image img {
-  width: 200px;
-  border: 3px solid crimson;
-  border-radius: 10px;
-  margin: 20px 0;
-}
-
-.member-card {
-  display: inline-block;
-  background-color: #111;
-  margin: 10px;
-  padding: 15px;
-  width: 200px;
-  border-radius: 10px;
-  border: 2px solid #444;
-  text-align: center;
-  transition: border 0.3s;
-}
-
-.member-card:hover {
-  border: 2px solid red;
-}
-
-.member-card img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 10px;
-  border: 2px solid crimson;
-}
-
-.member-card h4 {
-  margin: 5px 0;
-  color: crimson;
-}
-
-.member-card p {
-  font-size: 14px;
-  color: #ccc;
-}
-
-input[type="email"],
-input[type="password"],
-input[type="file"] {
-  width: 250px;
-  padding: 10px;
-  margin: 10px auto;
+.tab-content.active {
   display: block;
-  background-color: #222;
-  color: #eee;
-  border: 1px solid #555;
-  border-radius: 6px;
 }
 
+/* Cards */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid transparent;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 200px;
+  transition: border-color 0.3s;
+}
+
+.card:hover {
+  border-color: red;
+}
+
+/* Settings */
+#settings input,
+#settings select,
+#settings button {
+  display: block;
+  margin: 0.5rem auto;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+#settings hr {
+  margin: 2rem auto;
+  width: 80%;
+  border: 1px solid #444;
+}
+
+/* Auth Section */
+#auth-section {
+  text-align: center;
+  padding: 1rem;
+}
+
+#auth-section input,
+#auth-section button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+/* Buttons */
 button {
-  padding: 10px 20px;
-  margin: 5px;
-  background-color: crimson;
-  color: white;
+  background-color: #ff0055;
   border: none;
-  border-radius: 6px;
+  color: white;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s ease;
 }
 
 button:hover {
-  background-color: darkred;
+  background-color: #cc0044;
 }
 
-footer {
+/* Themes */
+.theme-red {
   background-color: #111;
-  text-align: center;
-  padding: 15px;
-  color: #777;
-  font-size: 14px;
+  color: #fff;
+}
+
+.theme-bw {
+  background-color: #fff;
+  color: #000;
+}
+
+.theme-bw nav {
+  background: #000;
+  color: #fff;
+}
+
+.theme-bw nav ul li a {
+  color: #fff;
+}
+
+.theme-bw nav ul li a.active {
+  border-bottom: 2px solid #000;
 }

@@ -1,162 +1,116 @@
-/* General Reset and Defaults */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
+  color: white;
+  background-color: #000;
   background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  color: #fff;
-  transition: background-color 0.3s, color 0.3s;
+  background-repeat: no-repeat;
 }
 
-h1, h2, h3, p {
+.top-bar {
+  background-color: #111;
+  padding: 20px;
   text-align: center;
-  margin: 1em 0;
 }
 
-/* Navigation */
-nav {
-  background: #111;
-  color: #ff0055;
-  padding: 1rem;
-  text-align: center;
-  border-bottom: 2px solid #ff0055;
+.logo {
+  font-size: 36px;
+  color: #ff0044;
 }
 
-nav h1 {
-  font-size: 2rem;
-  letter-spacing: 2px;
+.tagline {
+  font-style: italic;
 }
 
-nav p {
-  font-size: 0.9rem;
-  margin-top: 0.3rem;
-}
-
-nav ul {
-  list-style: none;
+.nav-tabs {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  gap: 30px;
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
 }
 
-nav ul li {
-  margin: 0 1rem;
+.nav-tabs li {
+  cursor: pointer;
+  padding: 8px 16px;
+  background: #222;
+  border-radius: 5px;
+  transition: 0.3s;
 }
 
-nav ul li a {
-  color: #fff;
-  text-decoration: none;
-  padding: 0.5rem;
-  transition: color 0.3s;
+.nav-tabs li:hover,
+.nav-tabs .active {
+  background: #ff0044;
+  color: white;
 }
 
-nav ul li a:hover,
-nav ul li a.active {
-  color: #ff0055;
-  border-bottom: 2px solid #ff0055;
-}
-
-/* Tab Content Layout */
-.tab-content {
+.tab {
   display: none;
-  padding: 2rem;
-  text-align: center;
+  padding: 20px;
 }
 
-.tab-content.active {
+.tab.active {
   display: block;
 }
 
-/* Cards */
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
+  gap: 20px;
 }
 
 .card {
-  background: rgba(0, 0, 0, 0.6);
-  border: 2px solid transparent;
-  padding: 1rem;
+  border: 2px solid #444;
   border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  background-color: #111;
+  transition: 0.3s;
   width: 200px;
-  transition: border-color 0.3s;
 }
 
 .card:hover {
-  border-color: red;
+  border-color: #ff0044;
 }
 
-/* Settings */
-#settings input,
-#settings select,
-#settings button {
-  display: block;
-  margin: 0.5rem auto;
-  padding: 0.5rem;
-  font-size: 1rem;
+.card img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-#settings hr {
-  margin: 2rem auto;
-  width: 80%;
-  border: 1px solid #444;
-}
-
-/* Auth Section */
-#auth-section {
+footer {
   text-align: center;
-  padding: 1rem;
+  padding: 20px;
+  background: #111;
+  color: #999;
+  font-size: 14px;
 }
 
-#auth-section input,
-#auth-section button {
-  margin: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-}
-
-/* Buttons */
-button {
-  background-color: #ff0055;
+button,
+select,
+input[type="file"],
+input[type="email"],
+input[type="password"] {
+  margin: 10px 5px;
+  padding: 10px;
+  background: #ff0044;
   border: none;
-  color: white;
   border-radius: 5px;
+  color: white;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-button:hover {
-  background-color: #cc0044;
+input[type="email"],
+input[type="password"] {
+  background: #222;
+  color: white;
+  border: 1px solid #555;
 }
 
-/* Themes */
-.theme-red {
-  background-color: #111;
-  color: #fff;
-}
-
-.theme-bw {
-  background-color: #fff;
-  color: #000;
-}
-
-.theme-bw nav {
-  background: #000;
-  color: #fff;
-}
-
-.theme-bw nav ul li a {
-  color: #fff;
-}
-
-.theme-bw nav ul li a.active {
-  border-bottom: 2px solid #000;
+button:hover,
+select:hover {
+  opacity: 0.9;
 }

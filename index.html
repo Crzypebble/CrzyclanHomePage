@@ -5,6 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
   <link rel="stylesheet" href="style.css">
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+    authDomain: "crzyclansite.firebaseapp.com",
+    projectId: "crzyclansite",
+    storageBucket: "crzyclansite.appspot.com",
+    messagingSenderId: "534485925500",
+    appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
+<!-- Then include your custom auth script -->
+<script src="auth.js"></script>
+
 </head>
 <body>
   <header id="site-header">

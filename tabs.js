@@ -1,7 +1,10 @@
-window.showTab = function (tabId) {
+function showTab(tabId) {
   document.querySelectorAll('.tab-section').forEach(section => {
     section.style.display = 'none';
   });
-  const tab = document.getElementById(tabId);
-  if (tab) tab.style.display = 'block';
-};
+
+  const activeTab = document.getElementById(tabId);
+  if (activeTab) {
+    activeTab.style.display = 'block';
+  }
+}

@@ -1,116 +1,112 @@
 body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0a0a0a;
+  color: #e6e6e6;
   margin: 0;
-  font-family: Arial, sans-serif;
-  color: white;
-  background-color: #000;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-.top-bar {
-  background-color: #111;
-  padding: 20px;
-  text-align: center;
-}
-
-.logo {
-  font-size: 36px;
-  color: #ff0044;
-}
-
-.tagline {
-  font-style: italic;
-}
-
-.nav-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  list-style: none;
   padding: 0;
-  margin: 10px 0;
 }
 
-.nav-tabs li {
-  cursor: pointer;
-  padding: 8px 16px;
-  background: #222;
-  border-radius: 5px;
-  transition: 0.3s;
-}
-
-.nav-tabs li:hover,
-.nav-tabs .active {
-  background: #ff0044;
-  color: white;
-}
-
-.tab {
-  display: none;
-  padding: 20px;
-}
-
-.tab.active {
-  display: block;
-}
-
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.card {
-  border: 2px solid #444;
-  border-radius: 10px;
-  padding: 10px;
-  text-align: center;
+header {
   background-color: #111;
-  transition: 0.3s;
+  color: crimson;
+  text-align: center;
+  padding: 30px 20px;
+}
+
+nav {
+  margin-top: 10px;
+}
+
+nav a {
+  margin: 0 15px;
+  color: #ccc;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: crimson;
+}
+
+main > section {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.skull-image img {
   width: 200px;
+  border: 3px solid crimson;
+  border-radius: 10px;
+  margin: 20px 0;
 }
 
-.card:hover {
-  border-color: #ff0044;
+.member-card {
+  display: inline-block;
+  background-color: #111;
+  margin: 10px;
+  padding: 15px;
+  width: 200px;
+  border-radius: 10px;
+  border: 2px solid #444;
+  text-align: center;
+  transition: border 0.3s;
 }
 
-.card img {
+.member-card:hover {
+  border-color: crimson;
+}
+
+.member-card img {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid crimson;
+}
+
+.member-card h4 {
+  margin: 5px 0;
+  color: crimson;
+}
+
+.member-card p {
+  font-size: 14px;
+  color: #ccc;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 250px;
+  padding: 10px;
+  margin: 10px auto;
+  display: block;
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 6px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: crimson;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: darkred;
 }
 
 footer {
+  background-color: #111;
   text-align: center;
-  padding: 20px;
-  background: #111;
-  color: #999;
+  padding: 15px;
+  color: #777;
   font-size: 14px;
-}
-
-button,
-select,
-input[type="file"],
-input[type="email"],
-input[type="password"] {
-  margin: 10px 5px;
-  padding: 10px;
-  background: #ff0044;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-}
-
-input[type="email"],
-input[type="password"] {
-  background: #222;
-  color: white;
-  border: 1px solid #555;
-}
-
-button:hover,
-select:hover {
-  opacity: 0.9;
 }

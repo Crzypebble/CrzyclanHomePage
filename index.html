@@ -3,136 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crzyclan</title>
+  <title>CRZYCLAN</title>
   <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="top-bar">
+    <h1 class="logo">CRZYCLAN</h1>
+    <p class="tagline">Home of Chaos, Music, and Mayhem</p>
+    <nav>
+      <ul class="nav-tabs">
+        <li data-tab="home">Home</li>
+        <li data-tab="membership">Membership</li>
+        <li data-tab="music">Music</li>
+        <li data-tab="shop">Shop</li>
+        <li data-tab="settings">Settings</li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Tabs -->
+  <div id="home" class="tab active">
+    <h2>Crzyclan Leaders</h2>
+    <div class="card-container" id="leader-cards"></div>
+
+    <h2>Crzyclan Members</h2>
+    <div class="card-container" id="member-cards"></div>
+  </div>
+
+  <div id="membership" class="tab"><h2>Membership</h2></div>
+  <div id="music" class="tab"><h2>Music</h2></div>
+  <div id="shop" class="tab"><h2>Shop</h2></div>
+
+  <div id="settings" class="tab">
+    <h2>Settings</h2>
+    <div id="login-section">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="login-btn">Log In</button>
+      <button id="signup-btn">Sign Up</button>
+    </div>
+
+    <div id="account-settings" style="display: none;">
+      <p id="user-email"></p>
+      <button id="logout-btn">Log Out</button>
+      <button id="change-email-btn">Change Email</button>
+      <button id="change-password-btn">Change Password</button>
+      <button id="send-password-reset-btn">Send Password Reset Email</button>
+
+      <h3>Theme</h3>
+      <select id="theme-select">
+        <option value="red-mist">Red Mist</option>
+        <option value="black-white">Black and White</option>
+      </select>
+
+      <h3>Custom Background</h3>
+      <input type="file" id="bg-upload" accept="image/*" />
+      <button id="clear-bg-btn">Clear Background</button>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 Crzyclan. All rights reserved.</footer>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
       authDomain: "crzyclansite.firebaseapp.com",
       projectId: "crzyclansite",
-      storageBucket: "crzyclansite.appspot.com",
+      storageBucket: "crzyclansite.firebasestorage.app",
       messagingSenderId: "534485925500",
       appId: "1:534485925500:web:56c7c798780e477e7e13f9"
     };
     firebase.initializeApp(firebaseConfig);
   </script>
-</head>
-<body>
-  <!-- Auth Section -->
-  <div id="auth-section">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button id="sign-in-button">Sign In</button>
-    <button id="sign-up-button">Sign Up</button>
-  </div>
 
-  <!-- Navigation -->
-  <nav>
-    <h1>CRZYCLAN</h1>
-    <p>Home of Chaos, Music, and Mayhem</p>
-    <ul>
-      <li><a href="#home" class="tab-link active">Home</a></li>
-      <li><a href="#membership" class="tab-link">Membership</a></li>
-      <li><a href="#music" class="tab-link">Music</a></li>
-      <li><a href="#shop" class="tab-link">Shop</a></li>
-      <li><a href="#settings" class="tab-link">Settings</a></li>
-    </ul>
-  </nav>
-
-  <!-- Tab Content -->
-  <div id="home" class="tab-content active">
-    <h2>Crzyclan Leaders</h2>
-  <div class="member-card">
-    <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
-    <h4>Crzypebble</h4>
-    <p>"pimpin is the way"</p>
-    <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
-    <h4>CrzySniper</h4>
-    <p>"Shake up the place?"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
-  </div>
-
-  <h2>Crzyclan Members</h2>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
-    <h4>CrzyDevotion</h4>
-    <p>"Win sum lose sum fight sum cause we all lose it all"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
-    <h4>CrzyKahoona</h4>
-    <p>"I aint giving up yet"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
-    <h4>CrzyDemon</h4>
-    <p>"It's Demon Time!"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-  </div>
-  <div class="member-card">
-    <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Tyler%20and%20cat.jpg?raw=true" alt="CrzyWraith">
-    <h4>CrzyWraith</h4>
-    <p>"Swervin the corners"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-  </div>
-</section>
-
-
-  <div id="membership" class="tab-content">
-    <h2>Membership</h2>
-    <p>Exclusive content and perks coming soon.</p>
-  </div>
-
-  <div id="music" class="tab-content">
-    <h2>Music</h2>
-    <p>Tracks and releases will go here.</p>
-  </div>
-
-  <div id="shop" class="tab-content">
-    <h2>Shop</h2>
-    <p>Buy Crzyclan gear and more (coming soon).</p>
-  </div>
-
-  <div id="settings" class="tab-content">
-    <h2>Settings</h2>
-    <h3>Account Settings</h3>
-    <p id="user-email-display"></p>
-
-    <input type="file" id="custom-background" accept="image/*">
-    <button id="clear-background">Clear Background</button>
-
-    <hr />
-    <button id="logout-button">Log Out</button>
-    <button id="change-email-button">Change Email</button>
-    <button id="change-password-button">Change Password</button>
-    <button id="reset-password-button">Send Password Reset Email</button>
-
-    <hr />
-    <label for="theme-select">Theme</label>
-    <select id="theme-select">
-      <option value="red">Red Mist</option>
-      <option value="bw">Black and White</option>
-    </select>
-  </div>
-
-  <!-- JS Scripts (in this order) -->
+  <!-- Modular Scripts -->
   <script src="auth.js"></script>
+  <script src="tabs.js"></script>
   <script src="theme.js"></script>
   <script src="settings.js"></script>
-  <script src="tabs.js"></script>
   <script src="ui.js"></script>
   <script src="effects.js"></script>
   <script src="main.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>

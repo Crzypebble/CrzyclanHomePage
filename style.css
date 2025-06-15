@@ -197,64 +197,41 @@ footer {
 }
 
 
+/* Audio Player Container & Minimizer */
 #audio-player {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #111;
-  color: white;
-  padding: 10px;
+  bottom: 0; left: 0; right: 0;
+  background: #111; color: #fff;
   border-top: 2px solid red;
-  display: flex;
-  flex-direction: column;
   z-index: 9999;
+  font-family: sans-serif;
 }
 
-#audio-player .track-info {
-  font-size: 1.2em;
-  margin-bottom: 5px;
-  text-align: center;
-}
-
-#audio-player .controls {
+.player-header {
   display: flex;
-  justify-content: center;
-  gap: 15px;
-  align-items: center;
-  margin-bottom: 5px;
+  justify-content: space-between;
+  padding: 5px 10px;
 }
 
-#audio-player .controls button {
+#toggle-player {
+  cursor: pointer;
+}
+
+#audio-player.collapsed .controls,
+#audio-player.collapsed .queue {
+  display: none;
+}
+
+/* Button size and hover */
+.controls button {
   background: none;
   border: none;
-  font-size: 1.4em;
-  color: white;
+  font-size: 1.6em;
+  color: #fff;
   cursor: pointer;
+  margin: 0 5px;
   transition: transform 0.2s;
 }
-
-#audio-player .controls button:hover {
+.controls button:hover {
   transform: scale(1.2);
-}
-
-#volume-control {
-  width: 100px;
-}
-
-.queue {
-  max-height: 100px;
-  overflow-y: auto;
-  padding: 0 10px;
-}
-
-.queue ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.queue li {
-  padding: 3px 0;
-  border-bottom: 1px solid #444;
 }

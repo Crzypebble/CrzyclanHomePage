@@ -22,8 +22,18 @@
   firebase.initializeApp(firebaseConfig);
 </script>
 
+<div id="audio-player">
+  <div id="audio-details">
+    <span id="now-playing">Now Playing: None</span>
+    <button id="play-pause-btn">⏸️</button>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+  </div>
+</div>
 
-<body>
+<script src="music.js"></script>
+
+
+  <body>
   <header id="site-header">
     <h1>CRZYCLAN</h1>
     <p>Home of Chaos, Music, and Mayhem</p>

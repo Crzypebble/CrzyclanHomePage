@@ -43,7 +43,18 @@ document.querySelectorAll('.album-tracks li, .track-card, .track-list li')
     wrapTrackElement(el);
 });
 
-// Set up like/dislike/queue buttons
+// Set up like/dislike buttons in the player only
+document.getElementById('like-track').addEventListener('click', () => {
+  if (!firebase.auth().currentUser) return alert('Please log in');
+  alert('Liked ' + audio.src);
+});
+
+document.getElementById('dislike-track').addEventListener('click', () => {
+  if (!firebase.auth().currentUser) return alert('Please log in');
+  alert('Disliked ' + audio.src);
+});
+
+// Setup for queue button only in track bars
 function wrapTrackElement(el) {
   const filename = el.getAttribute('onclick')?.match(/'(.+\.mp3)'/)?.[1];
   if (!filename) return;
@@ -52,34 +63,26 @@ function wrapTrackElement(el) {
   container.classList.add('track-wrapper');
   el.replaceWith(container);
   container.appendChild(el);
-  
-  const likeBtn = document.createElement('button');
-  likeBtn.textContent = '👍';
-  const dislikeBtn = document.createElement('button');
-  dislikeBtn.textContent = '👎';
+
   const queueBtn = document.createElement('button');
   queueBtn.textContent = '➕';
-  
-  [likeBtn, dislikeBtn, queueBtn].forEach(b => {
-    b.classList.add('small-btn');
-    container.appendChild(b);
-  });
+  queueBtn.classList.add('queue-btn');
+  container.appendChild(queueBtn);
 
-  // Playback click
   el.addEventListener('click', () => enqueueAndPlay(filename));
   queueBtn.addEventListener('click', () => enqueueTrack(filename));
-  likeBtn.addEventListener('click', () => doLike(filename));
-  dislikeBtn.addEventListener('click', () => doDislike(filename));
 }
 
 // Core logic
 function enqueueAndPlay(fn) {
   enqueueTrack(fn, true);
 }
+
 function enqueueTrack(fn, play = false) {
   if (!trackQueue.includes(fn)) trackQueue.push(fn);
   if (play) playTrackAt(trackQueue.length - 1);
 }
+
 function playTrackAt(idx) {
   currentIndex = idx;
   const fn = trackQueue[idx];
@@ -87,6 +90,7 @@ function playTrackAt(idx) {
   currentTrackName.textContent = fn;
   audio.play();
 }
+
 function playNext() {
   if (shuffleMode) {
     currentIndex = Math.floor(Math.random() * trackQueue.length);
@@ -94,14 +98,4 @@ function playNext() {
     currentIndex = (currentIndex + 1) % trackQueue.length;
   }
   playTrackAt(currentIndex);
-}
-
-// Like/dislike placeholders (requires auth + data tracking)
-function doLike(fn) {
-  if (!firebase.auth().currentUser) return alert('Please log in');
-  alert('Liked ' + fn);
-}
-function doDislike(fn) {
-  if (!firebase.auth().currentUser) return alert('Please log in');
-  alert('Disliked ' + fn);
 }

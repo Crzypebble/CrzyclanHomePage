@@ -187,6 +187,15 @@ section {
   color: black;
 }
 
+#audio-player.minimized {
+  height: 40px;
+  overflow: hidden;
+}
+#audio-player .player-header {
+  cursor: pointer;
+}
+
+
 /* === Footer === */
 footer {
   background-color: #000;

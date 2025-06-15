@@ -195,6 +195,54 @@ section {
   cursor: pointer;
 }
 
+/* --- Audio player (right-side) --- */
+.side-player {
+  position: fixed;
+  right: 0;
+  top: 60px;
+  width: 260px;
+  background: #111;
+  border-left: 2px solid red;
+  padding: 10px;
+  height: calc(100% - 60px);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+.side-player .controls,
+.side-player .queue,
+.side-player .track-info {
+  margin-top: 10px;
+}
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#current-track-name {
+  font-size: 0.9em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#effects-toggle {
+  margin-top: 8px;
+  background: darkorange;
+  color: black;
+}
+/* Visualiser canvas */
+#audio-visualiser {
+  position: fixed;
+  right: 270px;
+  top: 60px;
+  width: calc(100% - 300px);
+  height: calc(100% - 60px);
+  pointer-events: none;
+}
+#audio-visualiser.hidden {
+  display: none;
+}
+
 
 /* === Footer === */
 footer {

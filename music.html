@@ -129,15 +129,29 @@
     </section>
   </main>
 
-  <!-- AUDIO MANAGER -->
-  <div id="audio-manager" class="audio-manager hidden">
-    <button onclick="prevTrack()">⏮️</button>
-    <button onclick="togglePlay()">⏯️</button>
-    <button onclick="nextTrack()">⏭️</button>
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" />
-    <span id="currentTrackName">No track playing</span>
+  <!-- Audio Player UI -->
+<div id="audio-player">
+  <div class="track-info">
+    <span id="now-playing">Now Playing:</span>
+    <span id="current-track-name">None</span>
   </div>
-  <audio id="audioPlayer" src=""></audio>
+  <div class="controls">
+    <button id="prev-track">⏮️</button>
+    <button id="play-pause">▶️</button>
+    <button id="next-track">⏭️</button>
+    <button id="repeat-toggle">🔁</button>
+    <button id="shuffle-toggle">🔀</button>
+    <input type="range" id="volume-control" min="0" max="1" step="0.01" value="1">
+  </div>
+  <div class="queue">
+    <h4>Queue</h4>
+    <ul id="track-queue"></ul>
+  </div>
+  <audio id="audio" preload="metadata"></audio>
+</div>
+
+<script src="music.js"></script>
+
 
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.

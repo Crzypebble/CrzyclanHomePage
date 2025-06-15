@@ -1,98 +1,107 @@
+// Setup audio player and UI controls
 const audio = document.getElementById('audio');
-const trackNameEl = document.getElementById('current-track-name');
-const queueList = document.getElementById('track-queue');
-let trackQueue = [];
-let currentTrackIndex = 0;
-let repeat = false;
-let shuffleMode = 0; // 0 = no shuffle, 1 = shuffle album, 2 = shuffle all
+const player = document.getElementById('audio-player');
+const toggleBtn = document.getElementById('toggle-player');
+const currentTrackName = document.getElementById('current-track-name');
 
-// Collect all tracks
-document.querySelectorAll('.album-tracks li').forEach(li => {
-  li.classList.add('clickable-track');
-  li.addEventListener('click', () => {
-    const songTitle = li.textContent.trim();
-    const mp3Name = guessFilenameFromTitle(songTitle);
-    playTrack(songTitle, mp3Name);
-    addToQueue(songTitle, mp3Name);
-  });
+const prevBtn = document.getElementById('prev-track');
+const playPauseBtn = document.getElementById('play-pause');
+const nextBtn = document.getElementById('next-track');
+const repeatBtn = document.getElementById('repeat-toggle');
+const shuffleBtn = document.getElementById('shuffle-toggle');
+const volumeCtrl = document.getElementById('volume-control');
+
+const trackQueueEl = document.getElementById('track-queue');
+let trackQueue = [];
+let currentIndex = -1;
+let repeat = false, shuffleMode = 0;
+
+// Minimize/maximize behavior
+toggleBtn.addEventListener('click', () => {
+  player.classList.toggle('collapsed');
+  toggleBtn.textContent = player.classList.contains('collapsed') ? '🔼' : '🔽';
 });
 
-function guessFilenameFromTitle(title) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '')
-    + '.mp3';
+// Generic playback controls
+playPauseBtn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
+prevBtn.addEventListener('click', () => currentIndex > 0 && playTrackAt(currentIndex - 1));
+nextBtn.addEventListener('click', () => playNext());
+repeatBtn.addEventListener('click', () => repeat = !repeat);
+shuffleBtn.addEventListener('click', () => shuffleMode = (shuffleMode + 1) % 3);
+
+// Volume
+volumeCtrl.addEventListener('input', () => audio.volume = volumeCtrl.value);
+
+// Auto-play next or repeat
+audio.addEventListener('ended', () => {
+  repeat ? (audio.currentTime = 0, audio.play()) : playNext();
+});
+
+// Clickable tracks in HTML
+document.querySelectorAll('.album-tracks li, .track-card, .track-list li')
+  .forEach(el => {
+    wrapTrackElement(el);
+});
+
+// Set up like/dislike/queue buttons
+function wrapTrackElement(el) {
+  const filename = el.getAttribute('onclick')?.match(/'(.+\.mp3)'/)?.[1];
+  if (!filename) return;
+
+  const container = document.createElement('div');
+  container.classList.add('track-wrapper');
+  el.replaceWith(container);
+  container.appendChild(el);
+  
+  const likeBtn = document.createElement('button');
+  likeBtn.textContent = '👍';
+  const dislikeBtn = document.createElement('button');
+  dislikeBtn.textContent = '👎';
+  const queueBtn = document.createElement('button');
+  queueBtn.textContent = '➕';
+  
+  [likeBtn, dislikeBtn, queueBtn].forEach(b => {
+    b.classList.add('small-btn');
+    container.appendChild(b);
+  });
+
+  // Playback click
+  el.addEventListener('click', () => enqueueAndPlay(filename));
+  queueBtn.addEventListener('click', () => enqueueTrack(filename));
+  likeBtn.addEventListener('click', () => doLike(filename));
+  dislikeBtn.addEventListener('click', () => doDislike(filename));
 }
 
-function playTrack(displayName, fileName) {
-  audio.src = fileName;
-  trackNameEl.textContent = displayName;
+// Core logic
+function enqueueAndPlay(fn) {
+  enqueueTrack(fn, true);
+}
+function enqueueTrack(fn, play = false) {
+  if (!trackQueue.includes(fn)) trackQueue.push(fn);
+  if (play) playTrackAt(trackQueue.length - 1);
+}
+function playTrackAt(idx) {
+  currentIndex = idx;
+  const fn = trackQueue[idx];
+  audio.src = fn;
+  currentTrackName.textContent = fn;
   audio.play();
 }
-
-function addToQueue(displayName, fileName) {
-  trackQueue.push({ displayName, fileName });
-  renderQueue();
+function playNext() {
+  if (shuffleMode) {
+    currentIndex = Math.floor(Math.random() * trackQueue.length);
+  } else {
+    currentIndex = (currentIndex + 1) % trackQueue.length;
+  }
+  playTrackAt(currentIndex);
 }
 
-function renderQueue() {
-  queueList.innerHTML = '';
-  trackQueue.forEach((track, index) => {
-    const li = document.createElement('li');
-    li.textContent = track.displayName;
-    if (index === currentTrackIndex) li.style.color = 'red';
-    queueList.appendChild(li);
-  });
+// Like/dislike placeholders (requires auth + data tracking)
+function doLike(fn) {
+  if (!firebase.auth().currentUser) return alert('Please log in');
+  alert('Liked ' + fn);
 }
-
-document.getElementById('play-pause').addEventListener('click', () => {
-  if (audio.paused) audio.play();
-  else audio.pause();
-});
-
-document.getElementById('next-track').addEventListener('click', () => {
-  playNextTrack();
-});
-
-document.getElementById('prev-track').addEventListener('click', () => {
-  if (currentTrackIndex > 0) {
-    currentTrackIndex--;
-    let track = trackQueue[currentTrackIndex];
-    playTrack(track.displayName, track.fileName);
-  }
-});
-
-document.getElementById('repeat-toggle').addEventListener('click', () => {
-  repeat = !repeat;
-  alert("Repeat " + (repeat ? "ON" : "OFF"));
-});
-
-document.getElementById('shuffle-toggle').addEventListener('click', () => {
-  shuffleMode = (shuffleMode + 1) % 3;
-  if (shuffleMode === 1) alert("Shuffle: Album Only");
-  else if (shuffleMode === 2) alert("Shuffle: All Tracks");
-  else alert("Shuffle: OFF");
-});
-
-audio.addEventListener('ended', () => {
-  if (repeat) {
-    audio.currentTime = 0;
-    audio.play();
-  } else {
-    playNextTrack();
-  }
-});
-
-document.getElementById('volume-control').addEventListener('input', (e) => {
-  audio.volume = e.target.value;
-});
-
-function playNextTrack() {
-  if (shuffleMode > 0) {
-    currentTrackIndex = Math.floor(Math.random() * trackQueue.length);
-  } else {
-    currentTrackIndex = (currentTrackIndex + 1) % trackQueue.length;
-  }
-  const next = trackQueue[currentTrackIndex];
-  playTrack(next.displayName, next.fileName);
+function doDislike(fn) {
+  if (!firebase.auth().currentUser) return alert('Please log in');
+  alert('Disliked ' + fn);
 }

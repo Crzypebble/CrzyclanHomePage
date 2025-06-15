@@ -1,107 +1,95 @@
-// Setup audio player and UI controls
 const audio = document.getElementById('audio');
 const player = document.getElementById('audio-player');
 const toggleBtn = document.getElementById('toggle-player');
-const currentTrackName = document.getElementById('current-track-name');
+const trackNameEl = document.getElementById('current-track-name');
+const queueList = document.getElementById('track-queue');
 
+const volumeControl = document.getElementById('volume-control');
 const prevBtn = document.getElementById('prev-track');
 const playPauseBtn = document.getElementById('play-pause');
 const nextBtn = document.getElementById('next-track');
 const repeatBtn = document.getElementById('repeat-toggle');
 const shuffleBtn = document.getElementById('shuffle-toggle');
-const volumeCtrl = document.getElementById('volume-control');
 
-const trackQueueEl = document.getElementById('track-queue');
-let trackQueue = [];
-let currentIndex = -1;
-let repeat = false, shuffleMode = 0;
+let queue = [], idx = -1, repeat = false, shuffleMode = 0;
 
-// Minimize/maximize behavior
-toggleBtn.addEventListener('click', () => {
-  player.classList.toggle('collapsed');
-  toggleBtn.textContent = player.classList.contains('collapsed') ? '🔼' : '🔽';
-});
+// Toggle minimize
+toggleBtn.onclick = () => player.classList.toggle('collapsed');
 
-// Generic playback controls
-playPauseBtn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
-prevBtn.addEventListener('click', () => currentIndex > 0 && playTrackAt(currentIndex - 1));
-nextBtn.addEventListener('click', () => playNext());
-repeatBtn.addEventListener('click', () => repeat = !repeat);
-shuffleBtn.addEventListener('click', () => shuffleMode = (shuffleMode + 1) % 3);
+// Controls
+playPauseBtn.onclick = () => audio.paused ? audio.play() : audio.pause();
+prevBtn.onclick = () => { if(idx>0) playAt(idx-1); };
+nextBtn.onclick = () => next();
+repeatBtn.onclick = () => repeat = !repeat;
+shuffleBtn.onclick = () => shuffleMode = (shuffleMode + 1) % 3;
+volumeControl.oninput = () => audio.volume = volumeControl.value;
 
-// Volume
-volumeCtrl.addEventListener('input', () => audio.volume = volumeCtrl.value);
+audio.onended = () => repeat ? audio.play() : next();
 
-// Auto-play next or repeat
-audio.addEventListener('ended', () => {
-  repeat ? (audio.currentTime = 0, audio.play()) : playNext();
-});
-
-// Clickable tracks in HTML
-document.querySelectorAll('.album-tracks li, .track-card, .track-list li')
-  .forEach(el => {
-    wrapTrackElement(el);
-});
-
-// Set up like/dislike/queue buttons
-function wrapTrackElement(el) {
-  const filename = el.getAttribute('onclick')?.match(/'(.+\.mp3)'/)?.[1];
-  if (!filename) return;
-
-  const container = document.createElement('div');
-  container.classList.add('track-wrapper');
-  el.replaceWith(container);
-  container.appendChild(el);
-  
-  const likeBtn = document.createElement('button');
-  likeBtn.textContent = '👍';
-  const dislikeBtn = document.createElement('button');
-  dislikeBtn.textContent = '👎';
-  const queueBtn = document.createElement('button');
-  queueBtn.textContent = '➕';
-  
-  [likeBtn, dislikeBtn, queueBtn].forEach(b => {
+// Clickable tracks & like/dislike
+document.querySelectorAll('[data-filename]').forEach(el => {
+  const fn = el.getAttribute('data-filename');
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('track-wrapper');
+  el.parentNode.insertBefore(wrapper, el);
+  wrapper.appendChild(el);
+  ['➕','👍','👎'].forEach(sym => {
+    const b = document.createElement('button');
+    b.textContent = sym;
     b.classList.add('small-btn');
-    container.appendChild(b);
+    wrapper.appendChild(b);
+    if(sym==='➕') b.onclick = () => enqueue(fn);
+    if(sym==='👍') b.onclick = () => doReact(fn, 'like');
+    if(sym==='👎') b.onclick = () => doReact(fn, 'dislike');
   });
+  el.onclick = () => playAndEnqueue(fn);
+});
 
-  // Playback click
-  el.addEventListener('click', () => enqueueAndPlay(filename));
-  queueBtn.addEventListener('click', () => enqueueTrack(filename));
-  likeBtn.addEventListener('click', () => doLike(filename));
-  dislikeBtn.addEventListener('click', () => doDislike(filename));
+function playAndEnqueue(fn){
+  const pos = queue.indexOf(fn);
+  if (pos === -1) queue.push(fn), idx = queue.length-1;
+  else idx = pos;
+  playAt(idx);
 }
 
-// Core logic
-function enqueueAndPlay(fn) {
-  enqueueTrack(fn, true);
-}
-function enqueueTrack(fn, play = false) {
-  if (!trackQueue.includes(fn)) trackQueue.push(fn);
-  if (play) playTrackAt(trackQueue.length - 1);
-}
-function playTrackAt(idx) {
-  currentIndex = idx;
-  const fn = trackQueue[idx];
-  audio.src = fn;
-  currentTrackName.textContent = fn;
-  audio.play();
-}
-function playNext() {
-  if (shuffleMode) {
-    currentIndex = Math.floor(Math.random() * trackQueue.length);
-  } else {
-    currentIndex = (currentIndex + 1) % trackQueue.length;
+function enqueue(fn){
+  if(!queue.includes(fn)){
+    queue.push(fn);
+    renderQueue();
   }
-  playTrackAt(currentIndex);
 }
 
-// Like/dislike placeholders (requires auth + data tracking)
-function doLike(fn) {
-  if (!firebase.auth().currentUser) return alert('Please log in');
-  alert('Liked ' + fn);
+function playAt(i){
+  idx = i;
+  audio.src = queue[idx];
+  trackNameEl.textContent = queue[idx];
+  audio.play();
+  renderQueue();
 }
-function doDislike(fn) {
-  if (!firebase.auth().currentUser) return alert('Please log in');
-  alert('Disliked ' + fn);
+
+function next(){
+  if(shuffleMode>0 && queue.length>1){
+    idx = Math.floor(Math.random()*queue.length);
+  } else {
+    idx = (idx+1)%queue.length;
+  }
+  playAt(idx);
+}
+
+function renderQueue(){
+  queueList.innerHTML = '';
+  queue.forEach((fn,i)=> {
+    const li = document.createElement('li');
+    li.textContent = fn;
+    if(i===idx) li.style.color='red';
+    queueList.appendChild(li);
+  });
+}
+
+// Placeholder: needs Firebase storage
+function doReact(fn, type){
+  if(!firebase.auth().currentUser){
+    return alert("Login to " + type);
+  }
+  alert(type + "d: " + fn);
 }

@@ -63,8 +63,9 @@ nav a:hover {
 
 /* Skull Image */
 .skull-image img {
-  max-width: 100%;
-  height: auto;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
   display: block;
   margin: 25px auto;
   border: 2px solid #ff1e1e;

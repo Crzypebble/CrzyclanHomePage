@@ -70,6 +70,14 @@ nav a:hover {
   border-radius: 10px;
 }
 
+/* Container for side-by-side layout */
+.member-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
 /* Member Cards */
 .member-card {
   background-color: #1f1f1f;

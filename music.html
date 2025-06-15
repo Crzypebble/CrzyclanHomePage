@@ -27,6 +27,7 @@
       <!-- Albums Section -->
       <div class="music-section">
         <h3>Albums</h3>
+
         <div class="album">
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover">
           <div class="album-info">
@@ -35,9 +36,9 @@
             <ul class="album-tracks">
               <li>Track 1 - HIDDEN</li>
               <li>Track 2 - HIDDEN</li>
-              <li>Track 3 - Why Do I Try?</li>
+              <li onclick="playTrack('whydoitry.mp3')">Track 3 - Why Do I Try?</li>
               <li>Track 4 - HIDDEN</li>
-              <li>Track 5 - Thick And The Bad</li>
+              <li onclick="playTrack('thickandthebad.mp3')">Track 5 - Thick And The Bad</li>
               <li>Track 6 - HIDDEN</li>
             </ul>
           </div>
@@ -49,7 +50,7 @@
             <strong>The Pebble Deluxe</strong><br>
             Released December 19, 2024 - Crzypebble
             <ul class="album-tracks">
-              <li>Track 1 - Welcome To Hell</li>
+              <li onclick="playTrack('welcometohellprodblksaturn.mp3')">Track 1 - Welcome To Hell</li>
               <li>Track 2 - Smoke Bitches</li>
               <li>Track 3 - THE BOULDER: Rocks And Pebbles</li>
               <li>Track 4 - Gas</li>
@@ -75,7 +76,7 @@
             <strong>The Pebble</strong><br>
             Released March 2, 2024 - Crzypebble
             <ul class="album-tracks">
-              <li>Track 1 - Welcome To Hell</li>
+              <li onclick="playTrack('welcometohellprodblksaturn.mp3')">Track 1 - Welcome To Hell</li>
               <li>Track 2 - Smoke Bitches</li>
               <li>Track 3 - THE BOULDER: Rocks And Pebbles</li>
               <li>Track 4 - Gas</li>
@@ -90,7 +91,7 @@
       <!-- Genre Sections -->
       <div class="music-section">
         <h3>Metal</h3>
-        <div class="track-card">
+        <div class="track-card" onclick="playTrack('fleshandsignal.mp3')">
           <img src="images/metal-track.jpg" alt="Flesh and Signal" class="track-art">
           <div>
             <strong>Flesh and Signal</strong><br>
@@ -101,7 +102,7 @@
 
       <div class="music-section">
         <h3>Rap</h3>
-        <div class="track-card">
+        <div class="track-card" onclick="playTrack('mindinred.mp3')">
           <img src="images/rap-track.jpg" alt="Mind in Red" class="track-art">
           <div>
             <strong>Mind in Red</strong><br>
@@ -113,23 +114,35 @@
       <div class="music-section">
         <h3>Game Music</h3>
         <ul class="track-list">
-          <li>Days Before Death - Down Below (Cave Ambience)</li>
-          <li>Boss Fight Loop - The Awakening</li>
+          <li onclick="playTrack('daysbeforedeath.mp3')">Days Before Death - Down Below (Cave Ambience)</li>
+          <li onclick="playTrack('bossfightawakening.mp3')">Boss Fight Loop - The Awakening</li>
         </ul>
       </div>
 
       <div class="music-section">
         <h3>AI Generated</h3>
         <ul class="track-list">
-          <li>Crimson Code - AI Synthwave</li>
-          <li>Cart was full - Rock, Alt, Nu Metal</li>
+          <li onclick="playTrack('crimsoncode.mp3')">Crimson Code - AI Synthwave</li>
+          <li onclick="playTrack('cartwasfull.mp3')">Cart was full - Rock, Alt, Nu Metal</li>
         </ul>
       </div>
     </section>
   </main>
 
+  <!-- AUDIO MANAGER -->
+  <div id="audio-manager" class="audio-manager hidden">
+    <button onclick="prevTrack()">⏮️</button>
+    <button onclick="togglePlay()">⏯️</button>
+    <button onclick="nextTrack()">⏭️</button>
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" />
+    <span id="currentTrackName">No track playing</span>
+  </div>
+  <audio id="audioPlayer" src=""></audio>
+
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.
   </footer>
+
+  <script src="music.js"></script>
 </body>
 </html>

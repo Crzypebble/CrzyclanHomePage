@@ -42,6 +42,15 @@ nav a.active {
   color: red;
 }
 
+.skull-logo {
+  display: block;
+  margin: 20px auto;
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+
 /* === Member/Leader Cards === */
 section {
   padding: 2em;

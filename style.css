@@ -1,4 +1,4 @@
-/* General Styles */
+/* GENERAL STYLES */
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -46,7 +46,7 @@ nav a.active {
   background-color: #222;
 }
 
-/* Main Content */
+/* MAIN CONTENT */
 main {
   padding: 40px 20px;
   max-width: 1200px;
@@ -64,7 +64,7 @@ p {
   line-height: 1.6;
 }
 
-/* Member Cards */
+/* MEMBER CARDS */
 .member-container {
   display: flex;
   flex-wrap: wrap;
@@ -93,7 +93,7 @@ p {
   object-fit: cover;
 }
 
-/* Skull Image */
+/* SKULL IMAGE */
 .skull-image img {
   width: 150px;
   height: 150px;
@@ -104,7 +104,7 @@ p {
   border-radius: 10px;
 }
 
-/* Footer */
+/* FOOTER */
 footer {
   text-align: center;
   padding: 20px;
@@ -114,19 +114,22 @@ footer {
   margin-top: 40px;
 }
 
-/* Music Tab Layout */
+/* MUSIC SECTION */
 .music-section {
-  margin: 40px 0;
+  margin: 50px 0;
 }
 
+/* ALBUM BLOCK */
 .album {
   display: flex;
   gap: 20px;
-  margin-bottom: 30px;
+  align-items: flex-start;
   background-color: #1e1e1e;
-  padding: 15px;
+  padding: 20px;
   border-radius: 10px;
+  margin-bottom: 30px;
   border: 2px solid #333;
+  transition: border-color 0.3s;
 }
 
 .album:hover {
@@ -145,14 +148,31 @@ footer {
   flex-grow: 1;
 }
 
+.album-info strong {
+  color: #fff;
+  font-size: 1.2em;
+}
+
+.album-info br {
+  margin-bottom: 10px;
+}
+
 .album-tracks {
   list-style: none;
   padding: 0;
   margin-top: 10px;
-  line-height: 1.6;
 }
 
-/* Genre Track Cards */
+.album-tracks li {
+  padding: 5px 0;
+  transition: color 0.3s;
+}
+
+.album-tracks li:hover {
+  color: red;
+}
+
+/* TRACK CARDS FOR GENRES */
 .track-card {
   display: flex;
   align-items: center;
@@ -162,7 +182,7 @@ footer {
   border-radius: 10px;
   border: 2px solid #333;
   margin-bottom: 15px;
-  transition: border 0.3s;
+  transition: border-color 0.3s;
 }
 
 .track-card:hover {
@@ -177,17 +197,31 @@ footer {
   flex-shrink: 0;
 }
 
+.track-card strong {
+  font-size: 1.1em;
+}
+
 .track-list {
   list-style: none;
   padding-left: 0;
   line-height: 1.8;
 }
 
-/* Responsive */
+.track-list li {
+  transition: color 0.3s;
+  padding: 4px 0;
+}
+
+.track-list li:hover {
+  color: red;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .album {
     flex-direction: column;
     align-items: center;
+    text-align: center;
   }
 
   .album-cover {

@@ -103,8 +103,8 @@ section {
 }
 
 .album-info {
-  text-align: left;
   flex: 1;
+  text-align: left;
 }
 
 .album-info strong {
@@ -113,15 +113,15 @@ section {
 }
 
 .album-tracks {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
   margin-top: 0.5em;
 }
 
 .album-tracks li {
-  padding: 6px 10px;
   background-color: #222;
   margin: 4px 0;
+  padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
@@ -139,8 +139,8 @@ section {
 
 .music-section h3 {
   color: red;
-  text-align: left;
   margin-bottom: 10px;
+  text-align: left;
 }
 
 .track-card {
@@ -169,14 +169,14 @@ section {
 }
 
 .track-list {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
 
 .track-list li {
-  padding: 6px 10px;
   background-color: #222;
   margin: 5px 0;
+  padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
@@ -187,62 +187,7 @@ section {
   color: black;
 }
 
-#audio-player.minimized {
-  height: 40px;
-  overflow: hidden;
-}
-#audio-player .player-header {
-  cursor: pointer;
-}
-
-/* --- Audio player (right-side) --- */
-.side-player {
-  position: fixed;
-  right: 0;
-  top: 60px;
-  width: 260px;
-  background: #111;
-  border-left: 2px solid red;
-  padding: 10px;
-  height: calc(100% - 60px);
-  display: flex;
-  flex-direction: column;
-  z-index: 10;
-}
-.side-player .controls,
-.side-player .queue,
-.side-player .track-info {
-  margin-top: 10px;
-}
-.player-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-#current-track-name {
-  font-size: 0.9em;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-#effects-toggle {
-  margin-top: 8px;
-  background: darkorange;
-  color: black;
-}
-/* Visualiser canvas */
-#audio-visualiser {
-  position: fixed;
-  right: 270px;
-  top: 60px;
-  width: calc(100% - 300px);
-  height: calc(100% - 60px);
-  pointer-events: none;
-}
-#audio-visualiser.hidden {
-  display: none;
-}
-
+/* === Audio Player (Right Sidebar) === */
 #music-container {
   display: flex;
   flex-direction: row;
@@ -269,9 +214,18 @@ section {
   transform: translateX(100%);
 }
 
-#toggle-player {
+#audio-player.minimized {
+  height: 40px;
+  overflow: hidden;
+}
+
+#audio-player .player-header {
   cursor: pointer;
+}
+
+#toggle-player {
   font-size: 20px;
+  cursor: pointer;
 }
 
 .controls button {
@@ -283,19 +237,63 @@ section {
   margin-top: 10px;
 }
 
+.side-player {
+  position: fixed;
+  right: 0;
+  top: 60px;
+  width: 260px;
+  background: #111;
+  border-left: 2px solid red;
+  padding: 10px;
+  height: calc(100% - 60px);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.side-player .controls,
+.side-player .queue,
+.side-player .track-info {
+  margin-top: 10px;
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#current-track-name {
+  font-size: 0.9em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#effects-toggle {
+  margin-top: 8px;
+  background: darkorange;
+  color: black;
+}
+
+/* Visualizer Canvas */
+#audio-visualiser {
+  position: fixed;
+  right: 270px;
+  top: 60px;
+  width: calc(100% - 300px);
+  height: calc(100% - 60px);
+  pointer-events: none;
+}
+
+#audio-visualiser.hidden {
+  display: none;
+}
+
 #visualizer {
   width: 100%;
   height: 100px;
-  display: none;
   background: black;
+  display: none;
 }
 
-
-/* === Footer === */
-footer {
-  background-color: #000;
-  color: #aaa;
-  text-align: center;
-  padding: 1em 0;
-  font-size: 0.9em;
-}

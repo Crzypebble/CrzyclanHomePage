@@ -24,7 +24,7 @@
       <h2>Crzyclan Music Library</h2>
       <p>Explore our sounds — from raw tracks to game scores and AI experiments.</p>
 
-          <!-- Albums Section -->
+      <!-- Albums Section -->
       <div class="music-section">
         <h3>Albums</h3>
 
@@ -120,20 +120,28 @@
           <li onclick="playTrack('cartwasfull.mp3', this)">Cart was full - Rock, Alt, Nu Metal</li>
         </ul>
       </div>
-  </section>
+    </section>
   </main>
 
-  <!-- Simple Music Player -->
-<div id="simple-player">
-  <div id="drag-bar">🎵 CRZYCLAN Player</div>
-  <div id="now-playing">None</div>
-  <div class="player-controls">
-    <button id="toggle-play">▶️</button>
-    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-    <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
+  <!-- Membership Code Box -->
+  <div id="membership-code-box">
+    <label for="membershipCode">Enter Member Code to Unlock Downloads:</label>
+    <input type="text" id="membershipCode" placeholder="Enter code...">
+    <button onclick="verifyMembershipCode()">Unlock</button>
+    <p id="membership-status"></p>
   </div>
-  <audio id="audio-player" preload="metadata"></audio>
-</div>
+
+  <!-- Simple Music Player -->
+  <div id="simple-player">
+    <div id="drag-bar">🎵 CRZYCLAN Player</div>
+    <div id="now-playing">None</div>
+    <div class="player-controls">
+      <button id="toggle-play">▶️</button>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+      <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
+    </div>
+    <audio id="audio-player" preload="metadata"></audio>
+  </div>
 
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.

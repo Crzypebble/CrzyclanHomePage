@@ -123,24 +123,38 @@
     </section>
   </main>
 
-  <!-- Audio Player UI -->
-  <div id="audio-player">
+
+  <!-- Visualiser Container -->
+  <canvas id="audio-visualiser" class="hidden"></canvas>
+
+  <!-- Audio Player UI (right-side panel) -->
+  <div id="audio-player" class="side-player">
     <div class="player-header">
-      <span id="toggle-player">🔽</span>
-      <span id="current-track-name">No track playing</span>
+      <span id="toggle-player">▶️</span>
+      <span id="current-track-name">None</span>
     </div>
+
     <div class="controls">
+      <button id="stop-all">⏹️ Stop</button>
       <button id="prev-track">⏮️</button>
       <button id="play-pause">▶️</button>
       <button id="next-track">⏭️</button>
-      <button id="repeat-toggle">🔁</button>
       <button id="shuffle-toggle">🔀</button>
+      <span id="shuffle-mode-label">Off</span>
+      <button id="clear-queue">🗑️ Clear Queue</button>
+      <button id="effects-toggle">⚡ Effects (⚠️ flashing)</button>
       <input type="range" id="volume-control" min="0" max="1" step="0.01" value="1">
     </div>
+
     <div class="queue">
       <h4>Queue</h4>
       <ul id="track-queue"></ul>
     </div>
+
+    <div class="track-info">
+      <span>Listens: <span id="listen-count">0</span></span>
+    </div>
+
     <audio id="audio" preload="metadata"></audio>
   </div>
 

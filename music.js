@@ -1,122 +1,71 @@
-const audio = document.getElementById("audio-player");
-const nowPlaying = document.getElementById("now-playing");
-const playBtn = document.getElementById("toggle-play");
+let currentTrack = null;
+let isPlaying = false;
+let isMember = false;
+
+const audioPlayer = document.getElementById("audio-player");
+const playButton = document.getElementById("toggle-play");
 const volumeSlider = document.getElementById("volume");
 const downloadBtn = document.getElementById("download-btn");
-const player = document.getElementById("simple-player");
-const dragBar = document.getElementById("drag-bar");
+const nowPlaying = document.getElementById("now-playing");
 
-let isPlaying = false;
-let currentTrack = "";
+// Allow members to unlock download feature
+function verifyMembershipCode() {
+  const code = document.getElementById("membershipCode").value.trim();
+  const status = document.getElementById("membership-status");
 
-// ===========================
-// ✅ Membership via Secret Code
-// ===========================
-
-const VALID_CODE = "CRZYMEMBER2025"; // set your secret code here
-let userHasMembership = false;
-
-// Prompt for membership code
-function promptMembershipCode() {
-  const code = prompt("Enter your membership code:");
-  if (code === VALID_CODE) {
-    localStorage.setItem("crzyclan_membership", "true");
-    userHasMembership = true;
-    alert("Membership activated! You can now download music.");
-    updateDownloadVisibility();
+  if (code === "CRZYMEMBER2025") {
+    isMember = true;
+    status.textContent = "✅ Membership verified. Downloads unlocked!";
+    status.style.color = "lime";
   } else {
-    alert("Invalid code.");
+    isMember = false;
+    status.textContent = "❌ Invalid code. Try again or contact CRZYCLAN.";
+    status.style.color = "red";
   }
 }
 
-// Check local storage on load
-if (localStorage.getItem("crzyclan_membership") === "true") {
-  userHasMembership = true;
-}
-
-// ===========================
-// ✅ Player Controls
-// ===========================
-
-function playTrack(filename) {
+// Play selected track
+function playTrack(filename, element) {
+  const trackTitle = element.textContent.trim();
   currentTrack = filename;
-  audio.src = filename;
-  audio.play();
-  nowPlaying.textContent = "Playing: " + filename.replace(".mp3", "");
-  playBtn.textContent = "⏸️";
-  downloadBtn.href = filename;
+  audioPlayer.src = filename;
+  audioPlayer.play();
   isPlaying = true;
-  updateDownloadVisibility();
-}
 
-playBtn.addEventListener("click", () => {
-  if (isPlaying) {
-    audio.pause();
-    playBtn.textContent = "▶️";
+  nowPlaying.textContent = "Now Playing: " + trackTitle;
+  playButton.textContent = "⏸️";
+
+  // Enable download if membership verified
+  if (isMember) {
+    downloadBtn.href = filename;
+    downloadBtn.style.display = "inline-block";
   } else {
-    audio.play();
-    playBtn.textContent = "⏸️";
+    downloadBtn.style.display = "none";
   }
-  isPlaying = !isPlaying;
-});
-
-volumeSlider.addEventListener("input", () => {
-  audio.volume = volumeSlider.value;
-});
-
-// ===========================
-// ✅ Draggable Player
-// ===========================
-
-let isDragging = false;
-let dragOffsetX, dragOffsetY;
-
-dragBar.addEventListener("mousedown", function (e) {
-  isDragging = true;
-  dragOffsetX = e.clientX - player.offsetLeft;
-  dragOffsetY = e.clientY - player.offsetTop;
-  document.body.style.userSelect = "none";
-});
-
-document.addEventListener("mousemove", function (e) {
-  if (isDragging) {
-    player.style.left = e.clientX - dragOffsetX + "px";
-    player.style.top = e.clientY - dragOffsetY + "px";
-  }
-});
-
-document.addEventListener("mouseup", function () {
-  isDragging = false;
-  document.body.style.userSelect = "";
-});
-
-// ===========================
-// ✅ Update Download Visibility
-// ===========================
-
-function updateDownloadVisibility() {
-  downloadBtn.style.display = userHasMembership ? "inline-block" : "none";
 }
 
-// ===========================
-// ✅ Hook Up Clickable Tracks
-// ===========================
+// Toggle play/pause
+playButton.addEventListener("click", () => {
+  if (!currentTrack) return;
 
-document.querySelectorAll(".track").forEach(track => {
-  track.addEventListener("click", () => {
-    const file = track.dataset.file;
-    if (file) {
-      playTrack(file);
-    }
-  });
+  if (isPlaying) {
+    audioPlayer.pause();
+    playButton.textContent = "▶️";
+    isPlaying = false;
+  } else {
+    audioPlayer.play();
+    playButton.textContent = "⏸️";
+    isPlaying = true;
+  }
 });
 
-// ===========================
-// ✅ Optional: Button to Enter Membership Code
-// ===========================
+// Volume control
+volumeSlider.addEventListener("input", () => {
+  audioPlayer.volume = volumeSlider.value;
+});
 
-// You can call this when needed, e.g.:
-// Add a button somewhere in music.html like:
-// <button onclick="promptMembershipCode()">Enter Membership Code</button>
-
-window.promptMembershipCode = promptMembershipCode;
+// Reset play button when song ends
+audioPlayer.addEventListener("ended", () => {
+  playButton.textContent = "▶️";
+  isPlaying = false;
+});

@@ -70,30 +70,30 @@ audioPlayer.addEventListener("ended", () => {
   isPlaying = false;
 });
 
-// Dragging logic for #simple-player
+// DRAGGABLE MUSIC PLAYER
 const player = document.getElementById("simple-player");
 const dragBar = document.getElementById("drag-bar");
 
-let offsetX = 0;
-let offsetY = 0;
 let isDragging = false;
+let offsetX, offsetY;
 
 dragBar.addEventListener("mousedown", (e) => {
   isDragging = true;
   offsetX = e.clientX - player.offsetLeft;
   offsetY = e.clientY - player.offsetTop;
-  player.style.cursor = "grabbing";
+  document.body.style.userSelect = "none"; // Prevent text selection
 });
 
 document.addEventListener("mousemove", (e) => {
   if (isDragging) {
-    player.style.left = `${e.clientX - offsetX}px`;
-    player.style.top = `${e.clientY - offsetY}px`;
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+    player.style.left = `${x}px`;
+    player.style.top = `${y}px`;
   }
 });
 
 document.addEventListener("mouseup", () => {
   isDragging = false;
-  player.style.cursor = "grab";
+  document.body.style.userSelect = ""; // Restore selection
 });
-

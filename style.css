@@ -187,113 +187,39 @@ section {
   color: black;
 }
 
-/* === Audio Player (Right Sidebar) === */
-#music-container {
-  display: flex;
-  flex-direction: row;
-}
-
-#music {
-  flex: 1;
-  padding: 20px;
-}
-
-#audio-player {
-  width: 320px;
+#simple-player {
+  position: fixed;
+  bottom: 100px; /* not very bottom */
+  left: 30px;
   background: #111;
   color: white;
-  padding: 15px;
+  padding: 10px 15px;
+  border: 2px solid red;
+  border-radius: 10px;
+  z-index: 9999;
+  width: 280px;
+  box-shadow: 0 0 10px red;
+  font-family: sans-serif;
+  user-select: none;
+}
+
+#simple-player #drag-bar {
+  cursor: move;
+  background: #222;
+  padding: 5px;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid red;
+}
+
+#simple-player .player-controls {
   display: flex;
-  flex-direction: column;
-  border-left: 3px solid red;
-  position: relative;
-  transition: transform 0.3s ease-in-out;
-}
-
-#audio-player.collapsed {
-  transform: translateX(100%);
-}
-
-#audio-player.minimized {
-  height: 40px;
-  overflow: hidden;
-}
-
-#audio-player .player-header {
-  cursor: pointer;
-}
-
-#toggle-player {
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.controls button {
-  margin: 5px;
-}
-
-.track-info-footer {
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.side-player {
-  position: fixed;
-  right: 0;
-  top: 60px;
-  width: 260px;
-  background: #111;
-  border-left: 2px solid red;
-  padding: 10px;
-  height: calc(100% - 60px);
-  display: flex;
-  flex-direction: column;
-  z-index: 10;
-}
-
-.side-player .controls,
-.side-player .queue,
-.side-player .track-info {
-  margin-top: 10px;
-}
-
-.player-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
 }
 
-#current-track-name {
-  font-size: 0.9em;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+#simple-player #volume {
+  width: 100px;
 }
-
-#effects-toggle {
-  margin-top: 8px;
-  background: darkorange;
-  color: black;
-}
-
-/* Visualizer Canvas */
-#audio-visualiser {
-  position: fixed;
-  right: 270px;
-  top: 60px;
-  width: calc(100% - 300px);
-  height: calc(100% - 60px);
-  pointer-events: none;
-}
-
-#audio-visualiser.hidden {
-  display: none;
-}
-
-#visualizer {
-  width: 100%;
-  height: 100px;
-  background: black;
-  display: none;
-}
-

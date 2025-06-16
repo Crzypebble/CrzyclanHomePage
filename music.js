@@ -69,3 +69,31 @@ audioPlayer.addEventListener("ended", () => {
   playButton.textContent = "▶️";
   isPlaying = false;
 });
+
+// Dragging logic for #simple-player
+const player = document.getElementById("simple-player");
+const dragBar = document.getElementById("drag-bar");
+
+let offsetX = 0;
+let offsetY = 0;
+let isDragging = false;
+
+dragBar.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  offsetX = e.clientX - player.offsetLeft;
+  offsetY = e.clientY - player.offsetTop;
+  player.style.cursor = "grabbing";
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (isDragging) {
+    player.style.left = `${e.clientX - offsetX}px`;
+    player.style.top = `${e.clientY - offsetY}px`;
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+  player.style.cursor = "grab";
+});
+

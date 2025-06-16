@@ -1,137 +1,65 @@
-const audio = document.getElementById('audio');
-const playPauseBtn = document.getElementById('play-pause');
-const stopBtn = document.getElementById('stop-all');
-const prevBtn = document.getElementById('prev-track');
-const nextBtn = document.getElementById('next-track');
-const volumeControl = document.getElementById('volume-control');
-const shuffleToggle = document.getElementById('shuffle-toggle');
-const shuffleLabel = document.getElementById('shuffle-mode-label');
-const clearQueueBtn = document.getElementById('clear-queue');
-const queueList = document.getElementById('track-queue');
-const currentTrackName = document.getElementById('current-track-name');
-const currentTrackInfo = document.getElementById('current-track-info');
+const audio = document.getElementById("audio-player");
+const nowPlaying = document.getElementById("now-playing");
+const playBtn = document.getElementById("toggle-play");
+const volumeSlider = document.getElementById("volume");
+const downloadBtn = document.getElementById("download-btn");
 
-let queue = [];
-let currentIndex = -1;
-let shuffleMode = 'off'; // can be 'off', 'album', 'all'
+let isPlaying = false;
+let currentTrack = "";
 
-// Play a track and add to queue if not already in it
-function playTrack(file, element) {
-  const trackTitle = element.textContent;
+// Track play trigger
+function playTrack(filename, element) {
+  const path = filename;
+  currentTrack = filename;
 
-  const track = {
-    file,
-    title: trackTitle
-  };
-
-  const existingIndex = queue.findIndex(t => t.file === file);
-  if (existingIndex === -1) {
-    queue.push(track);
-    updateQueueUI();
-    currentIndex = queue.length - 1;
-  } else {
-    currentIndex = existingIndex;
-  }
-
-  playCurrent();
-}
-
-function playCurrent() {
-  if (currentIndex < 0 || currentIndex >= queue.length) return;
-
-  const track = queue[currentIndex];
-  audio.src = track.file;
+  audio.src = path;
   audio.play();
+  nowPlaying.textContent = "Playing: " + filename.replace(".mp3", "");
+  isPlaying = true;
+  playBtn.textContent = "⏸️";
+  downloadBtn.href = path;
 
-  currentTrackName.textContent = track.title;
-  currentTrackInfo.textContent = track.file;
-
-  playPauseBtn.textContent = '⏸️';
+  // Enable download if membership system later approves it
+  const userHasMembership = false; // Update this when membership is implemented
+  downloadBtn.style.display = userHasMembership ? "inline-block" : "none";
 }
 
-playPauseBtn.addEventListener('click', () => {
-  if (!audio.src) return;
-
-  if (audio.paused) {
-    audio.play();
-    playPauseBtn.textContent = '⏸️';
-  } else {
+// Toggle play/pause
+playBtn.addEventListener("click", () => {
+  if (isPlaying) {
     audio.pause();
-    playPauseBtn.textContent = '▶️';
-  }
-});
-
-stopBtn.addEventListener('click', () => {
-  audio.pause();
-  audio.currentTime = 0;
-  playPauseBtn.textContent = '▶️';
-});
-
-volumeControl.addEventListener('input', () => {
-  audio.volume = volumeControl.value;
-});
-
-nextBtn.addEventListener('click', () => {
-  if (shuffleMode !== 'off') {
-    currentIndex = Math.floor(Math.random() * queue.length);
+    playBtn.textContent = "▶️";
   } else {
-    currentIndex = (currentIndex + 1) % queue.length;
+    audio.play();
+    playBtn.textContent = "⏸️";
   }
-  playCurrent();
+  isPlaying = !isPlaying;
 });
 
-prevBtn.addEventListener('click', () => {
-  if (shuffleMode !== 'off') {
-    currentIndex = Math.floor(Math.random() * queue.length);
-  } else {
-    currentIndex = (currentIndex - 1 + queue.length) % queue.length;
-  }
-  playCurrent();
+// Volume control
+volumeSlider.addEventListener("input", () => {
+  audio.volume = volumeSlider.value;
 });
 
-shuffleToggle.addEventListener('click', () => {
-  if (shuffleMode === 'off') {
-    shuffleMode = 'all';
-    shuffleLabel.textContent = 'Shuffle: All';
-  } else {
-    shuffleMode = 'off';
-    shuffleLabel.textContent = 'Off';
+// Make player draggable
+const player = document.getElementById("simple-player");
+const dragBar = document.getElementById("drag-bar");
+let isDragging = false;
+let offsetX, offsetY;
+
+dragBar.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  offsetX = e.clientX - player.offsetLeft;
+  offsetY = e.clientY - player.offsetTop;
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (isDragging) {
+    player.style.left = e.clientX - offsetX + "px";
+    player.style.top = e.clientY - offsetY + "px";
   }
 });
 
-clearQueueBtn.addEventListener('click', () => {
-  queue = [];
-  currentIndex = -1;
-  audio.pause();
-  audio.currentTime = 0;
-  currentTrackName.textContent = 'None';
-  currentTrackInfo.textContent = '—';
-  playPauseBtn.textContent = '▶️';
-  updateQueueUI();
-});
-
-function updateQueueUI() {
-  queueList.innerHTML = '';
-  queue.forEach((track, i) => {
-    const li = document.createElement('li');
-    li.textContent = track.title;
-    li.classList.toggle('active-track', i === currentIndex);
-    li.addEventListener('click', () => {
-      currentIndex = i;
-      playCurrent();
-    });
-    queueList.appendChild(li);
-  });
-}
-
-// Optional: Autoplay next track when current one ends
-audio.addEventListener('ended', () => {
-  if (queue.length > 0) {
-    if (shuffleMode === 'off') {
-      currentIndex = (currentIndex + 1) % queue.length;
-    } else {
-      currentIndex = Math.floor(Math.random() * queue.length);
-    }
-    playCurrent();
-  }
+document.addEventListener("mouseup", () => {
+  isDragging = false;
 });

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Track | CRZYCLAN</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>CRZYCLAN</h1>
+    <p>Home of Chaos, Music, and Mayhem</p>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="membership.html">Membership</a>
+      <a href="music.html" class="active">Music</a>
+      <a href="shop.html">Shop</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Subnav (Music Navigation Bar) -->
+  <nav class="music-subnav" aria-label="Music navigation">
+    <a href="music.html">🎧 CRZYCLAN Library</a>
+    <a href="community-music.html">🎵 Community Music</a>
+    <a href="music-projects.html">🎚️ Music Projects</a>
+    <a href="upload.html" class="active">⬆️ Upload Track</a>
+    <a href="personal-library.html">🎤 Personal Library</a>
+  </nav>
+
+  <main>
+    <section id="upload-section">
+      <h2>Upload Your Music</h2>
+      <p>
+        Upload your personal tracks here. Uploaded files will appear in your <strong>Personal Library</strong> only and will not be published to the Community section.
+      </p>
+
+      <div class="upload-box">
+        <form id="upload-form">
+          <label for="trackTitle">Track Title:</label>
+          <input type="text" id="trackTitle" name="trackTitle" placeholder="Enter track title..." required>
+
+          <label for="artistName">Artist Name:</label>
+          <input type="text" id="artistName" name="artistName" placeholder="Enter your artist name..." required>
+
+          <label for="genre">Genre:</label>
+          <select id="genre" name="genre">
+            <option value="rap">Rap</option>
+            <option value="metal">Metal</option>
+            <option value="alt">Alt / Rock</option>
+            <option value="game">Game Music</option>
+            <option value="ai">AI Generated</option>
+          </select>
+
+          <label for="coverArt">Album / Cover Art:</label>
+          <input type="file" id="coverArt" name="coverArt" accept="image/*">
+
+          <label for="trackFile">Track File (MP3/WAV):</label>
+          <input type="file" id="trackFile" name="trackFile" accept=".mp3, .wav" required>
+
+          <label for="description">Description (optional):</label>
+          <textarea id="description" name="description" rows="3" placeholder="Describe your track..."></textarea>
+
+          <button type="submit">Upload Track</button>
+        </form>
+
+        <div id="upload-status"></div>
+      </div>
+    </section>
+
+    <section id="uploaded-tracks">
+      <h3>Your Uploaded Tracks</h3>
+      <div id="uploadedList">
+        <p>No uploads yet. Once you upload, your tracks will appear here.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Player -->
+  <div id="simple-player">
+    <div id="drag-bar">🎵 CRZYCLAN Player</div>
+    <div id="now-playing">None</div>
+    <div class="player-controls">
+      <button id="toggle-play">▶️</button>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+      <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
+    </div>
+    <audio id="audio-player" preload="metadata"></audio>
+  </div>
+
+  <footer>
+    &copy; 2025 CRZYCLAN. All rights reserved.
+  </footer>
+
+  <script>
+    // Handle uploads locally (for now)
+    const uploadForm = document.getElementById('upload-form');
+    const uploadStatus = document.getElementById('upload-status');
+    const uploadedList = document.getElementById('uploadedList');
+
+    uploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('trackTitle').value.trim();
+      const artist = document.getElementById('artistName').value.trim();
+      const fileInput = document.getElementById('trackFile');
+      const coverArt = document.getElementById('coverArt');
+
+      if (!fileInput.files.length) {
+        uploadStatus.textContent = 'Please select a track file.';
+        return;
+      }
+
+      const trackFile = fileInput.files[0];
+      const cover = coverArt.files[0] ? URL.createObjectURL(coverArt.files[0]) : 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true';
+      
+      const trackItem = document.createElement('div');
+      trackItem.className = 'track-card';
+      trackItem.innerHTML = `
+        <img src="${cover}" alt="${title}" class="track-art">
+        <div><strong>${title}</strong><br>${artist}</div>
+      `;
+      uploadedList.appendChild(trackItem);
+
+      uploadStatus.textContent = '✅ Track uploaded successfully (local preview only).';
+      uploadForm.reset();
+    });
+  </script>
+</body>
+</html>

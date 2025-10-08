@@ -5,226 +5,190 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personal Library | CRZYCLAN</title>
   <link rel="stylesheet" href="style.css">
-
   <style>
     body {
-      background-color: #000;
-      color: white;
+      background-color: #0a0a0a;
+      color: #fff;
       font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
-    header h1 {
+    header {
       text-align: center;
+      padding: 1.5rem;
       color: #ff2965;
-      text-shadow: 0 0 10px #ff2965;
+      text-shadow: 0 0 15px #ff2965;
     }
 
     nav.music-subnav {
-      display: flex;
-      justify-content: center;
-      gap: 1.2rem;
-      background: rgba(10, 10, 10, 0.9);
-      padding: 0.8rem;
-      border-bottom: 1px solid #ff2965;
-      box-shadow: 0 0 10px rgba(255, 41, 101, 0.4);
+      text-align: center;
+      margin-bottom: 2rem;
     }
 
     nav.music-subnav a {
-      color: #fff;
+      margin: 0 10px;
       text-decoration: none;
-      font-weight: bold;
+      color: #ff639a;
+      font-weight: 600;
       transition: 0.3s;
     }
 
-    nav.music-subnav a.active, nav.music-subnav a:hover {
-      color: #ff639a;
-      text-shadow: 0 0 10px #ff639a;
+    nav.music-subnav a:hover,
+    nav.music-subnav a.active {
+      color: #00ffbf;
+      text-shadow: 0 0 10px #00ffbf;
     }
 
     main {
-      max-width: 1100px;
-      margin: 2rem auto;
-      padding: 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
     }
 
-    section {
-      background: rgba(10, 10, 10, 0.7);
+    .library-section {
+      background: rgba(15, 15, 15, 0.9);
       border-radius: 16px;
+      box-shadow: 0 0 20px rgba(255, 41, 101, 0.25);
       padding: 1.5rem;
       margin-bottom: 2rem;
-      box-shadow: 0 0 20px rgba(255, 41, 101, 0.25);
     }
 
-    section h2 {
-      color: #00ffbf;
-      text-shadow: 0 0 8px #00ffbf;
+    .library-section h2 {
+      color: #ff2965;
+      text-shadow: 0 0 10px #ff2965;
       text-align: center;
-      margin-bottom: 1.5rem;
     }
 
-    /* Track Grid */
-    .track-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
+    .playlist-list, .track-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
     }
 
-    .track-card {
-      background: rgba(25, 25, 25, 0.85);
+    .playlist-card, .track-card {
+      background: rgba(25, 25, 25, 0.9);
       border: 1px solid #ff2965;
       border-radius: 12px;
       overflow: hidden;
       color: #fff;
       text-align: center;
+      width: 200px;
       transition: 0.3s;
-      box-shadow: 0 0 10px rgba(255, 41, 101, 0.3);
+      box-shadow: 0 0 12px rgba(255, 41, 101, 0.3);
     }
 
+    .playlist-card:hover,
     .track-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px rgba(255, 41, 101, 0.6);
     }
 
-    .track-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-bottom: 1px solid #ff2965;
-    }
-
-    .track-info {
-      padding: 0.8rem;
-    }
-
-    .track-info h4 {
-      margin: 0.4rem 0;
-      color: #ff639a;
+    .playlist-card h3 {
       font-size: 1.1rem;
+      margin: 0.8rem 0;
+      color: #ff639a;
     }
 
-    .track-info p {
-      margin: 0;
-      color: #ccc;
-      font-size: 0.9rem;
-    }
-
-    audio {
-      width: 90%;
-      margin: 0.5rem auto;
-      display: block;
-    }
-
-    .track-actions {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .track-actions button {
+    .playlist-card button {
       background: transparent;
       border: 1px solid #ff639a;
       color: #ff639a;
       border-radius: 8px;
       padding: 5px 10px;
+      margin: 5px;
       cursor: pointer;
       transition: 0.3s;
     }
 
-    .track-actions button:hover {
+    .playlist-card button:hover {
       background: #ff2965;
       color: white;
     }
 
-    /* Playlist Section */
-    #playlist-section {
-      background: rgba(15, 15, 15, 0.9);
-      border: 1px solid #00ffbf;
-      box-shadow: 0 0 20px rgba(0, 255, 191, 0.25);
-    }
-
-    #playlist-form {
+    .add-playlist {
       display: flex;
       justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
+      gap: 10px;
+      margin-top: 1rem;
     }
 
-    #playlistName {
+    .add-playlist input {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #ff639a;
       background: rgba(30, 30, 30, 0.9);
-      border: 1px solid #00ffbf;
       color: #fff;
-      border-radius: 8px;
-      padding: 0.6rem;
-      font-size: 1rem;
+      width: 200px;
     }
 
-    #playlist-form button {
-      background: linear-gradient(90deg, #00ffbf, #009bff);
+    .add-playlist button {
+      background: linear-gradient(90deg, #ff2965, #ff639a);
       border: none;
-      color: #000;
-      font-weight: bold;
       border-radius: 8px;
+      color: #fff;
       padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 0 10px rgba(255, 41, 101, 0.6);
+      transition: 0.3s;
+    }
+
+    .add-playlist button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 41, 101, 0.9);
+    }
+
+    .track-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-bottom: 1px solid #ff2965;
+    }
+
+    audio {
+      width: 90%;
+      margin-top: 5px;
+    }
+
+    .track-card button {
+      background: transparent;
+      border: 1px solid #00ffbf;
+      color: #00ffbf;
+      border-radius: 8px;
+      padding: 4px 10px;
+      margin: 5px;
       cursor: pointer;
       transition: 0.3s;
     }
 
-    #playlist-form button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px #00ffbf;
-    }
-
-    .playlist-card {
-      background: rgba(25, 25, 25, 0.8);
-      border: 1px solid #00ffbf;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .playlist-card h3 {
-      color: #00ffbf;
-      margin-bottom: 1rem;
-      text-shadow: 0 0 8px #00ffbf;
-    }
-
-    .playlist-tracks {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .playlist-tracks div {
-      background: rgba(35, 35, 35, 0.9);
-      padding: 0.5rem;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .playlist-tracks button {
-      background: transparent;
-      border: 1px solid #00ffbf;
-      color: #00ffbf;
-      border-radius: 5px;
-      padding: 2px 8px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: 0.2s;
-    }
-
-    .playlist-tracks button:hover {
+    .track-card button:hover {
       background: #00ffbf;
       color: #000;
     }
+
+    #searchInput {
+      display: block;
+      margin: 1rem auto;
+      width: 60%;
+      padding: 0.7rem;
+      border-radius: 10px;
+      border: 1px solid #00ffbf;
+      background: rgba(20, 20, 20, 0.8);
+      color: #fff;
+      text-align: center;
+      font-size: 1rem;
+    }
   </style>
 </head>
-
 <body>
+
   <header>
     <h1>CRZYCLAN</h1>
+    <p>Personal Music Library</p>
   </header>
 
   <nav class="music-subnav">
@@ -236,123 +200,157 @@
   </nav>
 
   <main>
-    <section id="uploaded-section">
-      <h2>Your Uploaded Tracks</h2>
-      <div class="track-grid" id="uploadedList"></div>
+    <section class="library-section">
+      <h2>Your Playlists</h2>
+      <div class="add-playlist">
+        <input type="text" id="playlistName" placeholder="New playlist name...">
+        <button id="createPlaylist">Create Playlist</button>
+      </div>
+      <div id="playlistList" class="playlist-list"></div>
     </section>
 
-    <section id="playlist-section">
-      <h2>Your Playlists</h2>
-      <form id="playlist-form">
-        <input type="text" id="playlistName" placeholder="New Playlist Name" required>
-        <button type="submit">Create Playlist</button>
-      </form>
-      <div id="playlists"></div>
+    <section class="library-section">
+      <h2 id="playlistTitle">Select a playlist to view tracks</h2>
+      <input type="text" id="searchInput" placeholder="Search songs to add... (from uploads, community, or official)">
+      <div id="trackList" class="track-list"></div>
     </section>
   </main>
 
-  <footer>&copy; 2025 CRZYCLAN. All rights reserved.</footer>
+  <footer>
+    &copy; 2025 CRZYCLAN. All rights reserved.
+  </footer>
 
   <script>
-    const uploadedList = document.getElementById("uploadedList");
-    const playlistsDiv = document.getElementById("playlists");
-    const playlistForm = document.getElementById("playlist-form");
+    const playlistList = document.getElementById("playlistList");
+    const trackList = document.getElementById("trackList");
     const playlistNameInput = document.getElementById("playlistName");
+    const createBtn = document.getElementById("createPlaylist");
+    const searchInput = document.getElementById("searchInput");
+    const playlistTitle = document.getElementById("playlistTitle");
 
-    function loadUploadedTracks() {
-      const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-      uploadedList.innerHTML = "";
-      if (tracks.length === 0) {
-        uploadedList.innerHTML = "<p>No uploaded tracks yet.</p>";
-        return;
-      }
-
-      tracks.sort((a, b) => new Date(b.date) - new Date(a.date));
-      tracks.forEach((track, index) => {
-        const card = document.createElement("div");
-        card.className = "track-card";
-        card.innerHTML = `
-          <img src="${track.cover}" alt="Cover">
-          <div class="track-info">
-            <h4>${track.title}</h4>
-            <p>${track.artist}</p>
-          </div>
-          <audio controls src="${track.audio}"></audio>
-          <div class="track-actions">
-            <button onclick="addToPlaylistPrompt(${index})">Add to Playlist</button>
-          </div>
-        `;
-        uploadedList.appendChild(card);
-      });
-    }
-
-    playlistForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const name = playlistNameInput.value.trim();
-      if (!name) return;
-      let playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
-      playlists.push({ name, tracks: [] });
-      localStorage.setItem("playlists", JSON.stringify(playlists));
-      playlistNameInput.value = "";
-      loadPlaylists();
-    });
+    let selectedPlaylist = null;
 
     function loadPlaylists() {
       const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
-      playlistsDiv.innerHTML = "";
-      playlists.forEach((pl, i) => {
-        const card = document.createElement("div");
-        card.className = "playlist-card";
-        card.innerHTML = `
-          <h3>${pl.name}</h3>
-          <div class="playlist-tracks">
-            ${pl.tracks.length > 0 ? pl.tracks.map((t, idx) => `
-              <div>
-                <span>${t.title} - ${t.artist}</span>
-                <button onclick="removeFromPlaylist(${i}, ${idx})">Remove</button>
-              </div>`).join('') : `<p>No tracks yet.</p>`}
-          </div>
-          <button onclick="deletePlaylist(${i})" style="margin-top:10px;">Delete Playlist</button>
+      playlistList.innerHTML = "";
+
+      playlists.forEach((playlist, index) => {
+        const div = document.createElement("div");
+        div.className = "playlist-card";
+        div.innerHTML = `
+          <h3>${playlist.name}</h3>
+          <button onclick="viewPlaylist(${index})">Open</button>
+          <button onclick="renamePlaylist(${index})">Rename</button>
+          <button onclick="deletePlaylist(${index})">Delete</button>
         `;
-        playlistsDiv.appendChild(card);
+        playlistList.appendChild(div);
       });
     }
 
-    function addToPlaylistPrompt(trackIndex) {
-      const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
-      if (playlists.length === 0) return alert("You need to create a playlist first!");
-      const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-      const track = tracks[trackIndex];
+    function savePlaylists(playlists) {
+      localStorage.setItem("playlists", JSON.stringify(playlists));
+    }
 
-      const names = playlists.map((p, i) => `${i + 1}. ${p.name}`).join("\n");
-      const choice = prompt(`Add "${track.title}" to which playlist?\n${names}`);
-      const num = parseInt(choice);
-      if (num && playlists[num - 1]) {
-        playlists[num - 1].tracks.push(track);
-        localStorage.setItem("playlists", JSON.stringify(playlists));
+    createBtn.onclick = () => {
+      const name = playlistNameInput.value.trim();
+      if (!name) return;
+      const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+      playlists.push({ name, tracks: [] });
+      savePlaylists(playlists);
+      playlistNameInput.value = "";
+      loadPlaylists();
+    };
+
+    function deletePlaylist(index) {
+      const playlists = JSON.parse(localStorage.getItem("playlists"));
+      playlists.splice(index, 1);
+      savePlaylists(playlists);
+      trackList.innerHTML = "";
+      playlistTitle.textContent = "Select a playlist to view tracks";
+      loadPlaylists();
+    }
+
+    function renamePlaylist(index) {
+      const playlists = JSON.parse(localStorage.getItem("playlists"));
+      const newName = prompt("Enter new playlist name:", playlists[index].name);
+      if (newName) {
+        playlists[index].name = newName;
+        savePlaylists(playlists);
         loadPlaylists();
       }
     }
 
-    function removeFromPlaylist(playlistIndex, trackIndex) {
-      const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
-      playlists[playlistIndex].tracks.splice(trackIndex, 1);
-      localStorage.setItem("playlists", JSON.stringify(playlists));
-      loadPlaylists();
+    function viewPlaylist(index) {
+      const playlists = JSON.parse(localStorage.getItem("playlists"));
+      selectedPlaylist = index;
+      const playlist = playlists[index];
+      playlistTitle.textContent = playlist.name;
+      renderTracks(playlist.tracks);
     }
 
-    function deletePlaylist(index) {
-      let playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
-      playlists.splice(index, 1);
-      localStorage.setItem("playlists", JSON.stringify(playlists));
-      loadPlaylists();
+    function renderTracks(tracks) {
+      trackList.innerHTML = "";
+      if (!tracks || tracks.length === 0) {
+        trackList.innerHTML = `<p>No tracks yet. Search and add songs below.</p>`;
+        return;
+      }
+
+      tracks.forEach((t, i) => {
+        const div = document.createElement("div");
+        div.className = "track-card";
+        div.innerHTML = `
+          <img src="${t.cover}" alt="cover">
+          <div><strong>${t.title}</strong><br>${t.artist}</div>
+          <audio controls src="${t.audio}"></audio>
+          <button onclick="removeFromPlaylist(${i})">Remove</button>
+        `;
+        trackList.appendChild(div);
+      });
     }
 
-    // 🚀 (Future Expansion)
-    // Tracks from official or community libraries can be added if they share a localStorage key
-    // named "officialTracks" or "communityTracks" with similar data structure.
+    function removeFromPlaylist(trackIndex) {
+      const playlists = JSON.parse(localStorage.getItem("playlists"));
+      playlists[selectedPlaylist].tracks.splice(trackIndex, 1);
+      savePlaylists(playlists);
+      renderTracks(playlists[selectedPlaylist].tracks);
+    }
 
-    loadUploadedTracks();
+    searchInput.addEventListener("input", () => {
+      const term = searchInput.value.toLowerCase();
+      if (!selectedPlaylist) {
+        trackList.innerHTML = `<p>Select a playlist first.</p>`;
+        return;
+      }
+
+      const uploads = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      const community = JSON.parse(localStorage.getItem("communityTracks") || "[]");
+      const official = JSON.parse(localStorage.getItem("officialTracks") || "[]");
+
+      const results = [...uploads, ...community, ...official].filter(
+        t => t.title.toLowerCase().includes(term) || t.artist.toLowerCase().includes(term)
+      );
+
+      trackList.innerHTML = "";
+      results.forEach((t, i) => {
+        const div = document.createElement("div");
+        div.className = "track-card";
+        div.innerHTML = `
+          <img src="${t.cover}" alt="cover">
+          <div><strong>${t.title}</strong><br>${t.artist}</div>
+          <audio controls src="${t.audio}"></audio>
+          <button onclick='addToPlaylist(${JSON.stringify(t)})'>Add</button>
+        `;
+        trackList.appendChild(div);
+      });
+    });
+
+    function addToPlaylist(track) {
+      const playlists = JSON.parse(localStorage.getItem("playlists"));
+      playlists[selectedPlaylist].tracks.push(track);
+      savePlaylists(playlists);
+      viewPlaylist(selectedPlaylist);
+    }
+
     loadPlaylists();
   </script>
 </body>

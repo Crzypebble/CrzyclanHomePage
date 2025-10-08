@@ -7,7 +7,13 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* --- Upload Section Enhancements --- */
+    body {
+      background-color: #000;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Upload Section */
     #upload-section {
       background: rgba(0, 0, 0, 0.7);
       border-radius: 16px;
@@ -26,30 +32,16 @@
       margin-bottom: 1.5rem;
     }
 
-    #upload-section p {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #ccc;
-    }
-
     .upload-box form {
       display: flex;
       flex-direction: column;
       gap: 1.2rem;
     }
 
-    .upload-box label {
-      font-weight: bold;
-      color: #ff639a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .upload-box input[type="text"],
-    .upload-box input[type="file"],
+    .upload-box input,
     .upload-box select,
     .upload-box textarea {
-      background: rgba(30, 30, 30, 0.9);
+      background: rgba(25, 25, 25, 0.9);
       border: 1px solid #ff2965;
       border-radius: 8px;
       color: #fff;
@@ -63,7 +55,6 @@
     .upload-box textarea:focus {
       outline: none;
       box-shadow: 0 0 10px #ff2965;
-      border-color: #ff639a;
     }
 
     .upload-box button {
@@ -71,14 +62,13 @@
       color: #fff;
       border: none;
       border-radius: 10px;
-      padding: 0.8rem 1.2rem;
+      padding: 0.8rem;
       font-size: 1.1rem;
       cursor: pointer;
       font-weight: bold;
       text-transform: uppercase;
-      transition: 0.3s;
-      letter-spacing: 1px;
       box-shadow: 0 0 12px rgba(255, 41, 101, 0.6);
+      transition: 0.3s;
     }
 
     .upload-box button:hover {
@@ -86,19 +76,12 @@
       box-shadow: 0 0 20px rgba(255, 41, 101, 0.9);
     }
 
-    #upload-status {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 1rem;
-      color: #00ffbf;
-    }
-
     #uploaded-tracks {
-      max-width: 900px;
-      margin: 3rem auto;
-      padding: 1rem 2rem;
       background: rgba(10, 10, 10, 0.7);
       border-radius: 16px;
+      margin: 3rem auto;
+      padding: 1rem 2rem;
+      max-width: 1100px;
       box-shadow: 0 0 20px rgba(0, 255, 191, 0.25);
     }
 
@@ -109,69 +92,89 @@
       margin-bottom: 1.5rem;
     }
 
+    /* Track List Grid */
     #uploadedList {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+      justify-items: center;
     }
 
     .track-card {
-      width: 200px;
-      background: rgba(25, 25, 25, 0.9);
+      background: rgba(20, 20, 20, 0.85);
       border: 1px solid #ff2965;
       border-radius: 12px;
       overflow: hidden;
       color: #fff;
       text-align: center;
       transition: 0.3s;
-      padding-bottom: 1rem;
+      box-shadow: 0 0 10px rgba(255, 41, 101, 0.3);
     }
 
-    .track-card img.track-art {
+    .track-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
+    }
+
+    .track-card img {
       width: 100%;
       height: 180px;
       object-fit: cover;
       border-bottom: 1px solid #ff2965;
     }
 
-    .track-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
+    .track-info {
+      padding: 0.8rem;
     }
 
-    .track-card button {
-      background: transparent;
-      border: 1px solid #ff639a;
+    .track-info h4 {
+      margin: 0.4rem 0;
       color: #ff639a;
-      padding: 5px 10px;
-      margin: 5px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
+      font-size: 1.1rem;
     }
 
-    .track-card button:hover {
-      background: #ff2965;
-      color: white;
+    .track-info p {
+      margin: 0;
+      color: #ccc;
+      font-size: 0.9rem;
     }
 
     audio {
       width: 90%;
-      margin-top: 5px;
+      margin: 0.5rem auto;
+      display: block;
+    }
+
+    .track-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .track-actions button {
+      background: transparent;
+      border: 1px solid #ff639a;
+      color: #ff639a;
+      border-radius: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .track-actions button:hover {
+      background: #ff2965;
+      color: white;
+    }
+
+    #upload-status {
+      text-align: center;
+      color: #00ffbf;
+      margin-top: 1rem;
     }
 
     #customGenre {
       display: none;
-    }
-
-    @media (max-width: 700px) {
-      #upload-section {
-        padding: 1.5rem;
-      }
-      .track-card {
-        width: 160px;
-      }
     }
   </style>
 </head>
@@ -193,17 +196,11 @@
   <main>
     <section id="upload-section">
       <h2>Upload Your Music</h2>
-      <p>Upload your personal tracks — they’ll appear only in your Personal Library.</p>
-
       <div class="upload-box">
         <form id="upload-form">
-          <label for="trackTitle">Track Title:</label>
-          <input type="text" id="trackTitle" required>
+          <input type="text" id="trackTitle" placeholder="Track Title" required>
+          <input type="text" id="artistName" placeholder="Artist Name" required>
 
-          <label for="artistName">Artist Name:</label>
-          <input type="text" id="artistName" required>
-
-          <label for="genre">Genre:</label>
           <select id="genre">
             <option value="">-- Select a Genre --</option>
             <option value="Rap">Rap</option>
@@ -214,20 +211,15 @@
             <option value="custom">Custom Genre</option>
           </select>
 
-          <input type="text" id="customGenre" placeholder="Enter your custom genre...">
+          <input type="text" id="customGenre" placeholder="Enter custom genre">
 
-          <label for="coverArt">Album / Cover Art:</label>
           <input type="file" id="coverArt" accept="image/*">
-
-          <label for="trackFile">Track File (MP3/WAV):</label>
           <input type="file" id="trackFile" accept=".mp3, .wav" required>
 
-          <label for="description">Description (optional):</label>
-          <textarea id="description" rows="3" placeholder="Describe your track..."></textarea>
+          <textarea id="description" rows="3" placeholder="Track Description (optional)"></textarea>
 
           <button type="submit">Upload Track</button>
         </form>
-
         <div id="upload-status"></div>
       </div>
     </section>
@@ -238,117 +230,110 @@
     </section>
   </main>
 
-  <footer>
-    &copy; 2025 CRZYCLAN. All rights reserved.
-  </footer>
+  <footer>&copy; 2025 CRZYCLAN. All rights reserved.</footer>
 
-<script>
-  const form = document.getElementById("upload-form");
-  const uploadStatus = document.getElementById("upload-status");
-  const uploadedList = document.getElementById("uploadedList");
-  const genreSelect = document.getElementById("genre");
-  const customGenre = document.getElementById("customGenre");
+  <script>
+    const form = document.getElementById("upload-form");
+    const uploadStatus = document.getElementById("upload-status");
+    const uploadedList = document.getElementById("uploadedList");
+    const genreSelect = document.getElementById("genre");
+    const customGenre = document.getElementById("customGenre");
 
-  genreSelect.addEventListener("change", () => {
-    customGenre.style.display = genreSelect.value === "custom" ? "block" : "none";
-  });
-
-  // Load existing tracks
-  function loadTracks() {
-    const saved = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-    uploadedList.innerHTML = "";
-
-    if (saved.length === 0) {
-      uploadedList.innerHTML = `<p>No uploads yet. Once you upload, your tracks will appear here.</p>`;
-      return;
-    }
-
-    saved.forEach((track, index) => {
-      const card = document.createElement("div");
-      card.className = "track-card";
-      card.innerHTML = `
-        <img src="${track.cover}" alt="Cover Art" class="track-art">
-        <div><strong>${track.title}</strong><br>${track.artist}<br><em>${track.genre}</em></div>
-        <audio controls src="${track.audio}"></audio>
-        <div>
-          <button onclick="editTrack(${index})">Edit</button>
-          <button onclick="deleteTrack(${index})">Delete</button>
-        </div>
-      `;
-      uploadedList.appendChild(card);
+    genreSelect.addEventListener("change", () => {
+      customGenre.style.display = genreSelect.value === "custom" ? "block" : "none";
     });
-  }
 
-  // Handle form submission
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+    function loadTracks() {
+      let saved = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      uploadedList.innerHTML = "";
 
-    const title = document.getElementById("trackTitle").value.trim();
-    const artist = document.getElementById("artistName").value.trim();
-    const genre = genreSelect.value === "custom" ? customGenre.value.trim() : genreSelect.value;
-    const audioFile = document.getElementById("trackFile").files[0];
-    const coverFile = document.getElementById("coverArt").files[0];
+      if (saved.length === 0) {
+        uploadedList.innerHTML = `<p>No uploads yet. Once you upload, your tracks will appear here.</p>`;
+        return;
+      }
 
-    if (!title || !artist || !audioFile) {
-      uploadStatus.textContent = "⚠️ Please fill out all required fields.";
-      return;
+      saved.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      saved.forEach((track, index) => {
+        const card = document.createElement("div");
+        card.className = "track-card";
+        card.innerHTML = `
+          <img src="${track.cover}" alt="Cover Art">
+          <div class="track-info">
+            <h4>${track.title}</h4>
+            <p>${track.artist}</p>
+          </div>
+          <audio controls src="${track.audio}"></audio>
+          <div class="track-actions">
+            <button onclick="editTrack(${index})">Edit</button>
+            <button onclick="deleteTrack(${index})">Delete</button>
+          </div>
+        `;
+        uploadedList.appendChild(card);
+      });
     }
 
-    const audioReader = new FileReader();
-    audioReader.onload = function (e) {
-      const audioData = e.target.result;
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = document.getElementById("trackTitle").value.trim();
+      const artist = document.getElementById("artistName").value.trim();
+      const genre = genreSelect.value === "custom" ? customGenre.value.trim() : genreSelect.value;
+      const audioFile = document.getElementById("trackFile").files[0];
+      const coverFile = document.getElementById("coverArt").files[0];
 
-      if (coverFile) {
-        const coverReader = new FileReader();
-        coverReader.onload = function (ev) {
-          saveTrack(title, artist, genre, audioData, ev.target.result);
-        };
-        coverReader.readAsDataURL(coverFile);
-      } else {
-        const defaultCover = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
-        saveTrack(title, artist, genre, audioData, defaultCover);
+      if (!title || !artist || !audioFile) {
+        uploadStatus.textContent = "⚠️ Please fill out all required fields.";
+        return;
       }
-    };
-    audioReader.readAsDataURL(audioFile);
-  });
 
-  // Save to localStorage and refresh display
-  function saveTrack(title, artist, genre, audio, cover) {
-    const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-    tracks.push({ title, artist, genre, audio, cover });
-    localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
+      const audioReader = new FileReader();
+      audioReader.onload = (e) => {
+        const audioData = e.target.result;
+        if (coverFile) {
+          const coverReader = new FileReader();
+          coverReader.onload = (ev) => {
+            saveTrack(title, artist, genre, audioData, ev.target.result);
+          };
+          coverReader.readAsDataURL(coverFile);
+        } else {
+          const defaultCover = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
+          saveTrack(title, artist, genre, audioData, defaultCover);
+        }
+      };
+      audioReader.readAsDataURL(audioFile);
+    });
 
-    uploadStatus.textContent = "✅ Track uploaded successfully!";
-    form.reset();
-    customGenre.style.display = "none";
+    function saveTrack(title, artist, genre, audio, cover) {
+      let tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      tracks.push({ title, artist, genre, audio, cover, date: new Date().toISOString() });
+      localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
+      uploadStatus.textContent = "✅ Track uploaded successfully!";
+      form.reset();
+      customGenre.style.display = "none";
+      loadTracks();
+    }
+
+    function deleteTrack(index) {
+      let tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      tracks.splice(index, 1);
+      localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
+      loadTracks();
+    }
+
+    function editTrack(index) {
+      let tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      let t = tracks[index];
+      const newTitle = prompt("Edit Title:", t.title);
+      const newArtist = prompt("Edit Artist:", t.artist);
+      const newGenre = prompt("Edit Genre:", t.genre);
+      if (newTitle) t.title = newTitle;
+      if (newArtist) t.artist = newArtist;
+      if (newGenre) t.genre = newGenre;
+      localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
+      loadTracks();
+    }
+
     loadTracks();
-  }
-
-  // Delete a track
-  function deleteTrack(index) {
-    const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-    tracks.splice(index, 1);
-    localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
-    loadTracks();
-  }
-
-  // Edit a track
-  function editTrack(index) {
-    const tracks = JSON.parse(localStorage.getItem("uploadedTracks"));
-    const track = tracks[index];
-    const newTitle = prompt("Edit Title:", track.title);
-    const newArtist = prompt("Edit Artist:", track.artist);
-    const newGenre = prompt("Edit Genre:", track.genre);
-
-    if (newTitle) track.title = newTitle;
-    if (newArtist) track.artist = newArtist;
-    if (newGenre) track.genre = newGenre;
-
-    localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
-    loadTracks();
-  }
-
-  loadTracks();
-</script>
+  </script>
 </body>
 </html>

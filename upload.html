@@ -5,7 +5,159 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Upload Track | CRZYCLAN</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* --- Upload Section Enhancements --- */
+    #upload-section {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 800px;
+      box-shadow: 0 0 20px rgba(255, 0, 80, 0.25);
+      color: #fff;
+    }
+
+    #upload-section h2 {
+      font-size: 1.8rem;
+      text-align: center;
+      color: #ff2965;
+      text-shadow: 0 0 10px #ff2965;
+      margin-bottom: 1.5rem;
+    }
+
+    #upload-section p {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #ccc;
+    }
+
+    .upload-box form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .upload-box label {
+      font-weight: bold;
+      color: #ff639a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .upload-box input[type="text"],
+    .upload-box input[type="file"],
+    .upload-box select,
+    .upload-box textarea {
+      background: rgba(30, 30, 30, 0.9);
+      border: 1px solid #ff2965;
+      border-radius: 8px;
+      color: #fff;
+      padding: 0.7rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .upload-box input:focus,
+    .upload-box select:focus,
+    .upload-box textarea:focus {
+      outline: none;
+      box-shadow: 0 0 10px #ff2965;
+      border-color: #ff639a;
+    }
+
+    .upload-box button {
+      background: linear-gradient(90deg, #ff2965, #ff639a);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.8rem 1.2rem;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+      transition: 0.3s;
+      letter-spacing: 1px;
+      box-shadow: 0 0 12px rgba(255, 41, 101, 0.6);
+    }
+
+    .upload-box button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 41, 101, 0.9);
+    }
+
+    #upload-status {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: #00ffbf;
+    }
+
+    #uploaded-tracks {
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 1rem 2rem;
+      background: rgba(10, 10, 10, 0.7);
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 255, 191, 0.25);
+    }
+
+    #uploaded-tracks h3 {
+      color: #00ffbf;
+      text-align: center;
+      text-shadow: 0 0 8px #00ffbf;
+      margin-bottom: 1.5rem;
+    }
+
+    #uploadedList {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2rem;
+    }
+
+    .track-card {
+      width: 180px;
+      background: rgba(25, 25, 25, 0.9);
+      border: 1px solid #ff2965;
+      border-radius: 12px;
+      overflow: hidden;
+      color: #fff;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .track-card img.track-art {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 1px solid #ff2965;
+    }
+
+    .track-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 700px) {
+      #upload-section {
+        padding: 1.5rem;
+      }
+
+      .track-card {
+        width: 140px;
+      }
+
+      .upload-box input,
+      .upload-box select,
+      .upload-box textarea {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <header>
     <h1>CRZYCLAN</h1>
@@ -19,7 +171,6 @@
     </nav>
   </header>
 
-  <!-- Subnav (Music Navigation Bar) -->
   <nav class="music-subnav" aria-label="Music navigation">
     <a href="music.html">🎧 CRZYCLAN Library</a>
     <a href="community-music.html">🎵 Community Music</a>
@@ -31,9 +182,7 @@
   <main>
     <section id="upload-section">
       <h2>Upload Your Music</h2>
-      <p>
-        Upload your personal tracks here. Uploaded files will appear in your <strong>Personal Library</strong> only and will not be published to the Community section.
-      </p>
+      <p>Upload your personal tracks — they’ll appear only in your Personal Library.</p>
 
       <div class="upload-box">
         <form id="upload-form">
@@ -76,24 +225,11 @@
     </section>
   </main>
 
-  <!-- Player -->
-  <div id="simple-player">
-    <div id="drag-bar">🎵 CRZYCLAN Player</div>
-    <div id="now-playing">None</div>
-    <div class="player-controls">
-      <button id="toggle-play">▶️</button>
-      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-      <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
-    </div>
-    <audio id="audio-player" preload="metadata"></audio>
-  </div>
-
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.
   </footer>
 
   <script>
-    // Handle uploads locally (for now)
     const uploadForm = document.getElementById('upload-form');
     const uploadStatus = document.getElementById('upload-status');
     const uploadedList = document.getElementById('uploadedList');
@@ -112,7 +248,9 @@
       }
 
       const trackFile = fileInput.files[0];
-      const cover = coverArt.files[0] ? URL.createObjectURL(coverArt.files[0]) : 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true';
+      const cover = coverArt.files[0]
+        ? URL.createObjectURL(coverArt.files[0])
+        : 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true';
       
       const trackItem = document.createElement('div');
       trackItem.className = 'track-card';

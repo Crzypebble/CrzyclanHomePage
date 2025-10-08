@@ -242,106 +242,113 @@
     &copy; 2025 CRZYCLAN. All rights reserved.
   </footer>
 
-  <script>
-    const form = document.getElementById("upload-form");
-    const uploadStatus = document.getElementById("upload-status");
-    const uploadedList = document.getElementById("uploadedList");
-    const genreSelect = document.getElementById("genre");
-    const customGenre = document.getElementById("customGenre");
+<script>
+  const form = document.getElementById("upload-form");
+  const uploadStatus = document.getElementById("upload-status");
+  const uploadedList = document.getElementById("uploadedList");
+  const genreSelect = document.getElementById("genre");
+  const customGenre = document.getElementById("customGenre");
 
-    genreSelect.addEventListener("change", () => {
-      customGenre.style.display = genreSelect.value === "custom" ? "block" : "none";
+  genreSelect.addEventListener("change", () => {
+    customGenre.style.display = genreSelect.value === "custom" ? "block" : "none";
+  });
+
+  // Load existing tracks
+  function loadTracks() {
+    const saved = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+    uploadedList.innerHTML = "";
+
+    if (saved.length === 0) {
+      uploadedList.innerHTML = `<p>No uploads yet. Once you upload, your tracks will appear here.</p>`;
+      return;
+    }
+
+    saved.forEach((track, index) => {
+      const card = document.createElement("div");
+      card.className = "track-card";
+      card.innerHTML = `
+        <img src="${track.cover}" alt="Cover Art" class="track-art">
+        <div><strong>${track.title}</strong><br>${track.artist}<br><em>${track.genre}</em></div>
+        <audio controls src="${track.audio}"></audio>
+        <div>
+          <button onclick="editTrack(${index})">Edit</button>
+          <button onclick="deleteTrack(${index})">Delete</button>
+        </div>
+      `;
+      uploadedList.appendChild(card);
     });
+  }
 
-    function loadTracks() {
-      const saved = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-      uploadedList.innerHTML = "";
-      if (saved.length === 0) {
-        uploadedList.innerHTML = "<p>No uploads yet. Once you upload, your tracks will appear here.</p>";
-        return;
+  // Handle form submission
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById("trackTitle").value.trim();
+    const artist = document.getElementById("artistName").value.trim();
+    const genre = genreSelect.value === "custom" ? customGenre.value.trim() : genreSelect.value;
+    const audioFile = document.getElementById("trackFile").files[0];
+    const coverFile = document.getElementById("coverArt").files[0];
+
+    if (!title || !artist || !audioFile) {
+      uploadStatus.textContent = "⚠️ Please fill out all required fields.";
+      return;
+    }
+
+    const audioReader = new FileReader();
+    audioReader.onload = function (e) {
+      const audioData = e.target.result;
+
+      if (coverFile) {
+        const coverReader = new FileReader();
+        coverReader.onload = function (ev) {
+          saveTrack(title, artist, genre, audioData, ev.target.result);
+        };
+        coverReader.readAsDataURL(coverFile);
+      } else {
+        const defaultCover = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
+        saveTrack(title, artist, genre, audioData, defaultCover);
       }
+    };
+    audioReader.readAsDataURL(audioFile);
+  });
 
-      saved.forEach((track, index) => {
-        const card = document.createElement("div");
-        card.className = "track-card";
-        card.innerHTML = `
-          <img src="${track.cover}" alt="Cover" class="track-art">
-          <div><strong>${track.title}</strong><br>${track.artist}<br><em>${track.genre}</em></div>
-          <audio controls src="${track.audio}"></audio>
-          <div>
-            <button onclick="editTrack(${index})">Edit</button>
-            <button onclick="deleteTrack(${index})">Delete</button>
-          </div>
-        `;
-        uploadedList.appendChild(card);
-      });
-    }
+  // Save to localStorage and refresh display
+  function saveTrack(title, artist, genre, audio, cover) {
+    const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+    tracks.push({ title, artist, genre, audio, cover });
+    localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const title = document.getElementById("trackTitle").value;
-      const artist = document.getElementById("artistName").value;
-      const genre = genreSelect.value === "custom" ? customGenre.value : genreSelect.value;
-      const audioFile = document.getElementById("trackFile").files[0];
-      const coverFile = document.getElementById("coverArt").files[0];
-
-      if (!audioFile) return alert("Please upload an audio file.");
-
-      const readerAudio = new FileReader();
-      const readerCover = new FileReader();
-
-      readerAudio.onload = () => {
-        const audioURL = readerAudio.result;
-
-        if (coverFile) {
-          readerCover.onload = () => saveTrack(audioURL, readerCover.result);
-          readerCover.readAsDataURL(coverFile);
-        } else {
-          saveTrack(audioURL, "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true");
-        }
-      };
-
-      readerAudio.readAsDataURL(audioFile);
-    });
-
-    function saveTrack(audio, cover) {
-      const title = document.getElementById("trackTitle").value;
-      const artist = document.getElementById("artistName").value;
-      const genre = genreSelect.value === "custom" ? customGenre.value : genreSelect.value;
-      const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-
-      tracks.push({ title, artist, genre, audio, cover });
-      localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
-
-      uploadStatus.textContent = "✅ Track uploaded successfully!";
-      form.reset();
-      customGenre.style.display = "none";
-      loadTracks();
-    }
-
-    function deleteTrack(index) {
-      const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
-      tracks.splice(index, 1);
-      localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
-      loadTracks();
-    }
-
-    function editTrack(index) {
-      const tracks = JSON.parse(localStorage.getItem("uploadedTracks"));
-      const track = tracks[index];
-      const newTitle = prompt("Edit Title:", track.title);
-      const newArtist = prompt("Edit Artist:", track.artist);
-      const newGenre = prompt("Edit Genre:", track.genre);
-
-      if (newTitle) track.title = newTitle;
-      if (newArtist) track.artist = newArtist;
-      if (newGenre) track.genre = newGenre;
-
-      localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
-      loadTracks();
-    }
-
+    uploadStatus.textContent = "✅ Track uploaded successfully!";
+    form.reset();
+    customGenre.style.display = "none";
     loadTracks();
-  </script>
+  }
+
+  // Delete a track
+  function deleteTrack(index) {
+    const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+    tracks.splice(index, 1);
+    localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
+    loadTracks();
+  }
+
+  // Edit a track
+  function editTrack(index) {
+    const tracks = JSON.parse(localStorage.getItem("uploadedTracks"));
+    const track = tracks[index];
+    const newTitle = prompt("Edit Title:", track.title);
+    const newArtist = prompt("Edit Artist:", track.artist);
+    const newGenre = prompt("Edit Genre:", track.genre);
+
+    if (newTitle) track.title = newTitle;
+    if (newArtist) track.artist = newArtist;
+    if (newGenre) track.genre = newGenre;
+
+    localStorage.setItem("uploadedTracks", JSON.stringify(tracks));
+    loadTracks();
+  }
+
+  loadTracks();
+</script>
 </body>
 </html>

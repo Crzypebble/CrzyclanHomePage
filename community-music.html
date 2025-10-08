@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Music | CRZYCLAN</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>CRZYCLAN</h1>
+    <p>Home of Chaos, Music, and Mayhem</p>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="membership.html">Membership</a>
+      <a href="music.html" class="active">Music</a>
+      <a href="shop.html">Shop</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="community-music">
+      <h2>Community Music</h2>
+      <p>Listen to music created by CRZYCLAN members and fans around the world.</p>
+
+      <!-- Music Tabs -->
+      <div class="music-tabs">
+        <a href="music.html" class="music-tab"><i>💽</i> CRZYCLAN Library</a>
+        <a href="personal-library.html" class="music-tab"><i>🎧</i> Personal Library</a>
+        <a href="community-music.html" class="music-tab active"><i>🌍</i> Community Music</a>
+        <a href="music-projects.html" class="music-tab"><i>🎛️</i> Music Projects</a>
+        <a href="upload.html" class="music-tab"><i>⬆️</i> Upload Track</a>
+      </div>
+
+      <!-- Community Uploads Section -->
+      <div class="music-section">
+        <h3>Recently Uploaded</h3>
+
+        <div class="track-card" onclick="playTrack('nightshift.mp3', this)">
+          <img src="images/default-art.jpg" alt="Night Shift" class="track-art">
+          <div>
+            <strong>Night Shift</strong><br>
+            by ShadowPulse · 2025
+          </div>
+        </div>
+
+        <div class="track-card" onclick="playTrack('voidpulse.mp3', this)">
+          <img src="images/default-art.jpg" alt="Void Pulse" class="track-art">
+          <div>
+            <strong>Void Pulse</strong><br>
+            by LunaFreq · 2025
+          </div>
+        </div>
+
+        <div class="track-card" onclick="playTrack('sleepless.mp3', this)">
+          <img src="images/default-art.jpg" alt="Sleepless" class="track-art">
+          <div>
+            <strong>Sleepless</strong><br>
+            by JAXX · 2025
+          </div>
+        </div>
+      </div>
+
+      <!-- Genres -->
+      <div class="music-section">
+        <h3>Top Genres</h3>
+        <ul class="track-list">
+          <li onclick="playTrack('burner.mp3', this)">Burner - VibeLord (Hip-Hop)</li>
+          <li onclick="playTrack('waves.mp3', this)">Waves - NeonVibe (Electronic)</li>
+          <li onclick="playTrack('ghostline.mp3', this)">Ghostline - ReaperSonix (Alt Rock)</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Membership Code Box -->
+  <div id="membership-code-box">
+    <label for="membershipCode">Enter Member Code to Unlock Downloads:</label>
+    <input type="text" id="membershipCode" placeholder="Enter code...">
+    <button onclick="verifyMembershipCode()">Unlock</button>
+    <p id="membership-status"></p>
+  </div>
+
+  <!-- Player -->
+  <div id="simple-player">
+    <div id="drag-bar">🎵 CRZYCLAN Player</div>
+    <div id="now-playing">None</div>
+    <div class="player-controls">
+      <button id="toggle-play">▶️</button>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+      <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
+    </div>
+    <audio id="audio-player" preload="metadata"></audio>
+  </div>
+
+  <footer>
+    &copy; 2025 CRZYCLAN. All rights reserved.
+  </footer>
+
+  <script src="music.js"></script>
+</body>
+</html>

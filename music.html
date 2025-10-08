@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CRZYCLAN Music Library</title>
+  <title>Crzyclan Music Library</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,89 +19,83 @@
     </nav>
   </header>
 
-  <!-- Music Navigation -->
-  <nav class="music-subnav" aria-label="Music navigation">
-    <a href="music.html" class="active">🎧 CRZYCLAN Library</a>
-    <a href="community-music.html">🎵 Community Music</a>
-    <a href="music-projects.html">🎚️ Music Projects</a>
-    <a href="upload.html">⬆️ Upload Track</a>
-    <a href="personal-library.html">🎤 Personal Library</a>
-  </nav>
+  <section class="music-header">
+    <h2>Crzyclan Music Library</h2>
+    <p>Explore music created by CRZYCLAN — albums, beats, and exclusive projects.</p>
+
+    <div class="music-nav-buttons">
+      <a href="music.html" class="active">🎧 CRZYCLAN Library</a>
+      <a href="personal-library.html">🎤 Personal Library</a>
+      <a href="community-music.html">🎵 Community Music</a>
+      <a href="music-projects.html">🎚️ Music Projects</a>
+      <a href="upload.html">⬆️ Upload Track</a>
+    </div>
+  </section>
 
   <main>
     <section id="music">
-      <h2>🎧 CRZYCLAN Music Library</h2>
-      <p>Explore CRZYCLAN’s official music collection — albums, genres, and exclusive tracks.</p>
+      <h3>Albums</h3>
 
-      <!-- Albums Section -->
-      <div class="music-section">
-        <h3>🔥 Albums</h3>
-
-        <!-- Album 1 -->
-        <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover">
-          <div class="album-info">
-            <strong>Choking On The Past</strong><br>
-            Releases June 25, 2025 — Crzypebble
-            <ul class="album-tracks">
-              <li>Track 1 - HIDDEN</li>
-              <li>Track 2 - HIDDEN</li>
-              <li onclick="playTrack('whydoitry.mp3', this)">Track 3 - Why Do I Try?</li>
-              <li>Track 4 - HIDDEN</li>
-              <li onclick="playTrack('thickandthebad.mp3', this)">Track 5 - Thick And The Bad</li>
-              <li>Track 6 - HIDDEN</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Album 2 -->
-        <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover">
-          <div class="album-info">
-            <strong>The Pebble Deluxe</strong><br>
-            Released December 19, 2024 — Crzypebble
-            <ul class="album-tracks">
-              <li onclick="playTrack('welcometohellprodblksaturn.mp3', this)">Welcome To Hell (PROD. BlkSaturn)</li>
-              <li onclick="playTrack('smokebitchesprodsmxkypete.mp3', this)">Smoke Bitches (PROD. SMXKYPETE)</li>
-              <li onclick="playTrack('theboulderrocksandpebblesprodfuckserbab.mp3', this)">THE BOULDER: Rocks And Pebbles (PROD. FuckSerbab)</li>
-              <li onclick="playTrack('gas.mp3', this)">Gas (PROD. Hamburg3r)</li>
-              <li onclick="playTrack('collideprodmyss.mp3', this)">Collide (PROD. Myss)</li>
-              <li onclick="playTrack('hurtpebbleproddimebaggiefeaturingrockandjamma.mp3', this)">Hurt Pebble (PROD. DIMEBAGGI£)</li>
-              <li onclick="playTrack('fadinglight.mp3', this)">The Fading Light Of The Renaissance</li>
-              <li onclick="playTrack('renaissancestoned.mp3', this)">Renaissance (Stoned)</li>
-              <li onclick="playTrack('straightahead.mp3', this)">Straight Ahead (PROD. WLVSKY)</li>
-              <li onclick="playTrack('why.mp3', this)">WHY (PROD. blunkq)</li>
-              <li onclick="playTrack('carrythefight.mp3', this)">Carry The Fight (PROD. taymxru)</li>
-              <li onclick="playTrack('kissofdeath.mp3', this)">Kiss Of Death (Memories) [PROD. gusuck]</li>
-              <li onclick="playTrack('collidebiggietrev.mp3', this)">Collide ft. BIGGIETREV (PROD. Myss)</li>
-              <li onclick="playTrack('c3zycl4n.mp3', this)">C3ZYCL4N (PROD. Pendo46)</li>
-              <li onclick="playTrack('everything.m4a', this)">EVERYTHING</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Album 3 -->
-        <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover">
-          <div class="album-info">
-            <strong>The Pebble</strong><br>
-            Released March 2, 2024 — Crzypebble
-            <ul class="album-tracks">
-              <li onclick="playTrack('welcometohellprodblksaturn.mp3', this)">Welcome To Hell (PROD. BlkSaturn)</li>
-              <li onclick="playTrack('smokebitchesprodsmxkypete.mp3', this)">Smoke Bitches (PROD. SMXKYPETE)</li>
-              <li onclick="playTrack('theboulderrocksandpebblesprodfuckserbab.mp3', this)">THE BOULDER: Rocks And Pebbles (PROD. FuckSerbab)</li>
-              <li onclick="playTrack('gas.mp3', this)">Gas (PROD. Hamburg3r)</li>
-              <li onclick="playTrack('collideprodmyss.mp3', this)">Collide (PROD. Myss)</li>
-              <li onclick="playTrack('hurtpebbleproddimebaggiefeaturingrockandjamma.mp3', this)">Hurt Pebble (PROD. DIMEBAGGI£)</li>
-              <li onclick="playTrack('fadinglight.mp3', this)">The Fading Light Of The Renaissance</li>
-            </ul>
-          </div>
+      <div class="album">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover">
+        <div class="album-info">
+          <strong>Choking On The Past</strong><br>
+          Releases June 25, 2025 - Crzypebble
+          <ul class="album-tracks">
+            <li>Track 1 - HIDDEN</li>
+            <li>Track 2 - HIDDEN</li>
+            <li onclick="playTrack('whydoitry.mp3', this)">Track 3 - Why Do I Try?</li>
+            <li>Track 4 - HIDDEN</li>
+            <li onclick="playTrack('thickandthebad.mp3', this)">Track 5 - Thick And The Bad</li>
+            <li>Track 6 - HIDDEN</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Genres Section -->
+      <div class="album">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover">
+        <div class="album-info">
+          <strong>The Pebble Deluxe</strong><br>
+          Released December 19, 2024 - Crzypebble
+          <ul class="album-tracks">
+            <li onclick="playTrack('welcometohellprodblksaturn.mp3', this)">Track 1 - Welcome To Hell(PROD.BlkSaturn)</li>
+            <li onclick="playTrack('smokebitchesprodsmxkypete.mp3', this)">Track 2 - Smoke Bitches(PROD.SMXKYPETE)</li>
+            <li onclick="playTrack('theboulderrocksandpebblesprodfuckserbab.mp3', this)">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)</li>
+            <li onclick="playTrack('gas.mp3', this)">Track 4 - Gas(Prod.Hamburg3r)</li>
+            <li onclick="playTrack('collideprodmyss.mp3', this)">Track 5 - Collide(PROD.Myss)</li>
+            <li onclick="playTrack('hurtpebbleproddimebaggiefeaturingrockandjamma.mp3', this)">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)</li>
+            <li onclick="playTrack('fadinglight.mp3', this)">Track 7 - The Fading Light Of The Renaissance</li>
+            <li onclick="playTrack('renaissancestoned.mp3', this)">Track 8 - Renaissance (Stoned)</li>
+            <li onclick="playTrack('straightahead.mp3', this)">Track 9 - Straight Ahead(prod.WLVSKY)</li>
+            <li onclick="playTrack('why.mp3', this)">Track 10 - WHY(prod.blunkq)</li>
+            <li onclick="playTrack('carrythefight.mp3', this)">Track 11 - Carry The Fight(prod. taymxru)</li>
+            <li onclick="playTrack('kissofdeath.mp3', this)">Track 12 - Kiss Of Death (Memories)[prod. by gusuck]</li>
+            <li onclick="playTrack('collidebiggietrev.mp3', this)">Track 13 - Collide FT. BIGGIETREV(PROD.Myss)</li>
+            <li onclick="playTrack('c3zycl4n.mp3', this)">Track 14 - C3ZYCL4N(Prod. Pendo46)</li>
+            <li onclick="playTrack('everything.m4a', this)">Track 15 - EVERYTHING</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="album">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover">
+        <div class="album-info">
+          <strong>The Pebble</strong><br>
+          Released March 2, 2024 - Crzypebble
+          <ul class="album-tracks">
+            <li onclick="playTrack('welcometohellprodblksaturn.mp3', this)">Track 1 - Welcome To Hell(PROD.BlkSaturn)</li>
+            <li onclick="playTrack('smokebitchesprodsmxkypete.mp3', this)">Track 2 - Smoke Bitches(PROD.SMXKYPETE)</li>
+            <li onclick="playTrack('theboulderrocksandpebblesprodfuckserbab.mp3', this)">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)</li>
+            <li onclick="playTrack('gas.mp3', this)">Track 4 - Gas(Prod.Hamburg3r)</li>
+            <li onclick="playTrack('collideprodmyss.mp3', this)">Track 5 - Collide(PROD.Myss)</li>
+            <li onclick="playTrack('hurtpebbleproddimebaggiefeaturingrockandjamma.mp3', this)">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)</li>
+            <li onclick="playTrack('fadinglight.mp3', this)">Track 7 - The Fading Light Of The Renaissance</li>
+          </ul>
+        </div>
+      </div>
+
       <div class="music-section">
-        <h3>🎸 Metal</h3>
+        <h3>Metal</h3>
         <div class="track-card" onclick="playTrack('fleshandsignal.mp3', this)">
           <img src="images/metal-track.jpg" alt="Flesh and Signal" class="track-art">
           <div><strong>Flesh and Signal</strong><br>Crzypebble · 2025</div>
@@ -109,7 +103,7 @@
       </div>
 
       <div class="music-section">
-        <h3>🎤 Rap</h3>
+        <h3>Rap</h3>
         <div class="track-card" onclick="playTrack('mindinred.mp3', this)">
           <img src="images/rap-track.jpg" alt="Mind in Red" class="track-art">
           <div><strong>Mind in Red</strong><br>Crzypebble · 2025</div>
@@ -117,7 +111,7 @@
       </div>
 
       <div class="music-section">
-        <h3>🎮 Game Music</h3>
+        <h3>Game Music</h3>
         <ul class="track-list">
           <li onclick="playTrack('triggerrun.mp3', this)">Days Before Death - Trigger Run</li>
           <li onclick="playTrack('downbelow.mp3', this)">Days Before Death - Down Below</li>
@@ -128,7 +122,7 @@
       </div>
 
       <div class="music-section">
-        <h3>🤖 AI Generated</h3>
+        <h3>AI Generated</h3>
         <ul class="track-list">
           <li onclick="playTrack('triggerrun.mp3', this)">Days Before Death - Trigger Run</li>
           <li onclick="playTrack('downbelow.mp3', this)">Days Before Death - Down Below</li>
@@ -136,13 +130,12 @@
           <li onclick="playTrack('deadweight.mp3', this)">Days Before Death - Dead Weight</li>
           <li onclick="playTrack('eyeoftheloop.mp3', this)">Days Before Death - Eye Of The Loop</li>
           <li onclick="playTrack('crimsoncode.mp3', this)">Crimson Code - AI Synthwave, Rock</li>
-          <li onclick="playTrack('cartwasfull.mp3', this)">Cart Was Full - Rock, Alt, Nu Metal</li>
+          <li onclick="playTrack('cartwasfull.mp3', this)">Cart was full - Rock, Alt, Nu Metal</li>
         </ul>
       </div>
     </section>
   </main>
 
-  <!-- Membership Code -->
   <div id="membership-code-box">
     <label for="membershipCode">Enter Member Code to Unlock Downloads:</label>
     <input type="text" id="membershipCode" placeholder="Enter code...">
@@ -150,7 +143,6 @@
     <p id="membership-status"></p>
   </div>
 
-  <!-- Player -->
   <div id="simple-player">
     <div id="drag-bar">🎵 CRZYCLAN Player</div>
     <div id="now-playing">None</div>

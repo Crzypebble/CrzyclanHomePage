@@ -139,6 +139,11 @@
       box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
     }
 
+    /* Hide custom genre input initially */
+    #customGenre {
+      display: none;
+    }
+
     /* Mobile optimization */
     @media (max-width: 700px) {
       #upload-section {
@@ -194,12 +199,16 @@
 
           <label for="genre">Genre:</label>
           <select id="genre" name="genre">
+            <option value="">-- Select a Genre --</option>
             <option value="rap">Rap</option>
             <option value="metal">Metal</option>
             <option value="alt">Alt / Rock</option>
             <option value="game">Game Music</option>
             <option value="ai">AI Generated</option>
+            <option value="custom">Custom Genre</option>
           </select>
+
+          <input type="text" id="customGenre" name="customGenre" placeholder="Enter your custom genre..." />
 
           <label for="coverArt">Album / Cover Art:</label>
           <input type="file" id="coverArt" name="coverArt" accept="image/*">
@@ -230,15 +239,30 @@
   </footer>
 
   <script>
+    const genreSelect = document.getElementById('genre');
+    const customGenreInput = document.getElementById('customGenre');
     const uploadForm = document.getElementById('upload-form');
     const uploadStatus = document.getElementById('upload-status');
     const uploadedList = document.getElementById('uploadedList');
+
+    genreSelect.addEventListener('change', () => {
+      if (genreSelect.value === 'custom') {
+        customGenreInput.style.display = 'block';
+        customGenreInput.required = true;
+      } else {
+        customGenreInput.style.display = 'none';
+        customGenreInput.required = false;
+      }
+    });
 
     uploadForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
       const title = document.getElementById('trackTitle').value.trim();
       const artist = document.getElementById('artistName').value.trim();
+      const genre = genreSelect.value === 'custom'
+        ? customGenreInput.value.trim()
+        : genreSelect.options[genreSelect.selectedIndex].text;
       const fileInput = document.getElementById('trackFile');
       const coverArt = document.getElementById('coverArt');
 
@@ -256,12 +280,13 @@
       trackItem.className = 'track-card';
       trackItem.innerHTML = `
         <img src="${cover}" alt="${title}" class="track-art">
-        <div><strong>${title}</strong><br>${artist}</div>
+        <div><strong>${title}</strong><br>${artist}<br><em>${genre}</em></div>
       `;
       uploadedList.appendChild(trackItem);
 
       uploadStatus.textContent = '✅ Track uploaded successfully (local preview only).';
       uploadForm.reset();
+      customGenreInput.style.display = 'none';
     });
   </script>
 </body>

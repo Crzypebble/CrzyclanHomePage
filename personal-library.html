@@ -5,16 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Personal Library | CRZYCLAN</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="personal-library.css">
 </head>
-
 <body>
   <header>
     <h1>CRZYCLAN</h1>
-    <p>Personal Music Library</p>
+    <p>Home of Chaos, Music, and Mayhem</p>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="membership.html">Membership</a>
+      <a href="music.html">Music</a>
+      <a href="shop.html">Shop</a>
+      <a href="settings.html">Settings</a>
+    </nav>
   </header>
 
-  <nav class="music-subnav">
+  <nav class="music-subnav" aria-label="Music navigation">
     <a href="music.html">🎧 CRZYCLAN Library</a>
     <a href="community-music.html">🎵 Community Music</a>
     <a href="music-projects.html">🎚️ Music Projects</a>
@@ -23,31 +28,77 @@
   </nav>
 
   <main>
-    <div id="searchContainer">
-      <input type="text" id="searchInput" placeholder="Search or add songs to playlists...">
-    </div>
+    <section class="library-container">
+      <div class="library-header">
+        <h2>Personal Library</h2>
 
-    <section class="library-section" id="playlistSection">
-      <h2>Your Playlists</h2>
-      <div class="add-playlist">
-        <input type="text" id="playlistName" placeholder="New playlist name...">
-        <button id="createPlaylist">Create</button>
+        <!-- create playlist form -->
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input id="newPlaylistName" type="text" placeholder="New playlist name" />
+          <input id="newPlaylistCover" type="file" accept="image/*" />
+          <button id="createPlaylistBtn" class="add-song-btn">Create</button>
+        </div>
       </div>
-      <div id="playlistList" class="playlist-list"></div>
-    </section>
 
-    <section class="library-section" id="tracksSection" style="display:none;">
-      <button id="backButton">⬅ Back to Playlists</button>
-      <h2 id="playlistTitle"></h2>
-      <input type="file" id="playlistCover" accept="image/*" style="display:block;margin:1rem auto;">
-      <div id="trackList" class="track-list"></div>
+      <div id="playlistGrid" aria-live="polite">
+        <!-- playlist cards rendered here -->
+      </div>
+
+      <!-- playlist view (hidden by default) -->
+      <div id="playlistView" style="display:none; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+          <div style="display:flex; gap:12px; align-items:center;">
+            <img id="playlistViewThumb" src="" alt="" class="playlist-thumb" style="width:120px; height:120px; object-fit:cover; border-radius:8px; border:2px solid red;">
+            <div>
+              <h3 id="playlistViewTitle" style="margin:0;color:red;"></h3>
+              <small id="playlistViewMeta" style="color:#ccc;"></small>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button id="playlistBackBtn" class="add-song-btn">Back</button>
+            <button id="renamePlaylistBtn" class="add-song-btn">Rename</button>
+            <button id="deletePlaylistBtn" class="add-song-btn" style="background:#ff4d4d;color:#fff;">Delete</button>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;">
+          <h4 style="color:#00ffbf; margin-bottom:8px;">Songs</h4>
+          <div id="playlistSongs"></div>
+
+          <hr style="margin:16px 0; border-color:#333;">
+
+          <div id="addSongSection">
+            <h4 style="color:#00ffbf; margin-bottom:8px;">Add songs to this playlist</h4>
+            <input id="searchTracks" type="search" placeholder="Search official & your uploads..." style="width:60%; padding:8px; border-radius:6px; background:#222; border:1px solid #333; color:#fff;">
+            <div style="margin-top:8px;">
+              <div id="searchResults"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <!-- re-use your simple player so songs play globally -->
+  <div id="simple-player">
+    <div id="drag-bar">🎵 CRZYCLAN Player</div>
+    <div id="now-playing">None</div>
+    <div class="player-controls">
+      <button id="toggle-play">▶️</button>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+      <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
+    </div>
+    <audio id="audio-player" preload="metadata"></audio>
+  </div>
 
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.
   </footer>
 
+  <!-- existing music controls (leave your music.js included if you use it) -->
+  <script src="music.js"></script>
+  <!-- new playlist logic -->
   <script src="personal-library.js"></script>
 </body>
 </html>

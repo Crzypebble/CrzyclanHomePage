@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Community Music | CRZYCLAN</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
@@ -19,70 +19,88 @@
     </nav>
   </header>
 
+  <!-- Top inline subnav -->
+  <nav class="music-subnav" aria-label="Music navigation">
+    <a href="music.html">🎧 CRZYCLAN Library</a>
+    <a href="community-music.html" class="active">🎵 Community Music</a>
+    <a href="music-projects.html">🎚️ Music Projects</a>
+    <a href="upload.html">⬆️ Upload Track</a>
+    <a href="personal-library.html">🎤 Personal Library</a>
+  </nav>
+
   <main>
     <section id="community-music">
       <h2>Community Music</h2>
       <p>Listen to music created by CRZYCLAN members and fans around the world.</p>
 
-      <!-- Music Tabs -->
-      <div class="music-tabs">
-        <a href="music.html" class="music-tab"><i>💽</i> CRZYCLAN Library</a>
-        <a href="personal-library.html" class="music-tab"><i>🎧</i> Personal Library</a>
-        <a href="community-music.html" class="music-tab active"><i>🌍</i> Community Music</a>
-        <a href="music-projects.html" class="music-tab"><i>🎛️</i> Music Projects</a>
-        <a href="upload.html" class="music-tab"><i>⬆️</i> Upload Track</a>
-      </div>
-
-      <!-- Community Uploads Section -->
+      <!-- Featured Community Albums -->
       <div class="music-section">
-        <h3>Recently Uploaded</h3>
+        <h3>Featured Albums</h3>
 
-        <div class="track-card" onclick="playTrack('nightshift.mp3', this)">
-          <img src="images/default-art.jpg" alt="Night Shift" class="track-art">
-          <div>
-            <strong>Night Shift</strong><br>
-            by ShadowPulse · 2025
+        <div class="album">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Community_Album1.jpg?raw=true" alt="Community Album 1" class="album-cover">
+          <div class="album-info">
+            <strong>Chaos Collective</strong><br>
+            Released 2025 - Various Artists
+            <ul class="album-tracks">
+              <li onclick="playTrack('communitytrack1.mp3', this)">Track 1 - Noise Parade</li>
+              <li onclick="playTrack('communitytrack2.mp3', this)">Track 2 - Pebble’s Anthem</li>
+              <li onclick="playTrack('communitytrack3.mp3', this)">Track 3 - Sonic Storm</li>
+            </ul>
           </div>
         </div>
 
-        <div class="track-card" onclick="playTrack('voidpulse.mp3', this)">
-          <img src="images/default-art.jpg" alt="Void Pulse" class="track-art">
-          <div>
-            <strong>Void Pulse</strong><br>
-            by LunaFreq · 2025
-          </div>
-        </div>
-
-        <div class="track-card" onclick="playTrack('sleepless.mp3', this)">
-          <img src="images/default-art.jpg" alt="Sleepless" class="track-art">
-          <div>
-            <strong>Sleepless</strong><br>
-            by JAXX · 2025
+        <div class="album">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Community_Album2.jpg?raw=true" alt="Community Album 2" class="album-cover">
+          <div class="album-info">
+            <strong>Echoes of the Clan</strong><br>
+            Released 2025 - CRZYCLAN Community
+            <ul class="album-tracks">
+              <li onclick="playTrack('communitytrack4.mp3', this)">Track 1 - Shadows Rise</li>
+              <li onclick="playTrack('communitytrack5.mp3', this)">Track 2 - Red Tape</li>
+              <li onclick="playTrack('communitytrack6.mp3', this)">Track 3 - Dripline</li>
+            </ul>
           </div>
         </div>
       </div>
 
-      <!-- Genres -->
+      <!-- Community Singles Section -->
       <div class="music-section">
-        <h3>Top Genres</h3>
-        <ul class="track-list">
-          <li onclick="playTrack('burner.mp3', this)">Burner - VibeLord (Hip-Hop)</li>
-          <li onclick="playTrack('waves.mp3', this)">Waves - NeonVibe (Electronic)</li>
-          <li onclick="playTrack('ghostline.mp3', this)">Ghostline - ReaperSonix (Alt Rock)</li>
-        </ul>
+        <h3>Community Singles</h3>
+
+        <div class="track-card" onclick="playTrack('mindcollapse.mp3', this)">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Community_Single1.jpg?raw=true" alt="Mind Collapse" class="track-art">
+          <div><strong>Mind Collapse</strong><br>Dr. Chaos · 2025</div>
+        </div>
+
+        <div class="track-card" onclick="playTrack('lostcontrol.mp3', this)">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Community_Single2.jpg?raw=true" alt="Lost Control" class="track-art">
+          <div><strong>Lost Control</strong><br>Phantom Pebble · 2025</div>
+        </div>
+
+        <div class="track-card" onclick="playTrack('breaktheloop.mp3', this)">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Community_Single3.jpg?raw=true" alt="Break the Loop" class="track-art">
+          <div><strong>Break The Loop</strong><br>JayVexx · 2025</div>
+        </div>
+      </div>
+
+      <!-- Randomized Album Art Examples -->
+      <div class="music-section">
+        <h3>Discover More</h3>
+        <div class="track-card" onclick="playTrack('flowingvoid.mp3', this)">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/random1.jpg?raw=true" alt="Flowing Void" class="track-art">
+          <div><strong>Flowing Void</strong><br>Crzypebble · 2025</div>
+        </div>
+
+        <div class="track-card" onclick="playTrack('meltdown.mp3', this)">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/random2.jpg?raw=true" alt="Meltdown" class="track-art">
+          <div><strong>Meltdown</strong><br>DIMEBAGGI£ · 2025</div>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Membership Code Box -->
-  <div id="membership-code-box">
-    <label for="membershipCode">Enter Member Code to Unlock Downloads:</label>
-    <input type="text" id="membershipCode" placeholder="Enter code...">
-    <button onclick="verifyMembershipCode()">Unlock</button>
-    <p id="membership-status"></p>
-  </div>
-
-  <!-- Player -->
+  <!-- Simple Music Player -->
   <div id="simple-player">
     <div id="drag-bar">🎵 CRZYCLAN Player</div>
     <div id="now-playing">None</div>

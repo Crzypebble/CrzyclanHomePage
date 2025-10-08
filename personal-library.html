@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personal Library | CRZYCLAN</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background-color: #000;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    header h1 {
+      text-align: center;
+      color: #ff2965;
+      text-shadow: 0 0 10px #ff2965;
+    }
+
+    nav.music-subnav {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      background: rgba(10, 10, 10, 0.9);
+      padding: 0.8rem;
+      border-bottom: 1px solid #ff2965;
+      box-shadow: 0 0 10px rgba(255, 41, 101, 0.4);
+    }
+
+    nav.music-subnav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    nav.music-subnav a.active, nav.music-subnav a:hover {
+      color: #ff639a;
+      text-shadow: 0 0 10px #ff639a;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    section {
+      background: rgba(10, 10, 10, 0.7);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 20px rgba(255, 41, 101, 0.25);
+    }
+
+    section h2 {
+      color: #00ffbf;
+      text-shadow: 0 0 8px #00ffbf;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Track Grid */
+    .track-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .track-card {
+      background: rgba(25, 25, 25, 0.85);
+      border: 1px solid #ff2965;
+      border-radius: 12px;
+      overflow: hidden;
+      color: #fff;
+      text-align: center;
+      transition: 0.3s;
+      box-shadow: 0 0 10px rgba(255, 41, 101, 0.3);
+    }
+
+    .track-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
+    }
+
+    .track-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-bottom: 1px solid #ff2965;
+    }
+
+    .track-info {
+      padding: 0.8rem;
+    }
+
+    .track-info h4 {
+      margin: 0.4rem 0;
+      color: #ff639a;
+      font-size: 1.1rem;
+    }
+
+    .track-info p {
+      margin: 0;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    audio {
+      width: 90%;
+      margin: 0.5rem auto;
+      display: block;
+    }
+
+    .track-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .track-actions button {
+      background: transparent;
+      border: 1px solid #ff639a;
+      color: #ff639a;
+      border-radius: 8px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .track-actions button:hover {
+      background: #ff2965;
+      color: white;
+    }
+
+    /* Playlist Section */
+    #playlist-section {
+      background: rgba(15, 15, 15, 0.9);
+      border: 1px solid #00ffbf;
+      box-shadow: 0 0 20px rgba(0, 255, 191, 0.25);
+    }
+
+    #playlist-form {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #playlistName {
+      background: rgba(30, 30, 30, 0.9);
+      border: 1px solid #00ffbf;
+      color: #fff;
+      border-radius: 8px;
+      padding: 0.6rem;
+      font-size: 1rem;
+    }
+
+    #playlist-form button {
+      background: linear-gradient(90deg, #00ffbf, #009bff);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #playlist-form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #00ffbf;
+    }
+
+    .playlist-card {
+      background: rgba(25, 25, 25, 0.8);
+      border: 1px solid #00ffbf;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .playlist-card h3 {
+      color: #00ffbf;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 8px #00ffbf;
+    }
+
+    .playlist-tracks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .playlist-tracks div {
+      background: rgba(35, 35, 35, 0.9);
+      padding: 0.5rem;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .playlist-tracks button {
+      background: transparent;
+      border: 1px solid #00ffbf;
+      color: #00ffbf;
+      border-radius: 5px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: 0.2s;
+    }
+
+    .playlist-tracks button:hover {
+      background: #00ffbf;
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>CRZYCLAN</h1>
+  </header>
+
+  <nav class="music-subnav">
+    <a href="music.html">🎧 CRZYCLAN Library</a>
+    <a href="community-music.html">🎵 Community Music</a>
+    <a href="music-projects.html">🎚️ Music Projects</a>
+    <a href="upload.html">⬆️ Upload Track</a>
+    <a href="personal-library.html" class="active">🎤 Personal Library</a>
+  </nav>
+
+  <main>
+    <section id="uploaded-section">
+      <h2>Your Uploaded Tracks</h2>
+      <div class="track-grid" id="uploadedList"></div>
+    </section>
+
+    <section id="playlist-section">
+      <h2>Your Playlists</h2>
+      <form id="playlist-form">
+        <input type="text" id="playlistName" placeholder="New Playlist Name" required>
+        <button type="submit">Create Playlist</button>
+      </form>
+      <div id="playlists"></div>
+    </section>
+  </main>
+
+  <footer>&copy; 2025 CRZYCLAN. All rights reserved.</footer>
+
+  <script>
+    const uploadedList = document.getElementById("uploadedList");
+    const playlistsDiv = document.getElementById("playlists");
+    const playlistForm = document.getElementById("playlist-form");
+    const playlistNameInput = document.getElementById("playlistName");
+
+    function loadUploadedTracks() {
+      const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      uploadedList.innerHTML = "";
+      if (tracks.length === 0) {
+        uploadedList.innerHTML = "<p>No uploaded tracks yet.</p>";
+        return;
+      }
+
+      tracks.sort((a, b) => new Date(b.date) - new Date(a.date));
+      tracks.forEach((track, index) => {
+        const card = document.createElement("div");
+        card.className = "track-card";
+        card.innerHTML = `
+          <img src="${track.cover}" alt="Cover">
+          <div class="track-info">
+            <h4>${track.title}</h4>
+            <p>${track.artist}</p>
+          </div>
+          <audio controls src="${track.audio}"></audio>
+          <div class="track-actions">
+            <button onclick="addToPlaylistPrompt(${index})">Add to Playlist</button>
+          </div>
+        `;
+        uploadedList.appendChild(card);
+      });
+    }
+
+    playlistForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = playlistNameInput.value.trim();
+      if (!name) return;
+      let playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+      playlists.push({ name, tracks: [] });
+      localStorage.setItem("playlists", JSON.stringify(playlists));
+      playlistNameInput.value = "";
+      loadPlaylists();
+    });
+
+    function loadPlaylists() {
+      const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+      playlistsDiv.innerHTML = "";
+      playlists.forEach((pl, i) => {
+        const card = document.createElement("div");
+        card.className = "playlist-card";
+        card.innerHTML = `
+          <h3>${pl.name}</h3>
+          <div class="playlist-tracks">
+            ${pl.tracks.length > 0 ? pl.tracks.map((t, idx) => `
+              <div>
+                <span>${t.title} - ${t.artist}</span>
+                <button onclick="removeFromPlaylist(${i}, ${idx})">Remove</button>
+              </div>`).join('') : `<p>No tracks yet.</p>`}
+          </div>
+          <button onclick="deletePlaylist(${i})" style="margin-top:10px;">Delete Playlist</button>
+        `;
+        playlistsDiv.appendChild(card);
+      });
+    }
+
+    function addToPlaylistPrompt(trackIndex) {
+      const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+      if (playlists.length === 0) return alert("You need to create a playlist first!");
+      const tracks = JSON.parse(localStorage.getItem("uploadedTracks") || "[]");
+      const track = tracks[trackIndex];
+
+      const names = playlists.map((p, i) => `${i + 1}. ${p.name}`).join("\n");
+      const choice = prompt(`Add "${track.title}" to which playlist?\n${names}`);
+      const num = parseInt(choice);
+      if (num && playlists[num - 1]) {
+        playlists[num - 1].tracks.push(track);
+        localStorage.setItem("playlists", JSON.stringify(playlists));
+        loadPlaylists();
+      }
+    }
+
+    function removeFromPlaylist(playlistIndex, trackIndex) {
+      const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+      playlists[playlistIndex].tracks.splice(trackIndex, 1);
+      localStorage.setItem("playlists", JSON.stringify(playlists));
+      loadPlaylists();
+    }
+
+    function deletePlaylist(index) {
+      let playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+      playlists.splice(index, 1);
+      localStorage.setItem("playlists", JSON.stringify(playlists));
+      loadPlaylists();
+    }
+
+    // 🚀 (Future Expansion)
+    // Tracks from official or community libraries can be added if they share a localStorage key
+    // named "officialTracks" or "communityTracks" with similar data structure.
+
+    loadUploadedTracks();
+    loadPlaylists();
+  </script>
+</body>
+</html>

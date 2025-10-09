@@ -3,6 +3,15 @@ const newPlaylistBtn = document.getElementById("newPlaylistBtn");
 const searchInput = document.getElementById("playlistSearch");
 const popup = document.getElementById("popup");
 
+// Example "site-wide" songs — in real setup, fetch these from your database or site files
+const allSongs = [
+  { title: "Echoes of Chaos", artist: "CRZYCLAN", source: "Official" },
+  { title: "Broken Reality", artist: "CRZYCLAN", source: "Official" },
+  { title: "Waves", artist: "DJ Moon", source: "Community" },
+  { title: "Shadow Pulse", artist: "Nebula", source: "Community" },
+  { title: "Untitled Track 01", artist: "User Upload", source: "Uploads" },
+];
+
 function showPopup(message, color = "#ff2965") {
   popup.textContent = message;
   popup.style.background = color;
@@ -33,31 +42,89 @@ function openPlaylist(index) {
   if (!pl) return;
 
   document.body.innerHTML = `
-    <header><h1>${pl.name}</h1></header>
-    <main id="playlistView">
+  <header>
+    <h1>${pl.name}</h1>
+  </header>
+  <nav class="music-subnav">
+    <a href="music.html">🎧 CRZYCLAN Library</a>
+    <a href="community-music.html">🎵 Community Music</a>
+    <a href="music-projects.html">🎚️ Music Projects</a>
+    <a href="upload.html">⬆️ Upload Track</a>
+    <a href="personal-library.html" class="active">🎤 Personal Library</a>
+  </nav>
+
+  <main id="playlistView">
+    <div class="playlist-toolbar">
       <button onclick="location.reload()">⬅️ Back</button>
-      <div class="playlist-options">
-        <button onclick="renamePlaylist(${index})">✏️ Rename</button>
-        <button onclick="deletePlaylist(${index})">🗑️ Delete</button>
-        <button onclick="addSong(${index})">🎵 Add Song</button>
-      </div>
-      <h3>Songs</h3>
-      <div id="playlistSongs">
-        ${
-          pl.songs && pl.songs.length
-            ? pl.songs
-                .map(
-                  (s, si) => `
-          <div class="song-item">
-            <span>${s.title} - ${s.artist}</span>
-            <button onclick="removeSong(${index}, ${si})">Remove</button>
-          </div>`
-                )
-                .join("")
-            : "<p>No songs yet.</p>"
-        }
-      </div>
-    </main>`;
+      <button onclick="renamePlaylist(${index})">✏️ Rename</button>
+      <button onclick="deletePlaylist(${index})">🗑️ Delete</button>
+    </div>
+
+    <div class="song-search-area">
+      <input type="text" id="songSearch" placeholder="Search for any song...">
+      <div id="songResults"></div>
+    </div>
+
+    <h3>Playlist Songs</h3>
+    <div id="playlistSongs">
+      ${
+        pl.songs && pl.songs.length
+          ? pl.songs
+              .map(
+                (s, si) => `
+        <div class="song-item">
+          <span><b>${s.title}</b> - ${s.artist} (${s.source})</span>
+          <button onclick="removeSong(${index}, ${si})">Remove</button>
+        </div>`
+              )
+              .join("")
+          : "<p>No songs yet.</p>"
+      }
+    </div>
+  </main>
+  <div id="popup" class="popup"></div>
+  `;
+
+  const searchBar = document.getElementById("songSearch");
+  const resultsDiv = document.getElementById("songResults");
+
+  searchBar.addEventListener("input", () => {
+    const term = searchBar.value.toLowerCase();
+    resultsDiv.innerHTML = "";
+    if (!term) return;
+
+    const matches = allSongs.filter(
+      (s) =>
+        s.title.toLowerCase().includes(term) ||
+        s.artist.toLowerCase().includes(term)
+    );
+
+    if (matches.length === 0) {
+      resultsDiv.innerHTML = `<p>No results found.</p>`;
+      return;
+    }
+
+    matches.forEach((song) => {
+      const item = document.createElement("div");
+      item.classList.add("song-result");
+      item.innerHTML = `
+        <span><b>${song.title}</b> - ${song.artist} <small>(${song.source})</small></span>
+        <button>Add</button>
+      `;
+      item.querySelector("button").addEventListener("click", () => {
+        addSongToPlaylist(index, song);
+      });
+      resultsDiv.appendChild(item);
+    });
+  });
+}
+
+function addSongToPlaylist(index, song) {
+  const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
+  playlists[index].songs.push(song);
+  localStorage.setItem("playlists", JSON.stringify(playlists));
+  showPopup("Song added!", "#00ffbf");
+  openPlaylist(index);
 }
 
 function removeSong(pIndex, sIndex) {
@@ -86,18 +153,6 @@ function deletePlaylist(index) {
   location.reload();
 }
 
-function addSong(index) {
-  const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
-  const title = prompt("Song title:");
-  const artist = prompt("Artist name:");
-  if (!title || !artist) return showPopup("Invalid song info", "red");
-
-  playlists[index].songs.push({ title, artist });
-  localStorage.setItem("playlists", JSON.stringify(playlists));
-  showPopup("Song added!", "#00ffbf");
-  openPlaylist(index);
-}
-
 newPlaylistBtn.addEventListener("click", () => {
   const name = prompt("Enter playlist name:");
   if (!name) return showPopup("Playlist name required", "red");
@@ -112,7 +167,7 @@ newPlaylistBtn.addEventListener("click", () => {
 searchInput.addEventListener("input", () => {
   const term = searchInput.value.toLowerCase();
   const cards = document.querySelectorAll(".playlist-card");
-  cards.forEach(card => {
+  cards.forEach((card) => {
     const title = card.querySelector("h4").textContent.toLowerCase();
     card.style.display = title.includes(term) ? "flex" : "none";
   });

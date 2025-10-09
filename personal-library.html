@@ -3,46 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personal Library | Crzyclan Music</title>
+  <title>Personal Library | CRZYCLAN</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="music.css">
 </head>
 <body>
   <header>
-    <h1>Personal Music Library</h1>
-    <p>Your space to store and organize playlists</p>
+    <h1>CRZYCLAN</h1>
+    <p>Home of Chaos, Music, and Mayhem</p>
   </header>
 
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="music.html" class="active">Music</a>
-    <a href="community.html">Community</a>
-    <a href="settings.html">Settings</a>
+  <nav class="music-subnav">
+    <a href="music.html">🎧 CRZYCLAN Library</a>
+    <a href="community-music.html">🎵 Community Music</a>
+    <a href="music-projects.html">🎚️ Music Projects</a>
+    <a href="upload.html">⬆️ Upload Track</a>
+    <a href="personal-library.html" class="active">🎤 Personal Library</a>
   </nav>
 
-  <section id="playlist-section">
-    <h2>Your Playlists</h2>
-
-    <div id="create-playlist-box">
-      <input type="text" id="newPlaylistName" placeholder="Enter playlist name">
-      <button id="createPlaylistBtn">Create Playlist</button>
+  <main id="personal-library">
+    <div class="library-header">
+      <input type="text" id="playlistSearch" placeholder="Search playlists...">
+      <button id="newPlaylistBtn">➕ New Playlist</button>
     </div>
 
-    <div class="playlist-grid" id="playlistGrid"></div>
-  </section>
-
-  <!-- Playlist Detail Modal -->
-  <div id="playlistModal" class="playlist-detail" style="display:none;">
-    <button id="backToLibraryBtn" class="playlist-actions">← Back</button>
-    <div id="playlistInfo"></div>
-    <ul id="playlistSongs" class="song-list"></ul>
-
-    <div class="add-song-section">
-      <input type="text" id="songNameInput" placeholder="Song name...">
-      <input type="text" id="songArtistInput" placeholder="Artist name...">
-      <button id="addSongBtn">Add Song</button>
+    <div id="playlistContainer" class="playlist-grid">
+      <!-- Playlists will load here -->
     </div>
-  </div>
+  </main>
+
+  <footer>
+    &copy; 2025 CRZYCLAN. All rights reserved.
+  </footer>
+
+  <div id="popup" class="popup"></div>
 
   <script src="personal-library.js"></script>
 </body>

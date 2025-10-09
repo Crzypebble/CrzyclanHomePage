@@ -1,158 +1,142 @@
-/* === Music Tabs === */
-.music-tabs {
+/* === Personal Library === */
+.library-header {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  border-bottom: 2px solid #222;
-  margin-bottom: 1.5em;
-  padding-bottom: 10px;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem auto;
 }
 
-.music-tab {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
+.library-header input {
+  width: 60%;
+  max-width: 400px;
+  padding: 0.6rem;
   border-radius: 8px;
-  padding: 10px 20px;
-  color: #ccc;
+  border: 1px solid #ff2965;
+  background: #1a1a1a;
+  color: white;
+  font-size: 1rem;
+}
+
+.library-header button {
+  background: linear-gradient(90deg, #ff2965, #ff639a);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
   font-weight: bold;
+  transition: transform 0.2s, box-shadow 0.3s;
 }
 
-.music-tab:hover {
-  color: red;
-  border-color: red;
+.library-header button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #ff2965;
 }
 
-.music-tab.active {
-  background-color: red;
-  color: black;
-  border-color: red;
-}
-
-/* === Playlist Library === */
 .playlist-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem;
 }
 
 .playlist-card {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #ff2965;
+  border-radius: 12px;
+  width: 200px;
+  height: 250px;
   overflow: hidden;
-  transition: all 0.3s ease;
   cursor: pointer;
-  text-align: center;
-  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .playlist-card:hover {
-  border-color: red;
-  transform: scale(1.03);
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px rgba(255, 41, 101, 0.7);
 }
 
-.playlist-card img {
+.playlist-cover {
   width: 100%;
-  height: 180px;
+  height: 150px;
   object-fit: cover;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #ff2965;
 }
 
-.playlist-card h3 {
-  margin: 10px 0;
+.playlist-card h4 {
+  margin: 0.6rem 0;
+  color: #fff;
+}
+
+.playlist-card small {
+  color: #ccc;
+}
+
+/* === Popup Notifications === */
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 41, 101, 0.9);
   color: white;
-}
-
-/* === Playlist Detail View === */
-.playlist-detail {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: left;
-  margin: 20px;
-}
-
-.playlist-detail h2 {
-  color: red;
-  margin-bottom: 15px;
-}
-
-.playlist-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.playlist-actions button {
-  background-color: red;
-  color: black;
-  border: none;
-  border-radius: 5px;
-  padding: 6px 10px;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 9999;
   font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
 }
 
-.playlist-actions button:hover {
-  background-color: darkred;
+.popup.show {
+  opacity: 1;
 }
 
-/* === Song List === */
-.song-list {
-  list-style: none;
-  padding: 0;
+/* === Inside Playlist View === */
+#playlistView {
+  text-align: center;
+  margin: 2rem;
+}
+
+#playlistView h3 {
+  color: #ff2965;
+  margin-bottom: 1rem;
+}
+
+#playlistSongs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
 .song-item {
-  background-color: #222;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  background: #1a1a1a;
+  border: 1px solid #ff2965;
+  border-radius: 8px;
+  padding: 0.8rem;
+  width: 80%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.3s;
 }
 
-.song-item:hover {
-  background-color: red;
-  color: black;
-}
-
-/* === Add Song Section === */
-.add-song-section {
-  background-color: #151515;
-  padding: 15px;
-  border: 1px solid #333;
-  border-radius: 10px;
-  margin-top: 20px;
-}
-
-.add-song-section input {
-  background: #222;
-  color: white;
-  border: 1px solid #444;
-  padding: 6px;
-  border-radius: 5px;
-  margin-right: 8px;
-}
-
-.add-song-section button {
-  background-color: red;
-  color: black;
-  border: none;
-  border-radius: 5px;
-  padding: 6px 10px;
-  font-weight: bold;
+.song-item button {
+  background: transparent;
+  border: 1px solid #ff2965;
+  color: #ff639a;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
-.add-song-section button:hover {
-  background-color: darkred;
+.song-item button:hover {
+  background: #ff2965;
+  color: white;
 }

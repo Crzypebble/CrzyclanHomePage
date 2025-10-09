@@ -140,3 +140,71 @@
   background: #ff2965;
   color: white;
 }
+
+/* === Inside Playlist View Enhancements === */
+.playlist-toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.playlist-toolbar button {
+  background: linear-gradient(90deg, #ff2965, #ff639a);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.playlist-toolbar button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px #ff2965;
+}
+
+.song-search-area {
+  text-align: center;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+.song-search-area input {
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #ff2965;
+  background: #1a1a1a;
+  color: white;
+  font-size: 1rem;
+}
+#songResults {
+  margin-top: 1rem;
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid #ff2965;
+  border-radius: 8px;
+  padding: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.song-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem;
+  border-bottom: 1px solid #333;
+}
+.song-result:last-child {
+  border-bottom: none;
+}
+.song-result button {
+  background: transparent;
+  border: 1px solid #ff2965;
+  color: #ff639a;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+.song-result button:hover {
+  background: #ff2965;
+  color: white;
+}

@@ -3,20 +3,24 @@ const newPlaylistBtn = document.getElementById("newPlaylistBtn");
 const searchInput = document.getElementById("playlistSearch");
 const popup = document.getElementById("popup");
 
-// Example "site-wide" songs — in real setup, fetch these from your database or site files
+// Combined song list (auto sources from Crzyclan, community, uploads)
 const allSongs = [
-  { title: "Echoes of Chaos", artist: "CRZYCLAN", source: "Official" },
-  { title: "Broken Reality", artist: "CRZYCLAN", source: "Official" },
+  { title: "Why Do I Try?", artist: "Crzypebble", source: "Official" },
+  { title: "Thick And The Bad", artist: "Crzypebble", source: "Official" },
+  { title: "Gas", artist: "Crzypebble", source: "Official" },
+  { title: "Collide", artist: "Crzypebble", source: "Official" },
   { title: "Waves", artist: "DJ Moon", source: "Community" },
   { title: "Shadow Pulse", artist: "Nebula", source: "Community" },
   { title: "Untitled Track 01", artist: "User Upload", source: "Uploads" },
+  { title: "Trigger Run", artist: "Days Before Death", source: "Official" },
+  { title: "Cart Was Full", artist: "AI Gen", source: "AI Generated" },
 ];
 
-function showPopup(message, color = "#ff2965") {
+function showPopup(message, color = "#1db954") {
   popup.textContent = message;
   popup.style.background = color;
   popup.classList.add("show");
-  setTimeout(() => popup.classList.remove("show"), 2000);
+  setTimeout(() => popup.classList.remove("show"), 1800);
 }
 
 function loadPlaylists() {
@@ -42,9 +46,7 @@ function openPlaylist(index) {
   if (!pl) return;
 
   document.body.innerHTML = `
-  <header>
-    <h1>${pl.name}</h1>
-  </header>
+  <header><h1>${pl.name}</h1></header>
   <nav class="music-subnav">
     <a href="music.html">🎧 CRZYCLAN Library</a>
     <a href="community-music.html">🎵 Community Music</a>
@@ -61,23 +63,19 @@ function openPlaylist(index) {
     </div>
 
     <div class="song-search-area">
-      <input type="text" id="songSearch" placeholder="Search for any song...">
+      <input type="text" id="songSearch" placeholder="Search all site songs...">
       <div id="songResults"></div>
     </div>
 
     <h3>Playlist Songs</h3>
     <div id="playlistSongs">
       ${
-        pl.songs && pl.songs.length
-          ? pl.songs
-              .map(
-                (s, si) => `
-        <div class="song-item">
-          <span><b>${s.title}</b> - ${s.artist} (${s.source})</span>
-          <button onclick="removeSong(${index}, ${si})">Remove</button>
-        </div>`
-              )
-              .join("")
+        pl.songs?.length
+          ? pl.songs.map((s, si) => `
+            <div class="song-item">
+              <span><b>${s.title}</b> - ${s.artist} (${s.source})</span>
+              <button onclick="removeSong(${index}, ${si})">Remove</button>
+            </div>`).join("")
           : "<p>No songs yet.</p>"
       }
     </div>
@@ -99,7 +97,7 @@ function openPlaylist(index) {
         s.artist.toLowerCase().includes(term)
     );
 
-    if (matches.length === 0) {
+    if (!matches.length) {
       resultsDiv.innerHTML = `<p>No results found.</p>`;
       return;
     }
@@ -123,7 +121,7 @@ function addSongToPlaylist(index, song) {
   const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
   playlists[index].songs.push(song);
   localStorage.setItem("playlists", JSON.stringify(playlists));
-  showPopup("Song added!", "#00ffbf");
+  showPopup("✅ Song added!");
   openPlaylist(index);
 }
 
@@ -131,7 +129,7 @@ function removeSong(pIndex, sIndex) {
   const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
   playlists[pIndex].songs.splice(sIndex, 1);
   localStorage.setItem("playlists", JSON.stringify(playlists));
-  showPopup("Song removed", "#00ffbf");
+  showPopup("🗑️ Song removed");
   openPlaylist(pIndex);
 }
 
@@ -141,7 +139,7 @@ function renamePlaylist(index) {
   if (!newName) return showPopup("Rename cancelled", "#ccc");
   playlists[index].name = newName;
   localStorage.setItem("playlists", JSON.stringify(playlists));
-  showPopup("Playlist renamed", "#00ffbf");
+  showPopup("✏️ Playlist renamed");
   openPlaylist(index);
 }
 
@@ -149,7 +147,7 @@ function deletePlaylist(index) {
   const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
   playlists.splice(index, 1);
   localStorage.setItem("playlists", JSON.stringify(playlists));
-  showPopup("Playlist deleted", "red");
+  showPopup("❌ Playlist deleted", "red");
   location.reload();
 }
 
@@ -160,7 +158,7 @@ newPlaylistBtn.addEventListener("click", () => {
   const playlists = JSON.parse(localStorage.getItem("playlists") || "[]");
   playlists.push({ name, cover: null, songs: [] });
   localStorage.setItem("playlists", JSON.stringify(playlists));
-  showPopup("Playlist created!", "#00ffbf");
+  showPopup("🎶 Playlist created!");
   loadPlaylists();
 });
 

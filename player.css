@@ -1,0 +1,224 @@
+/* player.css - CRZYCLAN Player (visualizer + float/dock + pulsing outline) */
+
+/* basic variables */
+:root {
+  --accent: #ff2965; /* default red */
+  --bg: #0b0b0b;
+  --panel-bg: rgba(17,17,17,0.9);
+  --glass: rgba(20,20,20,0.7);
+  --text: #fff;
+}
+
+/* Player container (float) */
+#crzy-player {
+  position: fixed;
+  left: 20px;
+  top: 70vh;
+  width: 320px;
+  background: var(--panel-bg);
+  color: var(--text);
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  z-index: 99999;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+  user-select: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+/* Docked variant (bottom bar) */
+#crzy-player.docked {
+  left: 0 !important;
+  right: 0;
+  bottom: 0;
+  top: auto !important;
+  width: 100%;
+  height: 72px;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+/* drag bar / header */
+#crzy-player .drag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05), transparent);
+  cursor: grab;
+}
+
+#crzy-player .drag .title {
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 14px;
+  flex: 1;
+}
+
+#crzy-player .controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#crzy-player button.icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* main body (float layout) */
+#crzy-player .body {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 110px;
+  gap: 10px;
+  align-items: center;
+}
+
+/* left area (track + progress + meta) */
+#crzy-player .meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#crzy-player .meta .cover {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.04);
+  background: #111;
+}
+
+/* Now playing text */
+#crzy-player .now {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#crzy-player .now .song {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+#crzy-player .now .artist {
+  color: #bbb;
+  font-size: 12px;
+}
+
+/* controls area */
+#crzy-player .player-controls {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+/* progress */
+#crzy-player .progress {
+  width: 100%;
+  margin-top: 8px;
+}
+#crzy-player input[type="range"].progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+/* right area (visualizer + settings) */
+#crzy-player .visual-wrap {
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  gap:8px;
+  justify-content: center;
+}
+
+/* canvas visualizer */
+#crzy-player canvas {
+  width: 100%;
+  height: 70px;
+  display:block;
+  border-radius:6px;
+}
+
+/* pulsing outline */
+#crzy-player.pulse {
+  box-shadow: 0 0 30px rgba(255,41,101,0.18), 0 0 60px rgba(255,41,101,0.08) inset;
+  transform: translateY(-2px);
+  transition: box-shadow 0.12s ease, transform 0.12s ease;
+}
+
+/* small settings panel */
+#crzy-player .settings {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: rgba(0,0,0,0.85);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 10px;
+  border-radius: 8px;
+  display:none;
+  z-index: 999999;
+  min-width: 220px;
+}
+#crzy-player .settings.show { display:block; }
+
+/* settings rows */
+#crzy-player .settings label {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin:6px 0;
+  font-size:13px;
+  color: #ddd;
+}
+
+/* accent color preview */
+#crzy-player .accent-preview {
+  width: 26px;
+  height: 18px;
+  border-radius:4px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* action row for dock toggle */
+#crzy-player .bottom-actions {
+  display:flex;
+  gap:8px;
+  justify-content: center;
+  margin-top:6px;
+}
+
+/* responsive smaller */
+@media (max-width:640px) {
+  #crzy-player { width: 92vw; left:4vw; top: 65vh; }
+  #crzy-player .body { grid-template-columns: 1fr; }
+  #crzy-player .visual-wrap { order: 3; }
+  #crzy-player .meta { order: 1; }
+}
+
+/* Download button hidden when not member - library controls should toggle display inline-block as needed */
+#crzy-player .download-btn {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+/* small hover effects */
+#crzy-player button.icon-btn:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
+
+/* tiny helper for time */
+.player-time { font-size: 12px; color: #bbb; }

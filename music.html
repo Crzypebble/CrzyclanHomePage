@@ -21,7 +21,7 @@
     </nav>
   </header>
 
-  <!-- Mini music navbar (links to separate HTML pages) -->
+  <!-- Mini music navbar -->
   <nav class="music-subnav" aria-label="Music navigation">
     <a href="music.html" class="active">🎧 CRZYCLAN Library</a>
     <a href="community-music.html">🎵 Community Music</a>
@@ -38,86 +38,87 @@
           <p>Explore our sounds — from raw tracks to game scores and AI experiments.</p>
         </div>
 
-        <!-- Search (site-wide) -->
+        <!-- Global search -->
         <div class="music-search">
-          <input id="siteSearch" placeholder="Search songs, artists..." />
+          <input id="siteSearch" placeholder="Search songs, artists..." autocomplete="off" />
         </div>
       </div>
 
-      <!-- Albums Section -->
+      <!-- Albums -->
       <div class="music-section">
         <h3>Albums</h3>
 
         <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover" draggable="false">
           <div class="album-info">
             <strong>Choking On The Past</strong><br>
             Releases June 25, 2025 - Crzypebble
             <ul class="album-tracks">
-              <li>Track 1 - HIDDEN</li>
-              <li>Track 2 - HIDDEN</li>
-              <li data-src="whydoitry.mp3" onclick="playTrackFromElement(this)">Track 3 - Why Do I Try?</li>
-              <li>Track 4 - HIDDEN</li>
-              <li data-src="thickandthebad.mp3" onclick="playTrackFromElement(this)">Track 5 - Thick And The Bad</li>
-              <li>Track 6 - HIDDEN</li>
+              <li data-src="hidden1" class="track-line">Track 1 - HIDDEN</li>
+              <li data-src="hidden2" class="track-line">Track 2 - HIDDEN</li>
+              <li data-src="whydoitry.mp3" class="track-line">Track 3 - Why Do I Try?<span class="track-actions-inline"><button class="add-queue" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="hidden4" class="track-line">Track 4 - HIDDEN</li>
+              <li data-src="thickandthebad.mp3" class="track-line">Track 5 - Thick And The Bad<span class="track-actions-inline"><button class="add-queue" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="hidden6" class="track-line">Track 6 - HIDDEN</li>
             </ul>
           </div>
         </div>
 
         <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover" draggable="false">
           <div class="album-info">
             <strong>The Pebble Deluxe</strong><br>
             Released December 19, 2024 - Crzypebble
             <ul class="album-tracks">
-              <li data-src="welcometohellprodblksaturn.mp3" onclick="playTrackFromElement(this)">Track 1 - Welcome To Hell(PROD.BlkSaturn)</li>
-              <li data-src="smokebitchesprodsmxkypete.mp3" onclick="playTrackFromElement(this)">Track 2 - Smoke Bitches(PROD.SMXKYPETE)</li>
-              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" onclick="playTrackFromElement(this)">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)</li>
-              <li data-src="gas.mp3" onclick="playTrackFromElement(this)">Track 4 - Gas(Prod.Hamburg3r)</li>
-              <li data-src="collideprodmyss.mp3" onclick="playTrackFromElement(this)">Track 5 - Collide(PROD.Myss)</li>
-              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" onclick="playTrackFromElement(this)">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)</li>
-              <li data-src="fadinglight.mp3" onclick="playTrackFromElement(this)">Track 7 - The Fading Light Of The Renaissance</li>
-              <li data-src="renaissancestoned.mp3" onclick="playTrackFromElement(this)">Track 8 - Renaissance (Stoned)</li>
-              <li data-src="straightahead.mp3" onclick="playTrackFromElement(this)">Track 9 - Straight Ahead(prod.WLVSKY)</li>
-              <li data-src="why.mp3" onclick="playTrackFromElement(this)">Track 10 - WHY(prod.blunkq)</li>
-              <li data-src="carrythefight.mp3" onclick="playTrackFromElement(this)">Track 11 - Carry The Fight(prod. taymxru)</li>
-              <li data-src="kissofdeath.mp3" onclick="playTrackFromElement(this)">Track 12 - Kiss Of Death (Memories)[prod. by gusuck]</li>
-              <li data-src="collidebiggietrev.mp3" onclick="playTrackFromElement(this)">Track 13 - Collide FT. BIGGIETREV(PROD.Myss)</li>
-              <li data-src="c3zycl4n.mp3" onclick="playTrackFromElement(this)">Track 14 - C3ZYCL4N(Prod. Pendo46)</li>
-              <li data-src="everything.m4a" onclick="playTrackFromElement(this)">Track 15 - EVERYTHING</li>
+              <li data-src="welcometohellprodblksaturn.mp3" class="track-line">Track 1 - Welcome To Hell(PROD.BlkSaturn)<span class="track-actions-inline"><button class="add-queue" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="smokebitchesprodsmxkypete.mp3" class="track-line">Track 2 - Smoke Bitches(PROD.SMXKYPETE)<span class="track-actions-inline"><button class="add-queue" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" class="track-line">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)<span class="track-actions-inline"><button class="add-queue" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="gas.mp3" class="track-line">Track 4 - Gas(Prod.Hamburg3r)<span class="track-actions-inline"><button class="add-queue" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="collideprodmyss.mp3" class="track-line">Track 5 - Collide(PROD.Myss)<span class="track-actions-inline"><button class="add-queue" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" class="track-line">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)<span class="track-actions-inline"><button class="add-queue" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="fadinglight.mp3" class="track-line">Track 7 - The Fading Light Of The Renaissance<span class="track-actions-inline"><button class="add-queue" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="renaissancestoned.mp3" class="track-line">Track 8 - Renaissance (Stoned)<span class="track-actions-inline"><button class="add-queue" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="straightahead.mp3" class="track-line">Track 9 - Straight Ahead(prod.WLVSKY)<span class="track-actions-inline"><button class="add-queue" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="why.mp3" class="track-line">Track 10 - WHY(prod.blunkq)<span class="track-actions-inline"><button class="add-queue" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="carrythefight.mp3" class="track-line">Track 11 - Carry The Fight(prod. taymxru)<span class="track-actions-inline"><button class="add-queue" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="kissofdeath.mp3" class="track-line">Track 12 - Kiss Of Death (Memories) <span class="track-actions-inline"><button class="add-queue" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="collidebiggietrev.mp3" class="track-line">Track 13 - Collide FT. BIGGIETREV <span class="track-actions-inline"><button class="add-queue" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="c3zycl4n.mp3" class="track-line">Track 14 - C3ZYCL4N <span class="track-actions-inline"><button class="add-queue" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="everything.m4a" class="track-line">Track 15 - EVERYTHING <span class="track-actions-inline"><button class="add-queue" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble">＋</button></span></li>
             </ul>
           </div>
         </div>
 
         <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover" draggable="false">
           <div class="album-info">
             <strong>The Pebble</strong><br>
             Released March 2, 2024 - Crzypebble
             <ul class="album-tracks">
-              <li data-src="welcometohellprodblksaturn.mp3" onclick="playTrackFromElement(this)">Track 1 - Welcome To Hell(PROD.BlkSaturn)</li>
-              <li data-src="smokebitchesprodsmxkypete.mp3" onclick="playTrackFromElement(this)">Track 2 - Smoke Bitches(PROD.SMXKYPETE)</li>
-              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" onclick="playTrackFromElement(this)">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)</li>
-              <li data-src="gas.mp3" onclick="playTrackFromElement(this)">Track 4 - Gas(Prod.Hamburg3r)</li>
-              <li data-src="collideprodmyss.mp3" onclick="playTrackFromElement(this)">Track 5 - Collide(PROD.Myss)</li>
-              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" onclick="playTrackFromElement(this)">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)</li>
-              <li data-src="fadinglight.mp3" onclick="playTrackFromElement(this)">Track 7 - The Fading Light Of The Renaissance</li>
+              <li data-src="welcometohellprodblksaturn.mp3" class="track-line">Track 1 - Welcome To Hell(PROD.BlkSaturn)</li>
+              <li data-src="smokebitchesprodsmxkypete.mp3" class="track-line">Track 2 - Smoke Bitches(PROD.SMXKYPETE)</li>
+              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" class="track-line">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)</li>
+              <li data-src="gas.mp3" class="track-line">Track 4 - Gas(Prod.Hamburg3r)</li>
+              <li data-src="collideprodmyss.mp3" class="track-line">Track 5 - Collide(PROD.Myss)</li>
+              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" class="track-line">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)</li>
+              <li data-src="fadinglight.mp3" class="track-line">Track 7 - The Fading Light Of The Renaissance</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <!-- Genre Sections -->
+      <!-- Genres -->
       <div class="music-section">
         <h3>Metal</h3>
         <div class="track-card">
-          <img src="images/metal-track.jpg" alt="Flesh and Signal" class="track-art">
+          <img src="images/metal-track.jpg" alt="Flesh and Signal" class="track-art" draggable="false">
           <div class="track-body">
-            <strong data-src="fleshandsignal.mp3" onclick="playTrackFromElement(this)">Flesh and Signal</strong><br>
+            <strong data-src="fleshandsignal.mp3" class="playable">Flesh and Signal</strong><br>
             <small>Crzypebble · 2025</small>
           </div>
           <div class="track-actions">
-            <button onclick="openAddPickerFromButton(event, {title:'Flesh and Signal', artist:'Crzypebble', src:'fleshandsignal.mp3', source:'Official'})">＋</button>
+            <button class="icon add-queue" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">➜</button>
+            <button class="icon add-playlist" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">＋</button>
           </div>
         </div>
       </div>
@@ -125,13 +126,14 @@
       <div class="music-section">
         <h3>Rap</h3>
         <div class="track-card">
-          <img src="images/rap-track.jpg" alt="Mind in Red" class="track-art">
+          <img src="images/rap-track.jpg" alt="Mind in Red" class="track-art" draggable="false">
           <div class="track-body">
-            <strong data-src="mindinred.mp3" onclick="playTrackFromElement(this)">Mind in Red</strong><br>
+            <strong data-src="mindinred.mp3" class="playable">Mind in Red</strong><br>
             <small>Crzypebble · 2025</small>
           </div>
           <div class="track-actions">
-            <button onclick="openAddPickerFromButton(event, {title:'Mind in Red', artist:'Crzypebble', src:'mindinred.mp3', source:'Official'})">＋</button>
+            <button class="icon add-queue" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">➜</button>
+            <button class="icon add-playlist" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">＋</button>
           </div>
         </div>
       </div>
@@ -139,24 +141,19 @@
       <div class="music-section">
         <h3>Game Music</h3>
         <ul class="track-list">
-          <li data-src="triggerrun.mp3" onclick="playTrackFromElement(this)">Days Before Death - Trigger Run <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Trigger Run', artist:'Days Before Death', src:'triggerrun.mp3', source:'Official'})">Add</button></li>
-          <li data-src="downbelow.mp3" onclick="playTrackFromElement(this)">Days Before Death - Down Below <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Down Below', artist:'Days Before Death', src:'downbelow.mp3', source:'Official'})">Add</button></li>
-          <li data-src="daysbeforedeath.mp3" onclick="playTrackFromElement(this)">Days Before Death - Days Before Death <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Days Before Death', artist:'Days Before Death', src:'daysbeforedeath.mp3', source:'Official'})">Add</button></li>
-          <li data-src="deadweight.mp3" onclick="playTrackFromElement(this)">Days Before Death - Dead Weight <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Dead Weight', artist:'Days Before Death', src:'deadweight.mp3', source:'Official'})">Add</button></li>
-          <li data-src="eyeoftheloop.mp3" onclick="playTrackFromElement(this)">Days Before Death - Eye Of The Loop <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Eye Of The Loop', artist:'Days Before Death', src:'eyeoftheloop.mp3', source:'Official'})">Add</button></li>
+          <li data-src="triggerrun.mp3" class="track-line">Days Before Death - Trigger Run <span class="track-actions-inline"><button class="add-queue" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">＋</button></span></li>
+          <li data-src="downbelow.mp3" class="track-line">Days Before Death - Down Below <span class="track-actions-inline"><button class="add-queue" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">＋</button></span></li>
+          <li data-src="daysbeforedeath.mp3" class="track-line">Days Before Death - Days Before Death <span class="track-actions-inline"><button class="add-queue" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">＋</button></span></li>
+          <li data-src="deadweight.mp3" class="track-line">Days Before Death - Dead Weight <span class="track-actions-inline"><button class="add-queue" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">＋</button></span></li>
+          <li data-src="eyeoftheloop.mp3" class="track-line">Days Before Death - Eye Of The Loop <span class="track-actions-inline"><button class="add-queue" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">＋</button></span></li>
         </ul>
       </div>
 
       <div class="music-section">
         <h3>AI Generated</h3>
         <ul class="track-list">
-          <li data-src="triggerrun.mp3" onclick="playTrackFromElement(this)">Days Before Death - Trigger Run <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Trigger Run', artist:'Days Before Death', src:'triggerrun.mp3', source:'Official'})">Add</button></li>
-          <li data-src="downbelow.mp3" onclick="playTrackFromElement(this)">Days Before Death - Down Below <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Down Below', artist:'Days Before Death', src:'downbelow.mp3', source:'Official'})">Add</button></li>
-          <li data-src="daysbeforedeath.mp3" onclick="playTrackFromElement(this)">Days Before Death - Days Before Death <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Days Before Death', artist:'Days Before Death', src:'daysbeforedeath.mp3', source:'Official'})">Add</button></li>
-          <li data-src="deadweight.mp3" onclick="playTrackFromElement(this)">Days Before Death - Dead Weight <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Dead Weight', artist:'Days Before Death', src:'deadweight.mp3', source:'Official'})">Add</button></li>
-          <li data-src="eyeoftheloop.mp3" onclick="playTrackFromElement(this)">Days Before Death - Eye Of The Loop <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Eye Of The Loop', artist:'Days Before Death', src:'eyeoftheloop.mp3', source:'Official'})">Add</button></li>
-          <li data-src="crimsoncode.mp3" onclick="playTrackFromElement(this)">Crimson Code - AI Synthwave, Rock <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Crimson Code', artist:'AI', src:'crimsoncode.mp3', source:'AI'})">Add</button></li>
-          <li data-src="cartwasfull.mp3" onclick="playTrackFromElement(this)">Cart was full - Rock, Alt, Nu Metal <button class="add-btn" onclick="openAddPickerFromButton(event, {title:'Cart was full', artist:'User', src:'cartwasfull.mp3', source:'Uploads'})">Add</button></li>
+          <li data-src="crimsoncode.mp3" class="track-line">Crimson Code - AI Synthwave, Rock <span class="track-actions-inline"><button class="add-queue" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">➜</button><button class="add-playlist" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">＋</button></span></li>
+          <li data-src="cartwasfull.mp3" class="track-line">Cart was full - Rock, Alt, Nu Metal <span class="track-actions-inline"><button class="add-queue" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">➜</button><button class="add-playlist" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">＋</button></span></li>
         </ul>
       </div>
     </section>
@@ -182,21 +179,33 @@
     </div>
   </div>
 
-  <!-- Simple Music Player -->
+  <!-- Queue panel (hidden by default) -->
+  <div id="queuePanel" class="queue-panel">
+    <div class="queue-header">
+      <strong>Queue</strong>
+      <button onclick="clearQueue()" title="Clear queue">✖</button>
+    </div>
+    <div id="queueItems"></div>
+  </div>
+
+  <!-- Simple Music Player (draggable) -->
   <div id="simple-player" class="draggable" aria-label="CRZYCLAN Player">
-    <div id="drag-bar">🎵 CRZYCLAN Player <span id="player-mode-toggle" title="Dock / Undock">⬇️</span></div>
-    <div id="now-playing">None</div>
+    <div id="drag-bar">🎵 CRZYCLAN Player <span id="player-mode-toggle" title="Dock / Undock">⬇️</span> <button id="open-queue-btn" title="Open queue">☰</button></div>
+    <div id="now-playing">Not playing</div>
     <div class="player-controls">
+      <button id="skip-back">⏮</button>
       <button id="toggle-play">▶️</button>
+      <button id="skip-forward">⏭</button>
       <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-      <a id="download-btn" href="#" download style="display:none;">⬇️ Download</a>
+      <a id="download-btn" href="#" download style="display:none;">⬇️</a>
+      <button id="visualizer-toggle" title="Visualizer">⚡</button>
     </div>
 
     <!-- hidden single audio element -->
     <audio id="audio-player" preload="metadata"></audio>
 
     <!-- visualizer canvas -->
-    <canvas id="player-visualizer" width="240" height="240"></canvas>
+    <canvas id="player-visualizer" width="300" height="80"></canvas>
   </div>
 
   <div id="popup" class="popup"></div>

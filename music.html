@@ -44,118 +44,384 @@
         </div>
       </div>
 
-      <!-- Albums -->
+      <!-- Liked songs quick access -->
+      <div class="music-section">
+        <h3>Liked Songs</h3>
+        <div id="likedSummary" class="album album--mini" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;border:1px solid rgba(255,0,0,0.08);background:#0f0f0f;">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Liked Songs" class="album-cover" style="width:84px;height:84px;">
+          <div style="flex:1">
+            <strong>Liked Songs</strong><br>
+            <small id="likedCount">0 songs</small>
+          </div>
+          <div>
+            <button id="openLikedBtn" class="track-actions-inline" style="background:#ff0000;color:#fff;border-radius:8px;padding:8px 10px;border:none;cursor:pointer;">Open</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Albums (collapsible) -->
       <div class="music-section">
         <h3>Albums</h3>
 
-        <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover" draggable="false">
+        <!-- Album: Choking On The Past -->
+        <details class="album-card" open>
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Choking On The Past" class="album-cover" draggable="false">
+            <div>
+              <strong>Choking On The Past</strong><br>
+              <small>Crzypebble · Metal · Releases June 25, 2025</small><br>
+              <small class="track-count">6 tracks</small>
+            </div>
+          </summary>
           <div class="album-info">
-            <strong>Choking On The Past</strong><br>
-            Releases June 25, 2025 - Crzypebble
             <ul class="album-tracks">
               <li data-src="hidden1" class="track-line">Track 1 - HIDDEN</li>
               <li data-src="hidden2" class="track-line">Track 2 - HIDDEN</li>
-              <li data-src="whydoitry.mp3" class="track-line">Track 3 - Why Do I Try?<span class="track-actions-inline"><button class="add-queue" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="whydoitry.mp3" class="track-line">
+                Track 3 - Why Do I Try?
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="whydoitry.mp3" data-title="Why Do I Try?" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
               <li data-src="hidden4" class="track-line">Track 4 - HIDDEN</li>
-              <li data-src="thickandthebad.mp3" class="track-line">Track 5 - Thick And The Bad<span class="track-actions-inline"><button class="add-queue" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="thickandthebad.mp3" class="track-line">
+                Track 5 - Thick And The Bad
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="thickandthebad.mp3" data-title="Thick And The Bad" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
               <li data-src="hidden6" class="track-line">Track 6 - HIDDEN</li>
             </ul>
           </div>
-        </div>
+        </details>
 
-        <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover" draggable="false">
+        <!-- Album: The Pebble Deluxe -->
+        <details class="album-card" open>
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover" draggable="false">
+            <div>
+              <strong>The Pebble Deluxe</strong><br>
+              <small>Crzypebble · Rap / Rock · Released December 19, 2024</small><br>
+              <small class="track-count">15 tracks</small>
+            </div>
+          </summary>
           <div class="album-info">
-            <strong>The Pebble Deluxe</strong><br>
-            Released December 19, 2024 - Crzypebble
             <ul class="album-tracks">
-              <li data-src="welcometohellprodblksaturn.mp3" class="track-line">Track 1 - Welcome To Hell(PROD.BlkSaturn)<span class="track-actions-inline"><button class="add-queue" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="smokebitchesprodsmxkypete.mp3" class="track-line">Track 2 - Smoke Bitches(PROD.SMXKYPETE)<span class="track-actions-inline"><button class="add-queue" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" class="track-line">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)<span class="track-actions-inline"><button class="add-queue" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="gas.mp3" class="track-line">Track 4 - Gas(Prod.Hamburg3r)<span class="track-actions-inline"><button class="add-queue" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="collideprodmyss.mp3" class="track-line">Track 5 - Collide(PROD.Myss)<span class="track-actions-inline"><button class="add-queue" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" class="track-line">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)<span class="track-actions-inline"><button class="add-queue" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="fadinglight.mp3" class="track-line">Track 7 - The Fading Light Of The Renaissance<span class="track-actions-inline"><button class="add-queue" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="renaissancestoned.mp3" class="track-line">Track 8 - Renaissance (Stoned)<span class="track-actions-inline"><button class="add-queue" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="straightahead.mp3" class="track-line">Track 9 - Straight Ahead(prod.WLVSKY)<span class="track-actions-inline"><button class="add-queue" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="why.mp3" class="track-line">Track 10 - WHY(prod.blunkq)<span class="track-actions-inline"><button class="add-queue" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="carrythefight.mp3" class="track-line">Track 11 - Carry The Fight(prod. taymxru)<span class="track-actions-inline"><button class="add-queue" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="kissofdeath.mp3" class="track-line">Track 12 - Kiss Of Death (Memories) <span class="track-actions-inline"><button class="add-queue" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="collidebiggietrev.mp3" class="track-line">Track 13 - Collide FT. BIGGIETREV <span class="track-actions-inline"><button class="add-queue" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="c3zycl4n.mp3" class="track-line">Track 14 - C3ZYCL4N <span class="track-actions-inline"><button class="add-queue" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble">＋</button></span></li>
-              <li data-src="everything.m4a" class="track-line">Track 15 - EVERYTHING <span class="track-actions-inline"><button class="add-queue" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble">➜</button><button class="add-playlist" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble">＋</button></span></li>
+              <li data-src="welcometohellprodblksaturn.mp3" class="track-line">
+                Track 1 - Welcome To Hell (PROD. BlkSaturn)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="welcometohellprodblksaturn.mp3" data-title="Welcome To Hell" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="smokebitchesprodsmxkypete.mp3" class="track-line">
+                Track 2 - Smoke Bitches (PROD. SMXKYPETE)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="smokebitchesprodsmxkypete.mp3" data-title="Smoke Bitches" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" class="track-line">
+                Track 3 - THE BOULDER: Rocks And Pebbles (PROD. FuckSerbab)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="theboulderrocksandpebblesprodfuckserbab.mp3" data-title="THE BOULDER" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="gas.mp3" class="track-line">
+                Track 4 - Gas (Prod. Hamburg3r)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="gas.mp3" data-title="Gas" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="collideprodmyss.mp3" class="track-line">
+                Track 5 - Collide (PROD. Myss)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="collideprodmyss.mp3" data-title="Collide" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" class="track-line">
+                Track 6 - Hurt Pebble (PROD. DIMEBAGGI£)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" data-title="Hurt Pebble" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="fadinglight.mp3" class="track-line">
+                Track 7 - The Fading Light Of The Renaissance
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="fadinglight.mp3" data-title="Fading Light" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="renaissancestoned.mp3" class="track-line">
+                Track 8 - Renaissance (Stoned)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="renaissancestoned.mp3" data-title="Renaissance" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="straightahead.mp3" class="track-line">
+                Track 9 - Straight Ahead (prod. WLVSKY)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="straightahead.mp3" data-title="Straight Ahead" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="why.mp3" class="track-line">
+                Track 10 - WHY (prod. blunkq)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="why.mp3" data-title="WHY" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="carrythefight.mp3" class="track-line">
+                Track 11 - Carry The Fight (prod. taymxru)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="carrythefight.mp3" data-title="Carry The Fight" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="kissofdeath.mp3" class="track-line">
+                Track 12 - Kiss Of Death (Memories)
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="kissofdeath.mp3" data-title="Kiss Of Death" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="collidebiggietrev.mp3" class="track-line">
+                Track 13 - Collide FT. BIGGIETREV
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="collidebiggietrev.mp3" data-title="Collide FT. BIGGIETREV" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="c3zycl4n.mp3" class="track-line">
+                Track 14 - C3ZYCL4N
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="c3zycl4n.mp3" data-title="C3ZYCL4N" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+
+              <li data-src="everything.m4a" class="track-line">
+                Track 15 - EVERYTHING
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="everything.m4a" data-title="EVERYTHING" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
             </ul>
           </div>
-        </div>
+        </details>
 
-        <div class="album">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover" draggable="false">
+        <!-- Album: The Pebble (smaller version) -->
+        <details class="album-card">
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover" draggable="false">
+            <div>
+              <strong>The Pebble</strong><br>
+              <small>Crzypebble · Released March 2, 2024</small><br>
+              <small class="track-count">7 tracks</small>
+            </div>
+          </summary>
           <div class="album-info">
-            <strong>The Pebble</strong><br>
-            Released March 2, 2024 - Crzypebble
             <ul class="album-tracks">
-              <li data-src="welcometohellprodblksaturn.mp3" class="track-line">Track 1 - Welcome To Hell(PROD.BlkSaturn)</li>
-              <li data-src="smokebitchesprodsmxkypete.mp3" class="track-line">Track 2 - Smoke Bitches(PROD.SMXKYPETE)</li>
-              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" class="track-line">Track 3 - THE BOULDER: Rocks And Pebbles(PROD.FuckSerbab)</li>
-              <li data-src="gas.mp3" class="track-line">Track 4 - Gas(Prod.Hamburg3r)</li>
-              <li data-src="collideprodmyss.mp3" class="track-line">Track 5 - Collide(PROD.Myss)</li>
-              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" class="track-line">Track 6 - Hurt Pebble(PROD.DIMEBAGGI£)</li>
+              <li data-src="welcometohellprodblksaturn.mp3" class="track-line">Track 1 - Welcome To Hell (duplicate listing intentionally)</li>
+              <li data-src="smokebitchesprodsmxkypete.mp3" class="track-line">Track 2 - Smoke Bitches</li>
+              <li data-src="theboulderrocksandpebblesprodfuckserbab.mp3" class="track-line">Track 3 - THE BOULDER</li>
+              <li data-src="gas.mp3" class="track-line">Track 4 - Gas</li>
+              <li data-src="collideprodmyss.mp3" class="track-line">Track 5 - Collide</li>
+              <li data-src="hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" class="track-line">Track 6 - Hurt Pebble</li>
               <li data-src="fadinglight.mp3" class="track-line">Track 7 - The Fading Light Of The Renaissance</li>
             </ul>
           </div>
-        </div>
+        </details>
       </div>
 
-      <!-- Genres -->
+      <!-- Genres / Single tracks displayed album-style (matches album layout) -->
       <div class="music-section">
-        <h3>Metal</h3>
-        <div class="track-card">
-          <img src="images/metal-track.jpg" alt="Flesh and Signal" class="track-art" draggable="false">
-          <div class="track-body">
-            <strong data-src="fleshandsignal.mp3" class="playable">Flesh and Signal</strong><br>
-            <small>Crzypebble · 2025</small>
+        <h3>Genres</h3>
+
+        <!-- Metal album-like card -->
+        <details class="album-card">
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="images/metal-track.jpg" alt="Metal Collection" class="album-cover" draggable="false">
+            <div>
+              <strong>Metal</strong><br>
+              <small>Crzypebble · Collection</small><br>
+              <small class="track-count">1 tracks</small>
+            </div>
+          </summary>
+          <div class="album-info">
+            <ul class="album-tracks">
+              <li data-src="fleshandsignal.mp3" class="track-line">
+                Flesh and Signal
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+            </ul>
           </div>
-          <div class="track-actions">
-            <button class="icon add-queue" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">➜</button>
-            <button class="icon add-playlist" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">＋</button>
+        </details>
+
+        <!-- Rap -->
+        <details class="album-card">
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="images/rap-track.jpg" alt="Rap Collection" class="album-cover" draggable="false">
+            <div>
+              <strong>Rap</strong><br>
+              <small>Crzypebble · Collection</small><br>
+              <small class="track-count">1 tracks</small>
+            </div>
+          </summary>
+          <div class="album-info">
+            <ul class="album-tracks">
+              <li data-src="mindinred.mp3" class="track-line">
+                Mind in Red
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">➜</button>
+                  <button class="add-playlist" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">＋</button>
+                  <button class="like-btn" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+            </ul>
           </div>
-        </div>
+        </details>
+
       </div>
 
-      <div class="music-section">
-        <h3>Rap</h3>
-        <div class="track-card">
-          <img src="images/rap-track.jpg" alt="Mind in Red" class="track-art" draggable="false">
-          <div class="track-body">
-            <strong data-src="mindinred.mp3" class="playable">Mind in Red</strong><br>
-            <small>Crzypebble · 2025</small>
-          </div>
-          <div class="track-actions">
-            <button class="icon add-queue" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">➜</button>
-            <button class="icon add-playlist" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">＋</button>
-          </div>
-        </div>
-      </div>
-
+      <!-- Game Music -->
       <div class="music-section">
         <h3>Game Music</h3>
-        <ul class="track-list">
-          <li data-src="triggerrun.mp3" class="track-line">Days Before Death - Trigger Run <span class="track-actions-inline"><button class="add-queue" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">＋</button></span></li>
-          <li data-src="downbelow.mp3" class="track-line">Days Before Death - Down Below <span class="track-actions-inline"><button class="add-queue" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">＋</button></span></li>
-          <li data-src="daysbeforedeath.mp3" class="track-line">Days Before Death - Days Before Death <span class="track-actions-inline"><button class="add-queue" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">＋</button></span></li>
-          <li data-src="deadweight.mp3" class="track-line">Days Before Death - Dead Weight <span class="track-actions-inline"><button class="add-queue" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">＋</button></span></li>
-          <li data-src="eyeoftheloop.mp3" class="track-line">Days Before Death - Eye Of The Loop <span class="track-actions-inline"><button class="add-queue" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">➜</button><button class="add-playlist" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">＋</button></span></li>
-        </ul>
+        <details class="album-card">
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="images/game-music.jpg" alt="Game Music" class="album-cover" draggable="false" onerror="this.src='https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true'">
+            <div>
+              <strong>Game Music</strong><br>
+              <small>Days Before Death · Game OST</small><br>
+              <small class="track-count">5 tracks</small>
+            </div>
+          </summary>
+          <div class="album-info">
+            <ul class="album-tracks">
+              <li data-src="triggerrun.mp3" class="track-line">
+                Trigger Run
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">➜</button>
+                  <button class="add-playlist" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">＋</button>
+                  <button class="like-btn" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+              <li data-src="downbelow.mp3" class="track-line">
+                Down Below
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">➜</button>
+                  <button class="add-playlist" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">＋</button>
+                  <button class="like-btn" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+              <li data-src="daysbeforedeath.mp3" class="track-line">
+                Days Before Death
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">➜</button>
+                  <button class="add-playlist" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">＋</button>
+                  <button class="like-btn" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+              <li data-src="deadweight.mp3" class="track-line">
+                Dead Weight
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">➜</button>
+                  <button class="add-playlist" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">＋</button>
+                  <button class="like-btn" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+              <li data-src="eyeoftheloop.mp3" class="track-line">
+                Eye Of The Loop
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">➜</button>
+                  <button class="add-playlist" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">＋</button>
+                  <button class="like-btn" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </details>
       </div>
 
+      <!-- AI Generated -->
       <div class="music-section">
         <h3>AI Generated</h3>
-        <ul class="track-list">
-          <li data-src="crimsoncode.mp3" class="track-line">Crimson Code - AI Synthwave, Rock <span class="track-actions-inline"><button class="add-queue" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">➜</button><button class="add-playlist" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">＋</button></span></li>
-          <li data-src="cartwasfull.mp3" class="track-line">Cart was full - Rock, Alt, Nu Metal <span class="track-actions-inline"><button class="add-queue" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">➜</button><button class="add-playlist" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">＋</button></span></li>
-        </ul>
+        <details class="album-card">
+          <summary class="album-summary" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <img src="images/ai-album.jpg" alt="AI Collection" class="album-cover" draggable="false" onerror="this.src='https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true'">
+            <div>
+              <strong>AI Generated</strong><br>
+              <small>Various · Experimental</small><br>
+              <small class="track-count">3 tracks</small>
+            </div>
+          </summary>
+          <div class="album-info">
+            <ul class="album-tracks">
+              <li data-src="crimsoncode.mp3" class="track-line">
+                Crimson Code - AI Synthwave, Rock
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">➜</button>
+                  <button class="add-playlist" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">＋</button>
+                  <button class="like-btn" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+              <li data-src="cartwasfull.mp3" class="track-line">
+                Cart was full - Rock, Alt, Nu Metal
+                <span class="track-actions-inline">
+                  <button class="add-queue" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">➜</button>
+                  <button class="add-playlist" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">＋</button>
+                  <button class="like-btn" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User" onclick="toggleLike(this)">♡</button>
+                </span>
+              </li>
+              <!-- you can add more AI tracks here -->
+            </ul>
+          </div>
+        </details>
       </div>
+
     </section>
   </main>
 
@@ -167,7 +433,7 @@
     <p id="membership-status"></p>
   </div>
 
-  <!-- Playlist picker modal -->
+  <!-- Playlist picker modal (keeps same ID your music.js uses) -->
   <div id="playlistPicker" class="modal">
     <div class="modal-inner">
       <h3>Select Playlist</h3>
@@ -188,31 +454,146 @@
     <div id="queueItems"></div>
   </div>
 
-  <!-- Simple Music Player (draggable) -->
-  <div id="simple-player" class="draggable" aria-label="CRZYCLAN Player">
-    <div id="drag-bar">🎵 CRZYCLAN Player <span id="player-mode-toggle" title="Dock / Undock">⬇️</span> <button id="open-queue-btn" title="Open queue">☰</button></div>
-    <div id="now-playing">Not playing</div>
-    <div class="player-controls">
-      <button id="skip-back">⏮</button>
-      <button id="toggle-play">▶️</button>
-      <button id="skip-forward">⏭</button>
-      <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-      <a id="download-btn" href="#" download style="display:none;">⬇️</a>
-      <button id="visualizer-toggle" title="Visualizer">⚡</button>
-    </div>
-
-    <!-- hidden single audio element -->
-    <audio id="audio-player" preload="metadata"></audio>
-
-    <!-- visualizer canvas -->
-    <canvas id="player-visualizer" width="300" height="80"></canvas>
-  </div>
+  <!-- CRZYCLAN Player placeholder (your player.js will inject #crzy-player and remove any old player) -->
+  <!-- We keep a single audio element that player.js and music.js can use -->
+  <audio id="audio-player" preload="metadata" style="display:none;"></audio>
 
   <div id="popup" class="popup"></div>
 
   <footer>
     &copy; 2025 CRZYCLAN. All rights reserved.
   </footer>
+
+  <!-- small inline helper for likes & UI counts (non-conflicting) -->
+  <script>
+    (function(){
+      // ensure playlists exists and liked-songs mapping
+      if (!localStorage.getItem('playlists')) localStorage.setItem('playlists', JSON.stringify([]));
+      if (!localStorage.getItem('liked_songs')) localStorage.setItem('liked_songs', JSON.stringify([]));
+
+      function ensureLikedPlaylist() {
+        const pls = JSON.parse(localStorage.getItem('playlists') || '[]');
+        let idx = pls.findIndex(p => p.name === 'Liked Songs');
+        if (idx === -1) {
+          pls.unshift({ name: 'Liked Songs', cover: null, songs: [] });
+          localStorage.setItem('playlists', JSON.stringify(pls));
+          idx = 0;
+        }
+        return idx;
+      }
+
+      // toggle like for a button element
+      window.toggleLike = function(btn) {
+        const src = btn.dataset.src;
+        const title = btn.dataset.title || btn.getAttribute('data-title') || src;
+        const artist = btn.dataset.artist || btn.getAttribute('data-artist') || 'Unknown';
+        if (!src) return;
+
+        let liked = JSON.parse(localStorage.getItem('liked_songs') || '[]');
+        const exists = liked.find(s => s.src === src);
+
+        if (exists) {
+          // remove
+          liked = liked.filter(s => s.src !== src);
+          btn.textContent = '♡';
+          btn.classList.remove('liked');
+        } else {
+          liked.push({ title, artist, src });
+          btn.textContent = '❤️';
+          btn.classList.add('liked');
+        }
+        localStorage.setItem('liked_songs', JSON.stringify(liked));
+
+        // ensure playlist exists and contains the liked songs
+        const pls = JSON.parse(localStorage.getItem('playlists') || '[]');
+        const likedIndex = pls.findIndex(p => p.name === 'Liked Songs');
+        const idx = likedIndex !== -1 ? likedIndex : ensureLikedPlaylist();
+        pls[idx].songs = pls[idx].songs || [];
+
+        // sync playlist songs to liked_songs (no duplicates)
+        const likedSrcs = liked.map(s => s.src);
+        pls[idx].songs = pls[idx].songs.filter(s => likedSrcs.includes(s.src));
+        // add missing liked songs metadata to playlist
+        liked.forEach(s => {
+          if (!pls[idx].songs.find(x => x.src === s.src)) pls[idx].songs.push(s);
+        });
+
+        localStorage.setItem('playlists', JSON.stringify(pls));
+        updateLikedSummary();
+      };
+
+      // update liked summary counter
+      function updateLikedSummary() {
+        const liked = JSON.parse(localStorage.getItem('liked_songs') || '[]');
+        const countEl = document.getElementById('likedCount');
+        if (countEl) countEl.textContent = liked.length + (liked.length === 1 ? ' song' : ' songs');
+      }
+
+      // when "Open" liked summary pressed, open playlist picker and highlight liked playlist
+      document.getElementById('openLikedBtn')?.addEventListener('click', function(){
+        const idx = ensureLikedPlaylist();
+        // call existing picker UI to show playlists; if absent, show a simple popup
+        if (typeof openAddPicker === 'function') {
+          // open picker with no pending add so user can view playlists - we will pre-select liked
+          loadPlaylistsForPicker && loadPlaylistsForPicker();
+          const picker = document.getElementById('playlistPicker');
+          picker && picker.classList.add('show');
+          // optionally scroll to liked playlist after short delay
+          setTimeout(()=> {
+            const list = document.getElementById('playlistList');
+            if (list && list.children[idx]) list.children[idx].scrollIntoView({behavior:'smooth',block:'center'});
+          },120);
+        } else {
+          alert('Open your Playlists (no picker available).');
+        }
+      });
+
+      // initialize like buttons state from localStorage (pre-mark liked ones)
+      function initLikes() {
+        const liked = JSON.parse(localStorage.getItem('liked_songs') || '[]');
+        const likedSrcs = liked.map(s => s.src);
+        document.querySelectorAll('.like-btn').forEach(b => {
+          const src = b.dataset.src || b.getAttribute('data-src');
+          if (likedSrcs.includes(src)) {
+            b.textContent = '❤️';
+            b.classList.add('liked');
+          } else {
+            b.textContent = '♡';
+            b.classList.remove('liked');
+          }
+        });
+        updateLikedSummary();
+      }
+
+      // Update track-counts inside details whenever DOMContentLoaded or details toggled
+      function updateCounts() {
+        document.querySelectorAll('details.album-card').forEach(d => {
+          const cnt = d.querySelectorAll('.album-tracks > li').length;
+          const el = d.querySelector('.track-count');
+          if (el) el.textContent = cnt + (cnt === 1 ? ' track' : ' tracks');
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initLikes();
+        updateCounts();
+
+        // make the summary clickable but not trigger button clicks inside
+        document.querySelectorAll('details.album-card summary').forEach(s => {
+          s.addEventListener('click', function(e){
+            // allow native toggle, but ignore clicks that target buttons
+            if (e.target.closest('button')) e.preventDefault();
+            // update counts when toggled
+            setTimeout(updateCounts, 10);
+          });
+        });
+      });
+
+      // expose utility for other scripts
+      window.ensureLikedPlaylist = ensureLikedPlaylist;
+      window.updateLikedSummary = updateLikedSummary;
+    })();
+  </script>
 
   <script src="player.js"></script>
   <script src="music.js"></script>

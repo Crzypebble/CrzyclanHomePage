@@ -1,88 +1,85 @@
-// player.js - CRZYCLAN Player v2 (waveform/particles visualizer + float/dock + cross-tab sync)
-// Option B: waveform/particles visualizer
-(function () {
+// player.js - CRZYCLAN Player v2 (injects #crzy-player, draggable, dock, visualizer, queue)
+// - removes old #simple-player if present
+// - exposes window.crzyPlayer API for music.js
+(function(){
+  const STATE_KEY = 'crzy_player_state';
   const ACCENT_KEY = 'crzy_player_accent';
-  const MODE_KEY = 'crzy_player_mode'; // 'float' | 'dock'
-  const STATE_KEY = 'crzy_player_state'; // for cross-tab state sync
+  const MODE_KEY = 'crzy_player_mode';
 
-  // helper to create element quickly
-  function $el(tag, attrs = {}, html = '') {
-    const e = document.createElement(tag);
-    for (const k in attrs) {
-      if (k === 'class') e.className = attrs[k];
-      else if (k === 'style') e.style.cssText = attrs[k];
-      else e.setAttribute(k, attrs[k]);
-    }
-    e.innerHTML = html;
-    return e;
-  }
+  // remove old player block if present
+  const old = document.getElementById('simple-player');
+  if (old) old.remove();
 
-  // Find or create audio element
+  // ensure single audio element exists
   let audio = document.getElementById('audio-player');
   if (!audio) {
     audio = document.createElement('audio');
     audio.id = 'audio-player';
     audio.preload = 'metadata';
+    audio.style.display = 'none';
     document.body.appendChild(audio);
   }
 
-  // Build player UI
-  const player = $el('div', { id: 'crzy-player' });
+  // create player container
+  function $el(tag, attrs={}, html=''){
+    const e=document.createElement(tag);
+    Object.entries(attrs).forEach(([k,v])=>{ if(k==='class') e.className=v; else e.setAttribute(k,v); });
+    e.innerHTML=html; return e;
+  }
+
+  const player = $el('div',{id:'crzy-player'});
   player.innerHTML = `
     <div class="drag" title="Drag / Hold to move">
       <div class="title">CRZYCLAN Player</div>
-      <div class="controls">
-        <button class="icon-btn" id="crzy-prev" title="Previous">⏮</button>
-        <button class="icon-btn" id="crzy-play" title="Play/Pause">▶️</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="icon-btn" id="crzy-prev" title="Prev">⏮</button>
+        <button class="icon-btn" id="crzy-play" title="Play">▶️</button>
         <button class="icon-btn" id="crzy-next" title="Next">⏭</button>
-        <button class="icon-btn" id="crzy-dock" title="Toggle Dock">📌</button>
+        <button class="icon-btn" id="crzy-dock" title="Dock">📌</button>
+        <button class="icon-btn" id="crzy-queue-btn" title="Queue">☰</button>
         <button class="icon-btn" id="crzy-settings-btn" title="Settings">⚙️</button>
       </div>
     </div>
     <div class="body">
-      <div>
-        <div class="meta">
-          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" class="cover" id="crz-cover">
-          <div class="now">
-            <div class="song" id="crz-song">None</div>
-            <div class="artist" id="crz-artist">Not playing</div>
-            <div class="progress">
-              <input class="progress" type="range" id="crz-progress" min="0" max="100" value="0">
-              <div style="display:flex;justify-content:space-between;">
-                <span class="player-time" id="crz-time">0:00</span>
-                <span class="player-time" id="crz-duration">0:00</span>
-              </div>
-            </div>
+      <div class="meta">
+        <img id="crz-cover" class="cover" src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true">
+        <div class="now">
+          <div class="song" id="crz-song">Not playing</div>
+          <div class="artist" id="crz-artist">—</div>
+          <div class="progress">
+            <input id="crz-progress" class="progress" type="range" min="0" max="100" value="0">
+            <div style="display:flex;justify-content:space-between;"><span id="crz-time">0:00</span><span id="crz-duration">0:00</span></div>
           </div>
         </div>
       </div>
-
       <div class="visual-wrap">
         <canvas id="crz-canvas"></canvas>
-        <div class="bottom-actions">
+        <div class="bottom-actions" style="display:flex;gap:8px;align-items:center;">
           <input id="crz-volume" type="range" min="0" max="1" step="0.01" value="1" title="Volume">
-          <a id="crz-download" class="download-btn" href="#" download style="display:none">⬇️</a>
+          <a id="crz-download" class="download-btn hidden" href="#" download>⬇️</a>
         </div>
       </div>
     </div>
-
-    <div class="settings" id="crz-settings">
-      <label>Visualizer <input type="checkbox" id="crz-visual-toggle" checked></label>
-      <label>Autoplay Next <input type="checkbox" id="crz-autoplay"></label>
-      <label>Accent <input type="color" id="crz-accent" value="#ff2965"></label>
-      <div style="text-align:right;margin-top:8px;">
-        <button id="crz-close-settings" class="icon-btn">Close</button>
-      </div>
+    <div id="crz-settings" class="settings">
+      <label>Visualizer <input id="crz-visual-toggle" type="checkbox" checked></label>
+      <label>Autoplay Next <input id="crz-autoplay" type="checkbox"></label>
+      <label>Accent <input id="crz-accent" type="color" value="#ff0000"></label>
+      <div style="text-align:right;margin-top:8px;"><button id="crz-close-settings" class="icon-btn">Close</button></div>
     </div>
   `;
-
   document.body.appendChild(player);
 
-  // Cache nodes
+  // queue panel under the player (separate element sibling)
+  const queuePanel = $el('div',{class:'crzy-queue'});
+  queuePanel.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong>Queue</strong><button id="crzy-clear-queue" title="Clear">Clear</button></div><div id="crzy-queue-items"></div>`;
+  player.after(queuePanel);
+
+  // nodes
   const playBtn = document.getElementById('crzy-play');
   const prevBtn = document.getElementById('crzy-prev');
   const nextBtn = document.getElementById('crzy-next');
   const dockBtn = document.getElementById('crzy-dock');
+  const queueBtn = document.getElementById('crzy-queue-btn');
   const settingsBtn = document.getElementById('crzy-settings-btn');
   const settingsPanel = document.getElementById('crz-settings');
   const visualToggle = document.getElementById('crz-visual-toggle');
@@ -97,27 +94,18 @@
   const canvas = document.getElementById('crz-canvas');
   const volumeInput = document.getElementById('crz-volume');
   const downloadBtn = document.getElementById('crz-download');
+  const queueItemsWrap = document.getElementById('crzy-queue-items');
 
-  // Apply saved accent and mode
-  const savedAccent = localStorage.getItem(ACCENT_KEY);
-  if (savedAccent) {
-    document.documentElement.style.setProperty('--accent', savedAccent);
-    accentInput.value = savedAccent;
-  } else {
-    document.documentElement.style.setProperty('--accent', '#ff2965');
-  }
-
+  // get saved accent/mode
+  const savedAccent = localStorage.getItem(ACCENT_KEY) || '#ff0000';
+  document.documentElement.style.setProperty('--accent', savedAccent);
+  accentInput.value = savedAccent;
   const savedMode = localStorage.getItem(MODE_KEY) || 'float';
   if (savedMode === 'dock') player.classList.add('docked');
 
-  // Play state
-  let isPlaying = false;
-  let rafId = null;
-
-  // WebAudio setup
-  let audioCtx, analyser, sourceNode;
-  let bufferLength, dataArray;
-  function setupAudioContext() {
+  // audio context + visualizer
+  let audioCtx, analyser, sourceNode, dataArray, bufferLength;
+  function setupAudioCtx(){
     if (!window.AudioContext) return false;
     if (audioCtx) return true;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -129,328 +117,247 @@
       sourceNode = audioCtx.createMediaElementSource(audio);
       sourceNode.connect(analyser);
       analyser.connect(audioCtx.destination);
-    } catch (e) {
-      // if cross-origin or multiple sources created, fallback gracefully
-      console.warn('Audio context setup error', e);
-    }
+    } catch(e){ console.warn('audio ctx issue', e); }
     return true;
   }
 
-  // Visualizer: waveform + particles
+  // canvas hi-dpi
   const ctx = canvas.getContext('2d');
-  let particles = [];
-  function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * devicePixelRatio;
-    canvas.height = rect.height * devicePixelRatio;
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-  }
+  function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = rect.width * devicePixelRatio; canvas.height = rect.height * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio); }
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  function createParticles(count = 36) {
-    particles = [];
-    for (let i=0;i<count;i++){
-      particles.push({
-        x: Math.random()*canvas.clientWidth,
-        y: Math.random()*canvas.clientHeight,
-        vx: (Math.random()-0.5)*0.6,
-        vy: (Math.random()-0.5)*0.6,
-        size: 1 + Math.random()*3,
-        hue: 340 + Math.random()*30
-      });
+  // particles
+  let particles = [];
+  function createParticles(n=22){
+    particles=[];
+    for(let i=0;i<n;i++){
+      particles.push({ x:Math.random()*canvas.clientWidth, y:Math.random()*canvas.clientHeight, vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6, size:1+Math.random()*3 });
     }
   }
-  createParticles(22);
+  createParticles(24);
 
-  function drawVisualizer() {
-    if (!visualToggle.checked) {
-      ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
-      return;
-    }
-    if (!analyser || !dataArray) {
-      ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight);
-      return;
-    }
+  function drawViz(){
+    if (!visualToggle.checked || !analyser) { ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight); return; }
     analyser.getByteTimeDomainData(dataArray);
-
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
+    const w = canvas.clientWidth, h = canvas.clientHeight;
     ctx.clearRect(0,0,w,h);
-
-    // waveform
     ctx.lineWidth = 2;
-    ctx.strokeStyle = localStorage.getItem(ACCENT_KEY) || '#ff2965';
+    ctx.strokeStyle = localStorage.getItem(ACCENT_KEY) || '#ff0000';
     ctx.beginPath();
     const slice = w / dataArray.length;
     for (let i=0;i<dataArray.length;i++){
-      const v = (dataArray[i] - 128) / 128;
+      const v = (dataArray[i]-128)/128;
       const y = (h/2) + v*(h/2)*0.8;
-      const x = i * slice;
-      if (i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
+      const x = i*slice;
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     }
     ctx.stroke();
-
-    // amplitude for pulses/particles
-    let sum = 0;
-    for (let i=0;i<dataArray.length;i++) sum += Math.abs(dataArray[i]-128);
-    const amp = sum / dataArray.length / 128; // 0..~1
-
-    // update particles
-    for (let p of particles) {
-      p.x += p.vx * (1 + amp*4);
-      p.y += p.vy * (1 + amp*4);
-      p.size += (Math.random()-0.5)*0.2;
-      if (p.x < -10) p.x = w + 10;
-      if (p.x > w + 10) p.x = -10;
-      if (p.y < -10) p.y = h + 10;
-      if (p.y > h + 10) p.y = -10;
-      ctx.fillStyle = `rgba(255,41,101,${0.08 + amp*0.6})`;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size + amp*4, 0, Math.PI*2);
-      ctx.fill();
+    let sum=0;
+    for(let i=0;i<dataArray.length;i++) sum += Math.abs(dataArray[i]-128);
+    const amp = sum/dataArray.length/128;
+    for(let p of particles){
+      p.x += p.vx*(1+amp*4);
+      p.y += p.vy*(1+amp*4);
+      if (p.x < -10) p.x = w+10; if (p.x > w+10) p.x = -10;
+      if (p.y < -10) p.y = h+10; if (p.y > h+10) p.y = -10;
+      ctx.fillStyle = `rgba(255,0,0,${0.06+amp*0.6})`;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size+amp*4,0,Math.PI*2); ctx.fill();
     }
-
-    // set pulsing outline if amp passes threshold
-    if (amp > 0.02 && !player.classList.contains('pulse')) {
-      player.classList.add('pulse');
-    } else if (amp <= 0.02 && player.classList.contains('pulse')) {
-      player.classList.remove('pulse');
-    }
+    if (amp > 0.02) player.classList.add('pulse'); else player.classList.remove('pulse');
   }
+  let rafId=null;
+  function animate(){ drawViz(); rafId = requestAnimationFrame(animate); }
+  function startVisual(){ if (!setupAudioCtx()) { player.classList.add('pulse'); return; } if (!rafId) animate(); }
+  function stopVisual(){ if (rafId){ cancelAnimationFrame(rafId); rafId=null; } }
 
-  // animation loop
-  function animate() {
-    drawVisualizer();
-    rafId = requestAnimationFrame(animate);
-  }
+  // state
+  let isPlaying = false;
 
-  // update track meta
-  function updateMeta() {
+  // update meta
+  function updateMeta(){
     const src = audio.src || '';
     const filename = src.split('/').pop() || '';
-    songText.textContent = filename || 'Not playing';
-    artistText.textContent = src ? 'CRZYCLAN' : '—';
-
-    // show download if src and membership is handled by your site: expose a function isMember?
-    if (src && window.isMember) {
-      downloadBtn.href = src;
-      downloadBtn.style.display = 'inline-block';
-    } else {
-      downloadBtn.style.display = 'none';
-    }
-
-    // cover: try to find data-cover attr or fallback
+    songText.textContent = audio.getAttribute('data-title') || filename || 'Not playing';
+    artistText.textContent = audio.getAttribute('data-artist') || 'CRZYCLAN';
     const cover = audio.getAttribute('data-cover') || coverImg.src;
     coverImg.src = cover;
+    if (src && window.isMember) { downloadBtn.href = src; downloadBtn.classList.remove('hidden'); } else downloadBtn.classList.add('hidden');
   }
 
   // progress updates
-  audio.addEventListener('timeupdate', () => {
-    if (!isNaN(audio.duration) && audio.duration > 0) {
-      const pct = (audio.currentTime / audio.duration) * 100;
+  audio.addEventListener('timeupdate', ()=>{
+    if (!isNaN(audio.duration) && audio.duration>0){
+      const pct = (audio.currentTime/audio.duration)*100;
       progressRange.value = pct;
       timeEl.textContent = formatTime(audio.currentTime);
       durEl.textContent = formatTime(audio.duration);
     }
   });
-
-  progressRange.addEventListener('input', () => {
-    if (!isNaN(audio.duration) && audio.duration > 0) {
-      const pct = progressRange.value / 100;
-      audio.currentTime = pct * audio.duration;
-    }
+  progressRange.addEventListener('input', ()=> {
+    if (!isNaN(audio.duration) && audio.duration>0) audio.currentTime = (progressRange.value/100)*audio.duration;
   });
+  function formatTime(t){ if (!t||isNaN(t)) return '0:00'; const m = Math.floor(t/60); const s = Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
 
-  function formatTime(t) {
-    if (!t || isNaN(t)) return '0:00';
-    const m = Math.floor(t/60);
-    const s = Math.floor(t%60).toString().padStart(2,'0');
-    return `${m}:${s}`;
-  }
-
-  // play/pause handler
-  function togglePlay() {
+  // play/pause
+  function togglePlay(){
     if (audio.paused) {
-      // resume or start
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-      audio.play().catch(err => console.warn('play prevented', err));
-      isPlaying = true;
-      playBtn.textContent = '⏸️';
-      startVisual();
-      broadcastState({ action: 'play', src: audio.src });
+      audio.play().catch(()=>{});
+      isPlaying = true; playBtn.textContent = '⏸️'; startVisual();
+      broadcast({action:'play', src:audio.src});
     } else {
-      audio.pause();
-      isPlaying = false;
-      playBtn.textContent = '▶️';
-      stopVisual();
-      broadcastState({ action: 'pause' });
+      audio.pause(); isPlaying=false; playBtn.textContent='▶️'; stopVisual(); broadcast({action:'pause'});
     }
   }
-
   playBtn.addEventListener('click', togglePlay);
 
   // dock toggle
-  dockBtn.addEventListener('click', () => {
-    const docked = player.classList.toggle('docked');
-    localStorage.setItem(MODE_KEY, docked ? 'dock' : 'float');
+  dockBtn.addEventListener('click', ()=>{
+    const docked = player.classList.toggle('docked'); localStorage.setItem(MODE_KEY, docked? 'dock':'float');
+    // reposition queue panel
+    positionQueue();
   });
 
-  // settings open/close
-  settingsBtn.addEventListener('click', (e) => {
-    settingsPanel.classList.toggle('show');
-  });
-  document.getElementById('crz-close-settings').addEventListener('click', () => {
-    settingsPanel.classList.remove('show');
-  });
+  // settings
+  settingsBtn.addEventListener('click', ()=> settingsPanel.classList.toggle('show'));
+  document.getElementById('crz-close-settings').addEventListener('click', ()=> settingsPanel.classList.remove('show'));
+  accentInput.addEventListener('input', (e)=> { document.documentElement.style.setProperty('--accent', e.target.value); localStorage.setItem(ACCENT_KEY, e.target.value); });
+  visualToggle.addEventListener('change', ()=> localStorage.setItem('crz_visual_on', visualToggle.checked ? '1':'0'));
+  autoplayToggle.addEventListener('change', ()=> localStorage.setItem('crz_autoplay', autoplayToggle.checked ? '1':'0'));
+  volumeInput.addEventListener('input', (e)=> audio.volume = Number(e.target.value || 1));
+  audio.volume = Number(volumeInput.value || 1);
 
-  // accent color persisted
-  accentInput.addEventListener('input', (e) => {
-    const v = e.target.value;
-    document.documentElement.style.setProperty('--accent', v);
-    localStorage.setItem(ACCENT_KEY, v);
-  });
+  // prev/next
+  prevBtn.addEventListener('click', ()=> { window.dispatchEvent(new CustomEvent('crzy-player-action',{detail:{action:'prev'}})); });
+  nextBtn.addEventListener('click', ()=> { window.dispatchEvent(new CustomEvent('crzy-player-action',{detail:{action:'next'}})); });
 
-  // visual toggle & autoplay persisted
-  visualToggle.addEventListener('change', () => {
-    localStorage.setItem('crz_visual_on', visualToggle.checked ? '1' : '0');
-  });
-  autoplayToggle.addEventListener('change', () => {
-    localStorage.setItem('crz_autoplay', autoplayToggle.checked ? '1' : '0');
-  });
-
-  // volume
-  volumeInput.addEventListener('input', (e) => {
-    audio.volume = Number(e.target.value);
-  });
-
-  // previous/next - placeholders (you can wire these to your playlist logic)
-  prevBtn.addEventListener('click', () => {
-    broadcastState({ action: 'prev' });
-  });
-  nextBtn.addEventListener('click', () => {
-    broadcastState({ action: 'next' });
-  });
-
-  // start/stop visual loop
-  function startVisual() {
-    if (!setupAudioContext()) {
-      // not supported, still show pulse animation via CSS animation
-      player.classList.add('pulse');
-      return;
-    }
-    if (!rafId) {
-      animate();
-    }
-  }
-  function stopVisual() {
-    if (rafId) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
-  }
-
-  // on ended: hide pulse and maybe autoplay next if enabled
-  audio.addEventListener('ended', () => {
+  // on ended -> dispatch event consumed by music.js for autoplay logic & attempt queue pop
+  audio.addEventListener('ended', ()=> {
     stopVisual();
-    player.classList.remove('pulse');
     playBtn.textContent = '▶️';
     const auto = localStorage.getItem('crz_autoplay') === '1';
-    if (auto) {
-      broadcastState({ action: 'next' });
-    } else {
-      broadcastState({ action: 'ended' });
-    }
+    // notify host: let them handle next selection (they will check queue and sections)
+    window.dispatchEvent(new CustomEvent('crzy-player-ended', { detail: { src: audio.src } }));
+    if (!auto) return;
   });
 
-  // format initial meta
-  updateMeta();
+  // broadcast cross-tab
+  function broadcast(obj){ const payload = { ts: Date.now(), ...obj }; localStorage.setItem(STATE_KEY, JSON.stringify(payload)); handleState(payload, true); }
+  window.addEventListener('storage', (e)=> { if (e.key === STATE_KEY && e.newValue) try{ handleState(JSON.parse(e.newValue), false); } catch(e){} });
 
-  // Start/stop on load if needed
-  // Sync across tabs using localStorage events
-  function broadcastState(obj) {
-    const payload = {
-      ts: Date.now(),
-      ...obj
-    };
-    localStorage.setItem(STATE_KEY, JSON.stringify(payload));
-    // also immediately handle locally for reliability
-    handleState(payload, true);
-  }
-
-  window.addEventListener('storage', (e) => {
-    if (e.key === STATE_KEY && e.newValue) {
-      try {
-        const payload = JSON.parse(e.newValue);
-        handleState(payload, false);
-      } catch (err) {}
-    }
-  });
-
-  function handleState(payload, local) {
+  function handleState(payload, local){
     if (!payload || !payload.action) return;
-    if (payload.action === 'play') {
-      if (payload.src && payload.src !== audio.src) {
-        audio.src = payload.src;
-        updateMeta();
-      }
-      audio.play().catch(()=>{});
-      isPlaying = true;
-      playBtn.textContent = '⏸️';
-      startVisual();
-    } else if (payload.action === 'pause') {
-      audio.pause();
-      isPlaying = false;
-      playBtn.textContent = '▶️';
-      stopVisual();
-    } else if (payload.action === 'setSrc') {
-      if (payload.src) {
-        audio.src = payload.src;
-        if (payload.cover) audio.setAttribute('data-cover', payload.cover);
-        updateMeta();
-      }
-    } else if (payload.action === 'ended') {
-      // stopped
-      audio.pause();
-      isPlaying = false;
-      stopVisual();
-    } else if (payload.action === 'prev' || payload.action === 'next') {
-      // emit a custom event so the host page can handle playlist changes
-      window.dispatchEvent(new CustomEvent('crzy-player-action', { detail: payload }));
-    }
+    if (payload.action === 'play') { if (payload.src && payload.src !== audio.src){ audio.src = payload.src; if (payload.meta) { if (payload.meta.cover) audio.setAttribute('data-cover', payload.meta.cover); if (payload.meta.title) audio.setAttribute('data-title', payload.meta.title); if (payload.meta.artist) audio.setAttribute('data-artist', payload.meta.artist); } updateMeta(); } audio.play().catch(()=>{}); playBtn.textContent='⏸️'; startVisual(); }
+    else if (payload.action === 'pause'){ audio.pause(); playBtn.textContent='▶️'; stopVisual(); }
+    else if (payload.action === 'setSrc'){ if (payload.src){ audio.src = payload.src; if (payload.meta){ if (payload.meta.cover) audio.setAttribute('data-cover', payload.meta.cover); if (payload.meta.title) audio.setAttribute('data-title', payload.meta.title); if (payload.meta.artist) audio.setAttribute('data-artist', payload.meta.artist); } updateMeta(); } }
   }
 
-  // allow host pages to set src via window.crzyPlayer.setSrc(...)
+  // expose API
   window.crzyPlayer = {
-    setSrc: (src, meta = {}) => {
+    setSrc: (src, meta={}) => {
       audio.src = src;
       if (meta.cover) audio.setAttribute('data-cover', meta.cover);
-      if (meta.title) songText.textContent = meta.title;
-      if (meta.artist) artistText.textContent = meta.artist;
+      if (meta.title) audio.setAttribute('data-title', meta.title);
+      if (meta.artist) audio.setAttribute('data-artist', meta.artist);
       updateMeta();
-      broadcastState({ action: 'setSrc', src, cover: meta.cover || '' });
+      broadcast({ action:'setSrc', src, meta });
     },
-    play: () => broadcastState({ action: 'play', src: audio.src }),
-    pause: () => broadcastState({ action: 'pause' }),
+    play: () => broadcast({ action:'play', src: audio.src }),
+    pause: () => broadcast({ action:'pause' }),
     toggle: togglePlay
   };
 
-  // Click on cover/song area could open player expand (placeholder)
-  coverImg.addEventListener('dblclick', () => {
-    // example: go to a full player page (if you have one)
-    console.log('double click cover');
-  });
+  // update meta on loadedmetadata
+  audio.addEventListener('loadedmetadata', ()=> { updateMeta(); durEl.textContent = formatTime(audio.duration); });
 
-  // drag functionality (mouse + touch)
-  let isDragging = false, dragOffset = {x:0,y:0};
+  // resize canvas at end
+  setTimeout(()=> resizeCanvas(), 200);
+  // queue UI management stored in localStorage 'crzy_queue'
+  function getQueue(){ return JSON.parse(localStorage.getItem('crzy_queue')||'[]'); }
+  function saveQueue(q){ localStorage.setItem('crzy_queue', JSON.stringify(q)); renderQueue(); }
+  function addToQueue(song){ const q=getQueue(); q.push(song); saveQueue(q); showPopup('Added to queue'); }
+  function clearQueue(){ saveQueue([]); showPopup('Queue cleared'); }
+  function popQueue(){ const q=getQueue(); const next=q.shift(); saveQueue(q); return next; }
+
+  // queue UI rendering and drag/drop reorder
+  function renderQueue(){
+    const q=getQueue(); queueItemsWrap.innerHTML='';
+    if (!q.length) { queueItemsWrap.innerHTML = '<div style="color:#aaa;padding:8px">Queue empty</div>'; return; }
+    q.forEach((s,i)=>{
+      const item = $el('div',{class:'item',draggable:'true', 'data-i':i});
+      item.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><div class="drag-handle">⋮</div><div class="info"><strong>${s.title}</strong><br><small>${s.artist||''}</small></div></div>
+        <div style="position:relative">
+          <button class="small-menu" aria-expanded="false">⋯</button>
+          <div class="menu"><button class="remove">Remove</button></div>
+        </div>`;
+      queueItemsWrap.appendChild(item);
+
+      // menu handlers
+      const menuBtn = item.querySelector('.small-menu');
+      const menu = item.querySelector('.menu');
+      menuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); menuBtn.classList.toggle('open'); menuBtn.classList.toggle('active'); menuBtn.classList.toggle('open'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; });
+
+      item.querySelector('.remove').addEventListener('click', (e)=> {
+        e.stopPropagation();
+        const idx = +item.getAttribute('data-i');
+        const arr = getQueue(); arr.splice(idx,1); saveQueue(arr); showPopup('Removed from queue');
+      });
+
+      // drag/drop basics
+      item.addEventListener('dragstart', (ev)=> { ev.dataTransfer.setData('text/plain', item.getAttribute('data-i')); item.classList.add('dragging'); });
+      item.addEventListener('dragend', ()=> { item.classList.remove('dragging'); renderQueue(); });
+      item.addEventListener('dragover', (ev)=> { ev.preventDefault(); });
+      item.addEventListener('drop', (ev)=> {
+        ev.preventDefault();
+        const from = +ev.dataTransfer.getData('text/plain');
+        const to = +item.getAttribute('data-i');
+        if (isNaN(from) || isNaN(to)) return;
+        const arr = getQueue();
+        const [moved] = arr.splice(from,1);
+        arr.splice(to,0,moved);
+        saveQueue(arr);
+      });
+    });
+  }
+
+  // open/close queue panel
+  queueBtn.addEventListener('click', (e)=> {
+    e.stopPropagation();
+    player.classList.toggle('queue-open');
+    positionQueue();
+    renderQueue();
+  });
+  function positionQueue(){
+    // position the queue panel relative to player bottom-left (or docked center)
+    const rect = player.getBoundingClientRect();
+    if (!player.classList.contains('docked')) {
+      queuePanel.style.left = Math.max(8, rect.left) + 'px';
+      queuePanel.style.bottom = (window.innerHeight - rect.bottom + 12) + 'px';
+    } else {
+      queuePanel.style.left = '8px';
+      queuePanel.style.bottom = '90px';
+    }
+  }
+  window.addEventListener('resize', positionQueue);
+
+  document.getElementById('crzy-clear-queue').addEventListener('click', ()=> { clearQueue(); });
+
+  // popup
+  const popup = document.createElement('div');
+  popup.style.position='fixed'; popup.style.right='18px'; popup.style.bottom='18px'; popup.style.background='var(--accent)'; popup.style.padding='12px 18px'; popup.style.color='#fff'; popup.style.borderRadius='8px'; popup.style.opacity=0; popup.style.transition='opacity .2s';
+  document.body.appendChild(popup);
+  function showPopup(msg, t=1200){ popup.textContent = msg; popup.style.opacity=1; setTimeout(()=>{ popup.style.opacity=0; }, t); }
+
+  // drag the player when not docked
+  let isDragging=false, dragOffset={x:0,y:0};
   const dragBar = player.querySelector('.drag');
   dragBar.addEventListener('mousedown', startDrag);
   dragBar.addEventListener('touchstart', startDrag, {passive:false});
-  function startDrag(e) {
+  function startDrag(e){
     if (player.classList.contains('docked')) return;
-    isDragging = true;
-    dragBar.style.cursor = 'grabbing';
+    isDragging=true;
+    dragBar.style.cursor='grabbing';
     const ev = e.touches ? e.touches[0] : e;
     dragOffset.x = ev.clientX - player.offsetLeft;
     dragOffset.y = ev.clientY - player.offsetTop;
@@ -458,74 +365,57 @@
     document.addEventListener('touchmove', onDrag, {passive:false});
     document.addEventListener('mouseup', stopDrag);
     document.addEventListener('touchend', stopDrag);
+    player.classList.add('pulse'); // pulse while dragging
   }
-  function onDrag(e) {
+  function onDrag(e){
     if (!isDragging) return;
     const ev = e.touches ? e.touches[0] : e;
     let x = ev.clientX - dragOffset.x;
     let y = ev.clientY - dragOffset.y;
-    // constrain within window
     x = Math.max(6, Math.min(window.innerWidth - player.offsetWidth - 6, x));
     y = Math.max(6, Math.min(window.innerHeight - player.offsetHeight - 6, y));
     player.style.left = x + 'px';
     player.style.top = y + 'px';
+    positionQueue();
   }
-  function stopDrag() {
-    isDragging = false;
-    dragBar.style.cursor = 'grab';
-    document.removeEventListener('mousemove', onDrag);
-    document.removeEventListener('touchmove', onDrag);
-    document.removeEventListener('mouseup', stopDrag);
-    document.removeEventListener('touchend', stopDrag);
+  function stopDrag(){
+    isDragging=false; dragBar.style.cursor='grab'; document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag); player.classList.remove('pulse');
   }
 
-  // initialize visual/audio context when user interacts
-  function tryInitAudio() {
-    if (!setupAudioContext()) return;
-    // resume context on user gesture
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-  }
-  document.addEventListener('click', tryInitAudio, { once: true });
+  // keyboard space toggles play (if not focused on input)
+  window.addEventListener('keydown',(e)=>{ if (e.code==='Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){ e.preventDefault(); togglePlay(); } });
 
-  // Update meta display when src changes
-  audio.addEventListener('loadedmetadata', () => {
-    updateMeta();
-    durEl.textContent = formatTime(audio.duration);
-  });
-
-  // allow host pages to call crzyPlayer.setMeta({title,artist,cover})
-  window.crzyPlayer.setMeta = (meta) => {
-    if (meta.title) songText.textContent = meta.title;
-    if (meta.artist) artistText.textContent = meta.artist;
-    if (meta.cover) coverImg.src = meta.cover;
+  // expose helper for music.js to add queue
+  window.CrzyPlayer = {
+    play: (src, title, cover, artist) => {
+      if (src) {
+        audio.src = src;
+        if (title) audio.setAttribute('data-title', title);
+        if (artist) audio.setAttribute('data-artist', artist);
+        if (cover) audio.setAttribute('data-cover', cover);
+        updateMeta();
+      }
+      broadcast({action:'play', src: audio.src, meta:{title: audio.getAttribute('data-title'), artist: audio.getAttribute('data-artist'), cover: audio.getAttribute('data-cover')}});
+    },
+    setSrc: (src, meta) => {
+      audio.src = src;
+      if (meta && meta.cover) audio.setAttribute('data-cover', meta.cover);
+      if (meta && meta.title) audio.setAttribute('data-title', meta.title);
+      if (meta && meta.artist) audio.setAttribute('data-artist', meta.artist);
+      updateMeta();
+      broadcast({action:'setSrc', src, meta});
+    },
+    addToQueue: addToQueue,
+    clearQueue: clearQueue,
+    popQueue: popQueue
   };
 
-  // set initial volume
-  audio.volume = Number(volumeInput.value || 1);
+  // initial render
+  renderQueue();
+  updateMeta();
+  positionQueue();
 
-  // start/stop via keyboard space (if focused) - optional
-  window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      togglePlay();
-    }
-  });
-
-  // when page loads if audio already has src set, prepare meta & optionally autoplay
-  if (audio.src) {
-    updateMeta();
-    const autoPlay = localStorage.getItem('crz_autoplay') === '1';
-    if (autoPlay) {
-      handleState({ action: 'play', src: audio.src }, true);
-    }
-  }
-
-  // set cover clickable to open audio src (for download preview)
-  coverImg.addEventListener('click', () => {
-    if (audio.src) window.open(audio.src, '_blank');
-  });
-
-  // finalize: make canvas HiDPI friendly on insertion
-  setTimeout(() => { resizeCanvas(); }, 300);
+  // init audio context on user gesture
+  document.addEventListener('click', ()=>{ try { setupAudioCtx(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} }, { once:true });
 
 })();

@@ -1,224 +1,129 @@
-/* player.css - CRZYCLAN Player (visualizer + float/dock + pulsing outline) */
+/* player.css - CRZYCLAN Player v2 (float/dock, visualizer, queue, settings) */
 
-/* basic variables */
-:root {
-  --accent: #ff2965; /* default red */
-  --bg: #0b0b0b;
-  --panel-bg: rgba(17,17,17,0.9);
-  --glass: rgba(20,20,20,0.7);
-  --text: #fff;
-}
+/* variables */
+:root { --accent: #ff0000; --bg: #000; --panel-bg: #070707; --text: #fff; }
 
-/* Player container (float) */
 #crzy-player {
   position: fixed;
   left: 20px;
-  top: 70vh;
-  width: 320px;
+  top: 60vh;
+  width: 360px;
   background: var(--panel-bg);
   color: var(--text);
   border: 2px solid var(--accent);
   border-radius: 10px;
-  z-index: 99999;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+  z-index: 20000;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   user-select: none;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  overflow: visible;
 }
 
-/* Docked variant (bottom bar) */
+/* docked */
 #crzy-player.docked {
   left: 0 !important;
   right: 0;
   bottom: 0;
   top: auto !important;
   width: 100%;
-  height: 72px;
+  height: 74px;
   border-radius: 0;
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: 6px 14px;
 }
 
-/* drag bar / header */
+/* header / drag */
 #crzy-player .drag {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.05), transparent);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px;
   cursor: grab;
 }
+#crzy-player .drag .title { font-weight:700; color:var(--accent); font-size:14px; flex:1; }
 
-#crzy-player .drag .title {
-  font-weight: 700;
-  color: var(--accent);
-  font-size: 14px;
-  flex: 1;
-}
-
-#crzy-player .controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-#crzy-player button.icon-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text);
-  padding: 6px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-/* main body (float layout) */
+/* main layout */
 #crzy-player .body {
   padding: 10px;
   display: grid;
-  grid-template-columns: 1fr 110px;
+  grid-template-columns: 1fr 120px;
   gap: 10px;
   align-items: center;
 }
 
-/* left area (track + progress + meta) */
-#crzy-player .meta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+/* cover */
+#crzy-player .cover {
+  width:84px;
+  height:84px;
+  border-radius:8px;
+  object-fit:cover;
+  border:2px solid rgba(255,255,255,0.03);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.6);
 }
 
-#crzy-player .meta .cover {
-  width: 72px;
-  height: 72px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.04);
-  background: #111;
-}
+/* meta */
+#crzy-player .now .song { font-weight:700; color:#fff; font-size:14px; }
+#crzy-player .now .artist { color:#bbb; font-size:12px; }
 
-/* Now playing text */
-#crzy-player .now {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* controls */
+#crzy-player .controls { display:flex; gap:8px; align-items:center; justify-content:flex-start; }
+#crzy-player button.icon-btn {
+  background:transparent; border:1px solid transparent; color:var(--text); padding:6px 8px; border-radius:6px; cursor:pointer; font-size:16px;
 }
-#crzy-player .now .song {
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--text);
-}
-#crzy-player .now .artist {
-  color: #bbb;
-  font-size: 12px;
-}
+#crzy-player .progress { width:100%; margin-top:8px; }
+#crzy-player input[type=range] { width:100%; accent-color:var(--accent); }
 
-/* controls area */
-#crzy-player .player-controls {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-}
+/* canvas */
+#crzy-player canvas { width:100%; height:70px; display:block; border-radius:6px; background:transparent; }
 
-/* progress */
-#crzy-player .progress {
-  width: 100%;
-  margin-top: 8px;
-}
-#crzy-player input[type="range"].progress {
-  width: 100%;
-  accent-color: var(--accent);
-}
-
-/* right area (visualizer + settings) */
-#crzy-player .visual-wrap {
-  display:flex;
-  flex-direction: column;
-  align-items: center;
-  gap:8px;
-  justify-content: center;
-}
-
-/* canvas visualizer */
-#crzy-player canvas {
-  width: 100%;
-  height: 70px;
-  display:block;
-  border-radius:6px;
-}
-
-/* pulsing outline */
-#crzy-player.pulse {
-  box-shadow: 0 0 30px rgba(255,41,101,0.18), 0 0 60px rgba(255,41,101,0.08) inset;
-  transform: translateY(-2px);
-  transition: box-shadow 0.12s ease, transform 0.12s ease;
-}
-
-/* small settings panel */
+/* settings panel */
 #crzy-player .settings {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  background: rgba(0,0,0,0.85);
-  border: 1px solid rgba(255,255,255,0.04);
-  padding: 10px;
-  border-radius: 8px;
-  display:none;
-  z-index: 999999;
-  min-width: 220px;
+  position:absolute; right:12px; top:12px; background:#0a0a0a; border:1px solid rgba(255,255,255,0.04); padding:10px; border-radius:8px; display:none; min-width:220px; z-index:30000;
 }
 #crzy-player .settings.show { display:block; }
 
-/* settings rows */
-#crzy-player .settings label {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin:6px 0;
-  font-size:13px;
-  color: #ddd;
+/* pulsing styles */
+#crzy-player.pulse { box-shadow: 0 0 40px rgba(255,0,0,0.22), inset 0 0 20px rgba(255,0,0,0.06); transform: translateY(-2px); transition: box-shadow .12s, transform .12s; }
+
+/* queue panel - placed below player when open */
+#crzy-player + .crzy-queue {
+  position: fixed;
+  left: 20px;
+  bottom: 100px;
+  width: 360px;
+  max-height: 320px;
+  overflow:auto;
+  background: #070707;
+  border:2px solid rgba(255,0,0,0.16);
+  border-radius:8px;
+  padding:10px;
+  z-index:19999;
+  box-shadow:0 12px 40px rgba(0,0,0,0.6);
+  display:none;
 }
 
-/* accent color preview */
-#crzy-player .accent-preview {
-  width: 26px;
-  height: 18px;
-  border-radius:4px;
-  border: 1px solid rgba(255,255,255,0.06);
+/* queue visible */
+#crzy-player.queue-open + .crzy-queue { display:block; }
+
+/* each queue item */
+.crzy-queue .item {
+  display:flex; align-items:center; gap:8px; padding:8px; border-radius:6px; background:#0f0f0f; margin-bottom:8px; border:1px solid rgba(255,0,0,0.06);
 }
+.crzy-queue .item .info { flex:1; }
+.crzy-queue .item .drag-handle { cursor:grab; padding:6px; }
 
-/* action row for dock toggle */
-#crzy-player .bottom-actions {
-  display:flex;
-  gap:8px;
-  justify-content: center;
-  margin-top:6px;
+/* dropdown menu button • no fade removal required */
+.small-menu { background:transparent;border:0;color:#fff;padding:6px;border-radius:6px;cursor:pointer; }
+.small-menu + .menu { display:none; position:absolute; background:#0b0b0b; border:1px solid rgba(255,255,255,0.04); padding:6px; border-radius:6px; right:8px; top:26px; z-index:30001; }
+.small-menu.open + .menu { display:block; }
+
+/* remove menu item */
+.menu button { display:block; width:100%; background:transparent; border:0; color:#fff; text-align:left; padding:6px; cursor:pointer; }
+
+/* small utilities */
+.hidden { display:none !important; }
+@media (max-width:700px) {
+  #crzy-player { width:92vw; left:4vw; top:65vh; }
+  #crzy-player + .crzy-queue { left:4vw; width:92vw; bottom:100px; }
 }
-
-/* responsive smaller */
-@media (max-width:640px) {
-  #crzy-player { width: 92vw; left:4vw; top: 65vh; }
-  #crzy-player .body { grid-template-columns: 1fr; }
-  #crzy-player .visual-wrap { order: 3; }
-  #crzy-player .meta { order: 1; }
-}
-
-/* Download button hidden when not member - library controls should toggle display inline-block as needed */
-#crzy-player .download-btn {
-  display: inline-block;
-  text-decoration: none;
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,0.06);
-  padding: 6px 8px;
-  border-radius: 6px;
-}
-
-/* small hover effects */
-#crzy-player button.icon-btn:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.06); }
-
-/* tiny helper for time */
-.player-time { font-size: 12px; color: #bbb; }

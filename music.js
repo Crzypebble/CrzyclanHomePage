@@ -1,5 +1,37 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
+// ---------------- GLOBAL VOTE DATABASE (FIRESTORE) ----------------
+let globalVotes = {};
+
+// Listen to Firestore in real-time if Firebase is loaded
+if (typeof firebase !== 'undefined') {
+  const db = firebase.firestore();
+  
+  // This automatically fetches the global counts and updates the page whenever someone votes
+  db.collection("songVotes").onSnapshot((snapshot) => {
+    snapshot.forEach(doc => {
+      globalVotes[doc.id] = doc.data();
+    });
+    updateVoteUI(); // Refresh the numbers on the screen
+  });
+}
+
+async function updateSongVote(src, type, increment) {
+  if (typeof firebase === 'undefined') return; // Failsafe if Firebase isn't loaded
+  
+  const db = firebase.firestore();
+  const songId = src.replace(/[^a-zA-Z0-9]/g, '_'); // Makes a safe ID for the database
+  const songRef = db.collection("songVotes").doc(songId);
+  
+  try {
+    await songRef.set({
+      [type]: firebase.firestore.FieldValue.increment(increment)
+    }, { merge: true });
+  } catch (e) {
+    console.error("Firebase Database Error:", e);
+  }
+}
+
 // ---------------- SITE-WIDE SONG LIST ----------------
 const masterSongs = [
   { title: "Welcome To Hell", artist: "Crzypebble", src: "welcometohellprodblksaturn.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
@@ -57,58 +89,63 @@ function toggleVote(src, type) {
 
   if (type === 'like') {
     if (likes.includes(src)) {
-      likes = likes.filter(s => s !== src); // Remove like
+      likes = likes.filter(s => s !== src); // Remove like locally
+      updateSongVote(src, "likes", -1); // Remove from Database
     } else {
-      likes.push(src); // Add like
-      dislikes = dislikes.filter(s => s !== src); // Remove dislike if it exists
+      likes.push(src); // Add like locally
+      updateSongVote(src, "likes", 1); // Add to Database
+      if (dislikes.includes(src)) {
+        dislikes = dislikes.filter(s => s !== src);
+        updateSongVote(src, "dislikes", -1); // Remove conflict from Database
+      }
     }
   } else {
     if (dislikes.includes(src)) {
-      dislikes = dislikes.filter(s => s !== src); // Remove dislike
+      dislikes = dislikes.filter(s => s !== src);
+      updateSongVote(src, "dislikes", -1);
     } else {
-      dislikes.push(src); // Add dislike
-      likes = likes.filter(s => s !== src); // Remove like if it exists
+      dislikes.push(src);
+      updateSongVote(src, "dislikes", 1);
+      if (likes.includes(src)) {
+        likes = likes.filter(s => s !== src);
+        updateSongVote(src, "likes", -1);
+      }
     }
   }
 
   localStorage.setItem("crzy_likes", JSON.stringify(likes));
   localStorage.setItem("crzy_dislikes", JSON.stringify(dislikes));
-  updateVoteUI();
+  updateVoteUI(); // Update glows immediately
 }
 
 function updateVoteUI() {
   let likes = JSON.parse(localStorage.getItem("crzy_likes") || "[]");
   let dislikes = JSON.parse(localStorage.getItem("crzy_dislikes") || "[]");
 
-  // Update visually for Likes
-  document.querySelectorAll('.like-btn, .vote-like').forEach(btn => {
+  document.querySelectorAll('.like-btn, .vote-like, .dislike-btn, .vote-dislike').forEach(btn => {
     const container = btn.closest('.track-line, .track-card, .search-row');
     let src = container?.dataset.src || container?.querySelector('[data-src]')?.dataset.src;
     
-    if(src) {
-      if (likes.includes(src)) {
-        btn.style.opacity = "1";
-        btn.style.filter = "drop-shadow(0 0 5px #00ff00)";
-      } else {
-        btn.style.opacity = "0.5";
-        btn.style.filter = "none";
-      }
-    }
-  });
+    if(!src) return;
 
-  // Update visually for Dislikes
-  document.querySelectorAll('.dislike-btn, .vote-dislike').forEach(btn => {
-    const container = btn.closest('.track-line, .track-card, .search-row');
-    let src = container?.dataset.src || container?.querySelector('[data-src]')?.dataset.src;
-    
-    if(src) {
-      if (dislikes.includes(src)) {
-        btn.style.opacity = "1";
-        btn.style.filter = "drop-shadow(0 0 5px #ff0000)";
-      } else {
-        btn.style.opacity = "0.5";
-        btn.style.filter = "none";
-      }
+    // Grab the global counts from the Firestore dictionary we built at the top
+    const songId = src.replace(/[^a-zA-Z0-9]/g, '_');
+    const dbVotes = globalVotes[songId] || { likes: 0, dislikes: 0 };
+
+    if (btn.classList.contains('like-btn') || btn.classList.contains('vote-like')) {
+      // Glow if local user liked it
+      btn.style.opacity = likes.includes(src) ? "1" : "0.5";
+      btn.style.filter = likes.includes(src) ? "drop-shadow(0 0 5px #00ff00)" : "none";
+      // Inject global count
+      const countSpan = btn.querySelector('.like-count');
+      if (countSpan) countSpan.textContent = dbVotes.likes || 0;
+    } else {
+      // Glow if local user disliked it
+      btn.style.opacity = dislikes.includes(src) ? "1" : "0.5";
+      btn.style.filter = dislikes.includes(src) ? "drop-shadow(0 0 5px #ff0000)" : "none";
+      // Inject global count
+      const countSpan = btn.querySelector('.dislike-count');
+      if (countSpan) countSpan.textContent = dbVotes.dislikes || 0;
     }
   });
 }
@@ -413,11 +450,12 @@ function loadActivePlaylist(plIdx) {
     li.className = "track-line";
     li.dataset.src = song.src;
     
+    // Generates the buttons WITH the counter spans for the dynamic playlists
     li.innerHTML = `
       ${song.title} - <small>${song.artist || 'Unknown'}</small>
       <span class="track-actions-inline">
-        <button class="like-btn" title="Like">👍</button>
-        <button class="dislike-btn" title="Dislike">👎</button>
+        <button class="like-btn" title="Like">👍 <span class="like-count">0</span></button>
+        <button class="dislike-btn" title="Dislike">👎 <span class="dislike-count">0</span></button>
         <button class="play-pl-song" title="Play">▶️</button>
         <button class="remove-pl-song" title="Remove from Playlist" style="color:#ff0000;">✖</button>
       </span>
@@ -455,7 +493,7 @@ function removeSongFromPlaylist(plIdx, songIdx) {
 document.addEventListener("DOMContentLoaded", () => {
   const audio = document.getElementById("audio-player");
 
-  // --- AUTOPLAY LOGIC ---
+  // --- AUTOPLAY LOGIC (FOR FALLBACK AUDIO PLAYER) ---
   if (audio) {
     audio.addEventListener("ended", () => {
       const next = popQueue();

@@ -1,6 +1,6 @@
 // player.js - CRZYCLAN Player v2 (injects #crzy-player, draggable, dock, visualizer, queue)
 // - removes old #simple-player if present
-// - exposes window.crzyPlayer API for music.js
+// - exposes window.CrzyPlayer API for music.js
 (function(){
   const STATE_KEY = 'crzy_player_state';
   const ACCENT_KEY = 'crzy_player_accent';
@@ -29,13 +29,13 @@
 
   const player = $el('div',{id:'crzy-player'});
   player.innerHTML = `
-    <div class="drag" title="Drag / Hold to move">
+    <div class="drag" title="Drag / Hold to move (When Unpinned)">
       <div class="title">CRZYCLAN Player</div>
       <div style="display:flex;gap:6px;align-items:center">
         <button class="icon-btn" id="crzy-prev" title="Prev">⏮</button>
         <button class="icon-btn" id="crzy-play" title="Play">▶️</button>
         <button class="icon-btn" id="crzy-next" title="Next">⏭</button>
-        <button class="icon-btn" id="crzy-dock" title="Dock">📌</button>
+        <button class="icon-btn" id="crzy-dock" title="Toggle Pin">📌</button>
         <button class="icon-btn" id="crzy-queue-btn" title="Queue">☰</button>
         <button class="icon-btn" id="crzy-settings-btn" title="Settings">⚙️</button>
       </div>
@@ -62,7 +62,7 @@
     </div>
     <div id="crz-settings" class="settings">
       <label>Visualizer <input id="crz-visual-toggle" type="checkbox" checked></label>
-      <label>Autoplay Next <input id="crz-autoplay" type="checkbox"></label>
+      <label>Autoplay Next <input id="crz-autoplay" type="checkbox" checked></label>
       <label>Accent <input id="crz-accent" type="color" value="#ff0000"></label>
       <div style="text-align:right;margin-top:8px;"><button id="crz-close-settings" class="icon-btn">Close</button></div>
     </div>
@@ -96,12 +96,15 @@
   const downloadBtn = document.getElementById('crz-download');
   const queueItemsWrap = document.getElementById('crzy-queue-items');
 
-  // get saved accent/mode
+  // get saved accent/mode -- DEFAULT TO 'dock'
   const savedAccent = localStorage.getItem(ACCENT_KEY) || '#ff0000';
   document.documentElement.style.setProperty('--accent', savedAccent);
   accentInput.value = savedAccent;
-  const savedMode = localStorage.getItem(MODE_KEY) || 'float';
+  const savedMode = localStorage.getItem(MODE_KEY) || 'dock'; // Force docked by default
   if (savedMode === 'dock') player.classList.add('docked');
+
+  // Set initial autoplay check
+  autoplayToggle.checked = localStorage.getItem('crz_autoplay') !== '0';
 
   // audio context + visualizer
   let audioCtx, analyser, sourceNode, dataArray, bufferLength;
@@ -214,8 +217,8 @@
 
   // dock toggle
   dockBtn.addEventListener('click', ()=>{
-    const docked = player.classList.toggle('docked'); localStorage.setItem(MODE_KEY, docked? 'dock':'float');
-    // reposition queue panel
+    const docked = player.classList.toggle('docked'); 
+    localStorage.setItem(MODE_KEY, docked ? 'dock' : 'float');
     positionQueue();
   });
 
@@ -228,19 +231,49 @@
   volumeInput.addEventListener('input', (e)=> audio.volume = Number(e.target.value || 1));
   audio.volume = Number(volumeInput.value || 1);
 
-  // prev/next
-  prevBtn.addEventListener('click', ()=> { window.dispatchEvent(new CustomEvent('crzy-player-action',{detail:{action:'prev'}})); });
-  nextBtn.addEventListener('click', ()=> { window.dispatchEvent(new CustomEvent('crzy-player-action',{detail:{action:'next'}})); });
 
-  // on ended -> dispatch event consumed by music.js for autoplay logic & attempt queue pop
+  // ============================================
+  // QUEUE & NAVIGATION LOGIC (Next/Prev/Autoplay)
+  // ============================================
+  function getQueue(){ return JSON.parse(localStorage.getItem('crzy_queue')||'[]'); }
+  function saveQueue(q){ localStorage.setItem('crzy_queue', JSON.stringify(q)); renderQueue(); }
+  function addToQueue(song){ const q=getQueue(); q.push(song); saveQueue(q); showPopup('Added to queue'); }
+  function clearQueue(){ saveQueue([]); showPopup('Queue cleared'); }
+  function popQueue(){ const q=getQueue(); const next=q.shift(); saveQueue(q); return next; }
+
+  // Next Track Logic
+  function playNextInQueue() {
+    const next = popQueue();
+    if (next) {
+      window.CrzyPlayer.play(next.src, next.title, next.cover, next.artist);
+    } else {
+      showPopup("Queue empty", 1500);
+    }
+  }
+
+  // Prev / Next Buttons
+  prevBtn.addEventListener('click', ()=> {
+    if (audio.currentTime > 3) {
+      audio.currentTime = 0; // Restart track if they are past 3 seconds
+    } else {
+      showPopup("No previous history tracked");
+    }
+  });
+
+  nextBtn.addEventListener('click', ()=> {
+    playNextInQueue();
+  });
+
+  // Autoplay when song finishes naturally
   audio.addEventListener('ended', ()=> {
     stopVisual();
     playBtn.textContent = '▶️';
-    const auto = localStorage.getItem('crz_autoplay') === '1';
-    // notify host: let them handle next selection (they will check queue and sections)
-    window.dispatchEvent(new CustomEvent('crzy-player-ended', { detail: { src: audio.src } }));
-    if (!auto) return;
+    const auto = localStorage.getItem('crz_autoplay') !== '0';
+    if (auto) {
+      playNextInQueue();
+    }
   });
+
 
   // broadcast cross-tab
   function broadcast(obj){ const payload = { ts: Date.now(), ...obj }; localStorage.setItem(STATE_KEY, JSON.stringify(payload)); handleState(payload, true); }
@@ -254,18 +287,28 @@
   }
 
   // expose API
-  window.crzyPlayer = {
-    setSrc: (src, meta={}) => {
-      audio.src = src;
-      if (meta.cover) audio.setAttribute('data-cover', meta.cover);
-      if (meta.title) audio.setAttribute('data-title', meta.title);
-      if (meta.artist) audio.setAttribute('data-artist', meta.artist);
-      updateMeta();
-      broadcast({ action:'setSrc', src, meta });
+  window.CrzyPlayer = {
+    play: (src, title, cover, artist) => {
+      if (src) {
+        audio.src = src;
+        if (title) audio.setAttribute('data-title', title);
+        if (artist) audio.setAttribute('data-artist', artist);
+        if (cover) audio.setAttribute('data-cover', cover);
+        updateMeta();
+      }
+      broadcast({action:'play', src: audio.src, meta:{title: audio.getAttribute('data-title'), artist: audio.getAttribute('data-artist'), cover: audio.getAttribute('data-cover')}});
     },
-    play: () => broadcast({ action:'play', src: audio.src }),
-    pause: () => broadcast({ action:'pause' }),
-    toggle: togglePlay
+    setSrc: (src, meta) => {
+      audio.src = src;
+      if (meta && meta.cover) audio.setAttribute('data-cover', meta.cover);
+      if (meta && meta.title) audio.setAttribute('data-title', meta.title);
+      if (meta && meta.artist) audio.setAttribute('data-artist', meta.artist);
+      updateMeta();
+      broadcast({action:'setSrc', src, meta});
+    },
+    addToQueue: addToQueue,
+    clearQueue: clearQueue,
+    popQueue: popQueue
   };
 
   // update meta on loadedmetadata
@@ -273,12 +316,6 @@
 
   // resize canvas at end
   setTimeout(()=> resizeCanvas(), 200);
-  // queue UI management stored in localStorage 'crzy_queue'
-  function getQueue(){ return JSON.parse(localStorage.getItem('crzy_queue')||'[]'); }
-  function saveQueue(q){ localStorage.setItem('crzy_queue', JSON.stringify(q)); renderQueue(); }
-  function addToQueue(song){ const q=getQueue(); q.push(song); saveQueue(q); showPopup('Added to queue'); }
-  function clearQueue(){ saveQueue([]); showPopup('Queue cleared'); }
-  function popQueue(){ const q=getQueue(); const next=q.shift(); saveQueue(q); return next; }
 
   // queue UI rendering and drag/drop reorder
   function renderQueue(){
@@ -345,7 +382,7 @@
 
   // popup
   const popup = document.createElement('div');
-  popup.style.position='fixed'; popup.style.right='18px'; popup.style.bottom='18px'; popup.style.background='var(--accent)'; popup.style.padding='12px 18px'; popup.style.color='#fff'; popup.style.borderRadius='8px'; popup.style.opacity=0; popup.style.transition='opacity .2s';
+  popup.style.position='fixed'; popup.style.right='18px'; popup.style.bottom='18px'; popup.style.background='var(--accent)'; popup.style.padding='12px 18px'; popup.style.color='#fff'; popup.style.borderRadius='8px'; popup.style.opacity=0; popup.style.transition='opacity .2s'; popup.style.zIndex=99999;
   document.body.appendChild(popup);
   function showPopup(msg, t=1200){ popup.textContent = msg; popup.style.opacity=1; setTimeout(()=>{ popup.style.opacity=0; }, t); }
 
@@ -384,31 +421,6 @@
 
   // keyboard space toggles play (if not focused on input)
   window.addEventListener('keydown',(e)=>{ if (e.code==='Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){ e.preventDefault(); togglePlay(); } });
-
-  // expose helper for music.js to add queue
-  window.CrzyPlayer = {
-    play: (src, title, cover, artist) => {
-      if (src) {
-        audio.src = src;
-        if (title) audio.setAttribute('data-title', title);
-        if (artist) audio.setAttribute('data-artist', artist);
-        if (cover) audio.setAttribute('data-cover', cover);
-        updateMeta();
-      }
-      broadcast({action:'play', src: audio.src, meta:{title: audio.getAttribute('data-title'), artist: audio.getAttribute('data-artist'), cover: audio.getAttribute('data-cover')}});
-    },
-    setSrc: (src, meta) => {
-      audio.src = src;
-      if (meta && meta.cover) audio.setAttribute('data-cover', meta.cover);
-      if (meta && meta.title) audio.setAttribute('data-title', meta.title);
-      if (meta && meta.artist) audio.setAttribute('data-artist', meta.artist);
-      updateMeta();
-      broadcast({action:'setSrc', src, meta});
-    },
-    addToQueue: addToQueue,
-    clearQueue: clearQueue,
-    popQueue: popQueue
-  };
 
   // initial render
   renderQueue();

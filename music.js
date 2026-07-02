@@ -1,4 +1,5 @@
 // music.js - site-wide UI for music library, queue, playlists, search
+
 // ---------------- SITE-WIDE SONG LIST ----------------
 const masterSongs = [
   { title: "Welcome To Hell", artist: "Crzypebble", src: "welcometohellprodblksaturn.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
@@ -363,7 +364,6 @@ function addSongToPlaylist(index, song) {
   showPopup("Added to playlist", "#ff0000");
 }
 
-// NEW: Interactive Playlist Dashboard rendering logic
 function renderPlaylistDashboard() {
   const container = document.getElementById("playlistContainer");
   if (!container) return; // Fail silently if not on music page
@@ -438,7 +438,6 @@ function loadActivePlaylist(plIdx) {
     tracksList.appendChild(li);
   });
 
-  // Re-run the visual vote updates for these new dynamically loaded buttons
   updateVoteUI(); 
 }
 
@@ -454,6 +453,41 @@ function removeSongFromPlaylist(plIdx, songIdx) {
 
 // ---------------- BIND UI ELEMENTS ----------------
 document.addEventListener("DOMContentLoaded", () => {
+  const audio = document.getElementById("audio-player");
+
+  // --- AUTOPLAY LOGIC ---
+  if (audio) {
+    audio.addEventListener("ended", () => {
+      const next = popQueue();
+      if (next) {
+        playTrackBySrc(next.src, next.title, next.cover);
+      } else {
+        showPopup("Queue finished", "#ff0000");
+      }
+    });
+  }
+
+  // --- SKIP FORWARD ---
+  document.getElementById("skip-forward")?.addEventListener("click", () => {
+    const next = popQueue();
+    if (next) {
+      playTrackBySrc(next.src, next.title, next.cover);
+    } else {
+      showPopup("Queue empty", "#b30000");
+    }
+  });
+
+  // --- SKIP BACK ---
+  document.getElementById("skip-back")?.addEventListener("click", () => {
+    if (audio) {
+      if (audio.currentTime > 3) {
+        audio.currentTime = 0; // Restart track if more than 3 seconds in
+      } else {
+        showPopup("Backwards navigation requires history tracking", "#b30000");
+      }
+    }
+  });
+
   // Add to queue handlers
   document.querySelectorAll(".add-queue").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -500,14 +534,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".add-queue, .add-playlist").forEach(btn => btn.style.cursor = "pointer");
 
-  document.getElementById("skip-forward")?.addEventListener("click", () => {
-    const next = popQueue();
-    if (next) playTrackBySrc(next.src, next.title, next.cover);
-    else showPopup("Queue empty", "#b30000");
-  });
-
-  document.getElementById("skip-back")?.addEventListener("click", () => showPopup("Back is not implemented", "#b30000"));
-  
   document.getElementById("open-queue-btn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleQueuePanel();
@@ -525,7 +551,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.CrzyPlayer && typeof window.CrzyPlayer.load === "function") {
       window.CrzyPlayer.load(last.src, last.title, last.cover || null);
     } else {
-      const audio = document.getElementById("audio-player");
       if (audio) {
         audio.src = last.src;
         document.getElementById("now-playing") && (document.getElementById("now-playing").textContent = "Last: " + last.title);

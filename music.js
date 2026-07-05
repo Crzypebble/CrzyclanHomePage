@@ -1,7 +1,6 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
-// PS5 DIRECT UNLOCKER
-// Listens specifically for a click on the PS5 Unlocker button in the DOM
+// PS5 DIRECT UNLOCKER WITH SILENCE BUFFER
 document.addEventListener("DOMContentLoaded", () => {
   const unlockBtn = document.getElementById('ps5-unlocker');
   if (unlockBtn) {
@@ -9,18 +8,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const audio = document.getElementById('mainAudioPlayer') || document.getElementById('audio-player');
       
       if (audio) {
-        // Force the browser to accept media playback
+        // A 1-second base64 encoded silent MP3 track to feed the browser engine
+        const silentSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAACcQAFBwcHBwcHBwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAj/4NEMAAAAAAAAAAAAAAAAAAAAAAAADbWFpbmRhdGEAAAAAAAAB//OEEMAAAAAsAAAA0AAAAAACAACf4wRAAAAAA8AAAAMAAAAAABI/8BEEAAAAACwAAADQAAAAAAIAAJ/mBEAAAAADwAAAAsAAAAAABI/8BEEAAAAACwAAADQAAAAAAIAAJ/mBEAAAAADwAAAAsAAAAAABI/8BEEAAAAACwAAADQAAAAAAIAAJ/mBEAAAAADwAAAAsAAAAAABI=";
+        
+        // Temporarily hook up the silent source
+        audio.src = silentSrc;
+        audio.load();
+
+        // Direct, human-triggered play command
         audio.play().then(() => {
           audio.pause(); 
-          // Hide the button once the PS5 drops its shields
+          // Successfully hijacked the audio context! Clear out the silence.
+          audio.src = ""; 
+          
+          // Hide the button and alert user
           unlockBtn.style.display = 'none';
           showPopup("Console Audio Unlocked!", "#00ff00");
         }).catch(e => {
-          console.error("Still blocked:", e);
+          console.error("Autoplay bypass rejected:", e);
           showPopup("Failed to unlock. Try clicking again.", "#ff0000");
         });
       } else {
-        console.error("Audio player not found for unlock.");
+        console.error("Audio player element not found for unlock.");
       }
     });
   }

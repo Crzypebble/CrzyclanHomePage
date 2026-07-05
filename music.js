@@ -1,5 +1,19 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
+// PS5 Global Unlocker
+// This forces the PS5 browser to accept that the user intends to play audio
+document.addEventListener('click', function unlockAudio() {
+  const audio = document.getElementById('mainAudioPlayer');
+  if (audio && audio.paused) {
+      audio.play().then(() => {
+          audio.pause(); // Immediately pause it, but now the browser thinks it's allowed
+          console.log("Audio Unlocked for PS5");
+          document.removeEventListener('click', unlockAudio);
+      }).catch(e => console.warn("Waiting for interaction...", e));
+  }
+}, { once: true });
+
+
 // ---------------- GLOBAL VOTE DATABASE (FIRESTORE) ----------------
 let globalVotes = {};
 
@@ -151,35 +165,62 @@ function updateVoteUI() {
 }
 
 // Delegate events so likes work even on dynamically loaded tracks (like inside search/playlists)
+// UPDATED FOR PS5: Added song playback logic directly to the event delegation
 document.body.addEventListener("click", (e) => {
   const likeBtn = e.target.closest('.like-btn, .vote-like');
   const dislikeBtn = e.target.closest('.dislike-btn, .vote-dislike');
+  const actionBtn = e.target.closest('button');
+  const trackEl = e.target.closest('.track-line, .playable, .search-row');
   
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); // Stop the row click (play) from triggering
     const type = likeBtn ? 'like' : 'dislike';
-    const container = e.target.closest('.track-line, .track-card, .search-row');
-    let src = container?.dataset.src || container?.querySelector('[data-src]')?.dataset.src;
+    let src = trackEl?.dataset.src || trackEl?.querySelector('[data-src]')?.dataset.src;
     
     if (src) {
       toggleVote(src, type);
     }
+  } 
+  // PS5 FIX: If we clicked the row, but NOT an action button, play the song
+  else if (trackEl && !actionBtn) {
+      e.stopPropagation();
+      const src = trackEl.getAttribute('data-src');
+      let rawTitle = trackEl.textContent.split('-')[0].trim();
+      
+      // Attempt to clean up the title from the UI text
+      if (trackEl.classList.contains('track-line')) {
+         const split = trackEl.textContent.split('-');
+         if (split.length > 1) rawTitle = split[1].trim();
+      }
+      
+      if (src && !src.startsWith('hidden')) {
+          console.log("PS5 Play Attempt:", src);
+          playTrackBySrc(src, rawTitle, null);
+      }
   }
 });
 
 // ---------------- PLAYER INTERFACE ----------------
 function playTrackBySrc(src, title, cover) {
   if (window.CrzyPlayer && typeof window.CrzyPlayer.play === "function") {
-    window.CrzyPlayer.play(src, title, cover);
+    // Determine artist from master list if possible
+    let artist = "Crzypebble";
+    const songData = masterSongs.find(s => s.src === src);
+    if (songData && songData.artist) artist = songData.artist;
+      
+    window.CrzyPlayer.play(src, title, cover, artist);
   } else {
-    const audio = document.getElementById("audio-player");
+    // Fallback if CrzyPlayer fails to load entirely
+    const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
     if (audio) {
       audio.src = src;
-      audio.play().catch(()=>{});
+      audio.play().catch(e => console.error("Playback blocked:", e));
       const now = document.getElementById("now-playing");
       if (now) now.textContent = "Now Playing: " + (title || src);
       const sp = document.getElementById("simple-player");
       sp && sp.classList.add("playing");
+    } else {
+        console.error("CRITICAL ERROR: No audio player element found on the page.");
     }
   }
 }
@@ -491,7 +532,7 @@ function removeSongFromPlaylist(plIdx, songIdx) {
 
 // ---------------- BIND UI ELEMENTS ----------------
 document.addEventListener("DOMContentLoaded", () => {
-  const audio = document.getElementById("audio-player");
+  const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
 
   // --- AUTOPLAY LOGIC (FOR FALLBACK AUDIO PLAYER) ---
   if (audio) {
@@ -548,25 +589,6 @@ document.addEventListener("DOMContentLoaded", () => {
         src: btn.dataset.src || btn.getAttribute('data-src'),
         source: 'Official'
       });
-    });
-  });
-
-  // Playable text elements
-  document.querySelectorAll(".playable").forEach(el => {
-    el.addEventListener("click", () => {
-      const src = el.dataset.src || el.getAttribute('data-src');
-      if (src) playTrackBySrc(src, el.textContent.trim());
-    });
-  });
-
-  // track-line click => play
-  document.querySelectorAll(".track-line").forEach(li => {
-    li.addEventListener("click", (e) => {
-      if (e.target.closest('button')) return;
-      const src = li.dataset.src || li.getAttribute('data-src');
-      if (src && !src.startsWith('hidden')) {
-        playTrackBySrc(src, li.textContent.trim().split('-')[0].trim());
-      }
     });
   });
 

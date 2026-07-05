@@ -1,18 +1,30 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
-// PS5 Global Unlocker
-// This forces the PS5 browser to accept that the user intends to play audio
-document.addEventListener('click', function unlockAudio() {
-  const audio = document.getElementById('mainAudioPlayer');
-  if (audio && audio.paused) {
-      audio.play().then(() => {
-          audio.pause(); // Immediately pause it, but now the browser thinks it's allowed
-          console.log("Audio Unlocked for PS5");
-          document.removeEventListener('click', unlockAudio);
-      }).catch(e => console.warn("Waiting for interaction...", e));
+// PS5 DIRECT UNLOCKER
+// Listens specifically for a click on the PS5 Unlocker button in the DOM
+document.addEventListener("DOMContentLoaded", () => {
+  const unlockBtn = document.getElementById('ps5-unlocker');
+  if (unlockBtn) {
+    unlockBtn.addEventListener('click', function() {
+      const audio = document.getElementById('mainAudioPlayer') || document.getElementById('audio-player');
+      
+      if (audio) {
+        // Force the browser to accept media playback
+        audio.play().then(() => {
+          audio.pause(); 
+          // Hide the button once the PS5 drops its shields
+          unlockBtn.style.display = 'none';
+          showPopup("Console Audio Unlocked!", "#00ff00");
+        }).catch(e => {
+          console.error("Still blocked:", e);
+          showPopup("Failed to unlock. Try clicking again.", "#ff0000");
+        });
+      } else {
+        console.error("Audio player not found for unlock.");
+      }
+    });
   }
-}, { once: true });
-
+});
 
 // ---------------- GLOBAL VOTE DATABASE (FIRESTORE) ----------------
 let globalVotes = {};
@@ -171,6 +183,9 @@ document.body.addEventListener("click", (e) => {
   const dislikeBtn = e.target.closest('.dislike-btn, .vote-dislike');
   const actionBtn = e.target.closest('button');
   const trackEl = e.target.closest('.track-line, .playable, .search-row');
+  
+  // Ignore clicks on the new unlocker button so it doesn't trigger playback logic
+  if (e.target.id === 'ps5-unlocker') return;
   
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); // Stop the row click (play) from triggering

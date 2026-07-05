@@ -10,11 +10,11 @@
   const old = document.getElementById('simple-player');
   if (old) old.remove();
 
-  // ensure single audio element exists
-  let audio = document.getElementById('audio-player');
+  // PS5 FIX: Try to grab hardcoded audio tag first. If it fails, fallback to creation.
+  let audio = document.getElementById('mainAudioPlayer');
   if (!audio) {
     audio = document.createElement('audio');
-    audio.id = 'audio-player';
+    audio.id = 'mainAudioPlayer';
     audio.preload = 'metadata';
     audio.style.display = 'none';
     document.body.appendChild(audio);
@@ -109,19 +109,24 @@
   // audio context + visualizer
   let audioCtx, analyser, sourceNode, dataArray, bufferLength;
   function setupAudioCtx(){
-    if (!window.AudioContext) return false;
+    if (!window.AudioContext && !window.webkitAudioContext) return false;
     if (audioCtx) return true;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 2048;
-    bufferLength = analyser.frequencyBinCount;
-    dataArray = new Uint8Array(bufferLength);
+    
+    // PS5 FIX: Wrap in a try-catch because if PS5 blocks AudioContext, we still want playback
     try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
       sourceNode = audioCtx.createMediaElementSource(audio);
       sourceNode.connect(analyser);
       analyser.connect(audioCtx.destination);
-    } catch(e){ console.warn('audio ctx issue', e); }
-    return true;
+      return true;
+    } catch(e){
+      console.warn('AudioContext failed to initialize (Common on consoles) - Visualizer disabled, but audio should still play.', e);
+      return false; // Return false so we don't try to animate
+    }
   }
 
   // canvas hi-dpi
@@ -206,9 +211,20 @@
   function togglePlay(){
     if (audio.paused) {
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-      audio.play().catch(()=>{});
-      isPlaying = true; playBtn.textContent = '⏸️'; startVisual();
-      broadcast({action:'play', src:audio.src});
+      
+      // PS5 FIX: Catch and log the play promise explicitly so it doesn't crash the script
+      let playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          isPlaying = true; 
+          playBtn.textContent = '⏸️'; 
+          startVisual();
+          broadcast({action:'play', src:audio.src});
+        }).catch(error => {
+          console.error("Playback prevented by browser policies:", error);
+          showPopup("Playback blocked by browser. Please interact with the page first.", 3000);
+        });
+      }
     } else {
       audio.pause(); isPlaying=false; playBtn.textContent='▶️'; stopVisual(); broadcast({action:'pause'});
     }
@@ -281,9 +297,38 @@
 
   function handleState(payload, local){
     if (!payload || !payload.action) return;
-    if (payload.action === 'play') { if (payload.src && payload.src !== audio.src){ audio.src = payload.src; if (payload.meta) { if (payload.meta.cover) audio.setAttribute('data-cover', payload.meta.cover); if (payload.meta.title) audio.setAttribute('data-title', payload.meta.title); if (payload.meta.artist) audio.setAttribute('data-artist', payload.meta.artist); } updateMeta(); } audio.play().catch(()=>{}); playBtn.textContent='⏸️'; startVisual(); }
+    if (payload.action === 'play') { 
+      if (payload.src && payload.src !== audio.src){ 
+        audio.src = payload.src; 
+        if (payload.meta) { 
+          if (payload.meta.cover) audio.setAttribute('data-cover', payload.meta.cover); 
+          if (payload.meta.title) audio.setAttribute('data-title', payload.meta.title); 
+          if (payload.meta.artist) audio.setAttribute('data-artist', payload.meta.artist); 
+        } 
+        updateMeta(); 
+      } 
+      
+      // PS5 FIX: Same play promise handling here
+      let playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          playBtn.textContent='⏸️'; 
+          startVisual(); 
+        }).catch(e => console.warn(e));
+      }
+    }
     else if (payload.action === 'pause'){ audio.pause(); playBtn.textContent='▶️'; stopVisual(); }
-    else if (payload.action === 'setSrc'){ if (payload.src){ audio.src = payload.src; if (payload.meta){ if (payload.meta.cover) audio.setAttribute('data-cover', payload.meta.cover); if (payload.meta.title) audio.setAttribute('data-title', payload.meta.title); if (payload.meta.artist) audio.setAttribute('data-artist', payload.meta.artist); } updateMeta(); } }
+    else if (payload.action === 'setSrc'){ 
+      if (payload.src){ 
+        audio.src = payload.src; 
+        if (payload.meta){ 
+          if (payload.meta.cover) audio.setAttribute('data-cover', payload.meta.cover); 
+          if (payload.meta.title) audio.setAttribute('data-title', payload.meta.title); 
+          if (payload.meta.artist) audio.setAttribute('data-artist', payload.meta.artist); 
+        } 
+        updateMeta(); 
+      } 
+    }
   }
 
   // expose API
@@ -296,6 +341,20 @@
         if (cover) audio.setAttribute('data-cover', cover);
         updateMeta();
       }
+      
+      // PS5 FIX: Trigger play directly from the API call rather than waiting for broadcast
+      let playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          isPlaying = true;
+          playBtn.textContent = '⏸️';
+          startVisual();
+        }).catch(error => {
+          console.error("Autoplay prevented:", error);
+          showPopup("Playback blocked. Tap play.", 2000);
+        });
+      }
+
       broadcast({action:'play', src: audio.src, meta:{title: audio.getAttribute('data-title'), artist: audio.getAttribute('data-artist'), cover: audio.getAttribute('data-cover')}});
     },
     setSrc: (src, meta) => {

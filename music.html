@@ -34,16 +34,28 @@
         </div>
       </div>
 
+      <!-- PLAYLIST SECTION WITH TOGGLE -->
       <div class="music-section playlist-container-block">
-        <h3 style="text-align: center;">My Playlists</h3>
-        <div class="playlist-dashboard" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px;">
-          <div id="playlistContainer" class="playlist-tabs-row" style="margin-bottom: 1rem;"></div>
-          
-          <div id="activePlaylistViewer" class="active-playlist-view">
-            <h4 id="activePlaylistTitle">Select or Create a Playlist</h4>
-            <ul id="playlistTracksList" class="track-list">
-              <li class="empty-notice" style="list-style: none; opacity: 0.7;">No playlist selected or tracks added yet.</li>
-            </ul>
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <button onclick="const w = document.getElementById('playlist-dashboard-wrapper'); w.style.display = w.style.display === 'none' ? 'block' : 'none';" style="background: #ff0000; color: white; padding: 10px 24px; border: 2px solid #b30000; border-radius: 24px; cursor: pointer; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(255,0,0,0.2);">
+            🎵 Toggle My Playlists
+          </button>
+        </div>
+
+        <div id="playlist-dashboard-wrapper" style="display: none;">
+          <div class="playlist-dashboard" style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,0,0,0.15);">
+            <div id="playlistContainer" class="playlist-tabs-row" style="margin-bottom: 1rem;"></div>
+            
+            <div id="activePlaylistViewer" class="active-playlist-view">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,0,0,0.2); padding-bottom: 10px; margin-bottom: 10px;">
+                <h4 id="activePlaylistTitle" style="margin: 0;">Select or Create a Playlist</h4>
+                <!-- PLAY ALL BUTTON FOR PLAYLIST -->
+                <button id="play-all-playlist-btn" style="background: #ff0000; color: white; border: none; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">▶ Play All</button>
+              </div>
+              <ul id="playlistTracksList" class="track-list">
+                <li class="empty-notice" style="list-style: none; opacity: 0.7;">No playlist selected or tracks added yet.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -55,8 +67,12 @@
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" alt="Choking On The Past" class="album-cover" draggable="false">
           <div class="album-info">
             <strong>Voices From The Past</strong><br>
-            Releases June 25, 2025 - Crzypebble
-            <ul class="album-tracks">
+            <div style="margin: 6px 0;">
+              <!-- PLAY ALBUM BUTTON -->
+              <button class="play-album-btn" data-target="album-1" style="background: #ff0000; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">▶ Play Album</button>
+            </div>
+            <small style="color: #aaa;">Releases June 25, 2025 - Crzypebble</small>
+            <ul class="album-tracks" id="album-1">
               <li data-src="Thick_And_The_Bad.mp3" class="track-line" tabindex="0">Track 1 - Thick And The Bad(Ft.BiggieTrev)
                 <span class="track-actions-inline">
                   <button class="like-btn" title="Like">👍 <span class="like-count">0</span></button>
@@ -121,8 +137,12 @@
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" alt="The Pebble Deluxe" class="album-cover" draggable="false">
           <div class="album-info">
             <strong>The Pebble Deluxe</strong><br>
-            Released December 19, 2024 - Crzypebble
-            <ul class="album-tracks">
+            <div style="margin: 6px 0;">
+              <!-- PLAY ALBUM BUTTON -->
+              <button class="play-album-btn" data-target="album-2" style="background: #ff0000; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">▶ Play Album</button>
+            </div>
+            <small style="color: #aaa;">Released December 19, 2024 - Crzypebble</small>
+            <ul class="album-tracks" id="album-2">
               <li data-src="welcometohellprodblksaturn.mp3" class="track-line" tabindex="0">Track 1 - Welcome To Hell(PROD.BlkSaturn)
                 <span class="track-actions-inline">
                   <button class="like-btn" title="Like">👍 <span class="like-count">0</span></button>
@@ -251,8 +271,12 @@
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Cover.jpg?raw=true" alt="The Pebble" class="album-cover" draggable="false">
           <div class="album-info">
             <strong>The Pebble</strong><br>
-            Released March 2, 2024 - Crzypebble
-            <ul class="album-tracks">
+            <div style="margin: 6px 0;">
+              <!-- PLAY ALBUM BUTTON -->
+              <button class="play-album-btn" data-target="album-3" style="background: #ff0000; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">▶ Play Album</button>
+            </div>
+            <small style="color: #aaa;">Released March 2, 2024 - Crzypebble</small>
+            <ul class="album-tracks" id="album-3">
               <li data-src="welcometohellprodblksaturn.mp3" class="track-line" tabindex="0">Track 1 - Welcome To Hell(PROD.BlkSaturn)
                 <span class="track-actions-inline">
                   <button class="like-btn" title="Like">👍 <span class="like-count">0</span></button>
@@ -417,7 +441,21 @@
       </div>
 
       <!-- Persistent Player UI, Controls, and Visualizer Canvas -->
-      <div id="simple-player" class="player-container">
+      <!-- Added position relative so the absolute queue panel stays anchored to it -->
+      <div id="simple-player" class="player-container" style="position: relative;">
+        
+        <!-- ============================================== -->
+        <!-- HIDDEN QUEUE PANEL (NOW INSIDE THE PLAYER UI)  -->
+        <!-- ============================================== -->
+        <div id="queuePanel" style="display:none; position: absolute; bottom: 100%; left: 0; width: 100%; max-height: 350px; overflow-y: auto; background: rgba(15, 15, 15, 0.98); border: 2px solid rgba(255,0,0,0.5); padding: 10px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 -5px 25px rgba(0,0,0,0.8); box-sizing: border-box; z-index: 10011;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 5px; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 1.1rem; color: #ff0000;">Up Next</h3>
+            <button onclick="document.getElementById('queuePanel').style.display='none'" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✖</button>
+          </div>
+          <div id="queueItems"></div>
+        </div>
+        <!-- ============================================== -->
+
         <div class="player-info" style="text-align: center; font-weight: bold; margin-bottom: 5px;">
           <span id="now-playing">No song selected</span>
         </div>
@@ -429,17 +467,11 @@
           <button id="skip-back" title="Previous / Restart" style="cursor: pointer; padding: 5px 15px;">⏮</button>
           <button id="play-pause" title="Play / Pause" style="cursor: pointer; padding: 5px 15px;">▶</button>
           <button id="skip-forward" title="Next" style="cursor: pointer; padding: 5px 15px;">⏭</button>
-          <button id="open-queue-btn" title="Queue" style="cursor: pointer; padding: 5px 15px;">☰</button>
+          <button id="open-queue-btn" title="Queue" style="cursor: pointer; padding: 5px 15px;" onclick="const q = document.getElementById('queuePanel'); q.style.display = q.style.display === 'none' ? 'block' : 'none';">☰</button>
         </div>
         
         <!-- Audio engine with strict crossorigin tag required for the visualizer to read data -->
         <audio id="mainAudioPlayer" preload="metadata" crossorigin="anonymous" style="display:none;"></audio>
-      </div>
-
-      <!-- Hidden Queue Panel attached to the Queue Button -->
-      <div id="queuePanel" style="display:none; margin-top: 20px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px;">
-        <h3 style="margin-top: 0; text-align: center;">Up Next</h3>
-        <div id="queueItems"></div>
       </div>
     </section>
   </main>
@@ -493,5 +525,82 @@
   <!-- Player and Music Logic -->
   <script src="player.js"></script>
   <script src="music.js"></script>
+
+  <!-- INTEGRATION SCRIPT: Makes the "Play Album" and "Play All" buttons work without needing to edit music.js -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Unhide Play All button when a playlist is actually loaded
+      const observer = new MutationObserver(() => {
+        const btn = document.getElementById("play-all-playlist-btn");
+        const list = document.getElementById("playlistTracksList");
+        if (btn && list) {
+          // If there's a track line in the ul, show the button
+          btn.style.display = list.querySelector('.track-line') ? "block" : "none";
+        }
+      });
+      observer.observe(document.getElementById("playlistTracksList"), { childList: true });
+
+      // 2. Play All / Queue Album Logic
+      document.body.addEventListener("click", (e) => {
+        
+        // --- Play an entire Album ---
+        if (e.target.classList.contains("play-album-btn")) {
+          const targetId = e.target.getAttribute("data-target");
+          const container = document.getElementById(targetId);
+          if (container) {
+            queueAndPlayCollection(container.querySelectorAll(".add-queue"));
+          }
+        }
+        
+        // --- Play an entire Playlist ---
+        if (e.target.id === "play-all-playlist-btn") {
+          const list = document.getElementById("playlistTracksList");
+          if (list) {
+            // For playlists, we grab the raw list items since the playlist builder logic might differ
+            const tracks = list.querySelectorAll(".track-line");
+            let newQueue = [];
+            tracks.forEach(li => {
+              newQueue.push({
+                src: li.getAttribute("data-src"),
+                title: li.childNodes[0].textContent.split('-')[0].trim() || "Unknown",
+                artist: "Playlist"
+              });
+            });
+            executeQueueOverwrite(newQueue);
+          }
+        }
+      });
+
+      // Helper to extract data from UI buttons and build queue
+      function queueAndPlayCollection(buttonElements) {
+        let newQueue = [];
+        buttonElements.forEach(btn => {
+          newQueue.push({
+            title: btn.getAttribute("data-title"),
+            artist: btn.getAttribute("data-artist"),
+            src: btn.getAttribute("data-src")
+          });
+        });
+        executeQueueOverwrite(newQueue);
+      }
+
+      // Helper to overwrite local storage and trigger first song
+      function executeQueueOverwrite(queueArray) {
+        if (queueArray.length > 0) {
+          // The first song plays immediately, the rest become the queue
+          const firstSong = queueArray.shift();
+          localStorage.setItem("crzy_queue", JSON.stringify(queueArray));
+          
+          // Re-render the UI queue if the function exists
+          if (typeof renderQueue === "function") renderQueue();
+          
+          // Play the first song
+          if (typeof playTrackBySrc === "function") {
+             playTrackBySrc(firstSong.src, firstSong.title, null);
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>

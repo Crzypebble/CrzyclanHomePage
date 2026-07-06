@@ -1,40 +1,5 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
-// PS5 DIRECT UNLOCKER WITH SILENCE BUFFER
-document.addEventListener("DOMContentLoaded", () => {
-  const unlockBtn = document.getElementById('ps5-unlocker');
-  if (unlockBtn) {
-    unlockBtn.addEventListener('click', function() {
-      const audio = document.getElementById('mainAudioPlayer') || document.getElementById('audio-player');
-      
-      if (audio) {
-        // A 1-second base64 encoded silent MP3 track to feed the browser engine
-        const silentSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAACAAACcQAFBwcHBwcHBwYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAj/4NEMAAAAAAAAAAAAAAAAAAAAAAAADbWFpbmRhdGEAAAAAAAAB//OEEMAAAAAsAAAA0AAAAAACAACf4wRAAAAAA8AAAAMAAAAAABI/8BEEAAAAACwAAADQAAAAAAIAAJ/mBEAAAAADwAAAAsAAAAAABI/8BEEAAAAACwAAADQAAAAAAIAAJ/mBEAAAAADwAAAAsAAAAAABI/8BEEAAAAACwAAADQAAAAAAIAAJ/mBEAAAAADwAAAAsAAAAAABI=";
-        
-        // Temporarily hook up the silent source
-        audio.src = silentSrc;
-        audio.load();
-
-        // Direct, human-triggered play command
-        audio.play().then(() => {
-          audio.pause(); 
-          // Successfully hijacked the audio context! Clear out the silence.
-          audio.src = ""; 
-          
-          // Hide the button and alert user
-          unlockBtn.style.display = 'none';
-          showPopup("Console Audio Unlocked!", "#00ff00");
-        }).catch(e => {
-          console.error("Autoplay bypass rejected:", e);
-          showPopup("Failed to unlock. Try clicking again.", "#ff0000");
-        });
-      } else {
-        console.error("Audio player element not found for unlock.");
-      }
-    });
-  }
-});
-
 // ---------------- GLOBAL VOTE DATABASE (FIRESTORE) ----------------
 let globalVotes = {};
 
@@ -186,15 +151,11 @@ function updateVoteUI() {
 }
 
 // Delegate events so likes work even on dynamically loaded tracks (like inside search/playlists)
-// UPDATED FOR PS5: Added song playback logic directly to the event delegation
 document.body.addEventListener("click", (e) => {
   const likeBtn = e.target.closest('.like-btn, .vote-like');
   const dislikeBtn = e.target.closest('.dislike-btn, .vote-dislike');
   const actionBtn = e.target.closest('button');
   const trackEl = e.target.closest('.track-line, .playable, .search-row');
-  
-  // Ignore clicks on the new unlocker button so it doesn't trigger playback logic
-  if (e.target.id === 'ps5-unlocker') return;
   
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); // Stop the row click (play) from triggering
@@ -205,7 +166,7 @@ document.body.addEventListener("click", (e) => {
       toggleVote(src, type);
     }
   } 
-  // PS5 FIX: If we clicked the row, but NOT an action button, play the song
+  // If we clicked the row, but NOT an action button, play the song
   else if (trackEl && !actionBtn) {
       e.stopPropagation();
       const src = trackEl.getAttribute('data-src');
@@ -218,7 +179,6 @@ document.body.addEventListener("click", (e) => {
       }
       
       if (src && !src.startsWith('hidden')) {
-          console.log("PS5 Play Attempt:", src);
           playTrackBySrc(src, rawTitle, null);
       }
   }
@@ -309,12 +269,6 @@ function renderQueue() {
       showPopup("Removed from queue", "#ff0000");
     });
   });
-}
-
-function toggleQueuePanel(show) {
-  const panel = document.getElementById("queuePanel");
-  if (!panel) return;
-  panel.style.display = (typeof show === "boolean") ? (show ? "block" : "none") : (panel.style.display === "block" ? "none" : "block");
 }
 
 // ---------------- SEARCH RESULTS ----------------
@@ -476,6 +430,11 @@ function renderPlaylistDashboard() {
   if (pls.length === 0) {
     container.innerHTML = "<div style='color:#aaa;'>You haven't created any playlists yet.</div>";
     document.getElementById("playlistTracksList").innerHTML = "<li class='empty-notice' style='list-style: none; opacity: 0.7;'>No playlist selected.</li>";
+    
+    // Hide Play All button if no playlists exist
+    const playAllBtn = document.getElementById("play-all-playlist-btn");
+    if (playAllBtn) playAllBtn.style.display = "none";
+    
     return;
   }
 
@@ -505,10 +464,15 @@ function loadActivePlaylist(plIdx) {
   const tracksList = document.getElementById("playlistTracksList");
   tracksList.innerHTML = "";
 
+  const playAllBtn = document.getElementById("play-all-playlist-btn");
+
   if (!pl.songs || pl.songs.length === 0) {
     tracksList.innerHTML = "<li style='list-style: none; opacity: 0.7;'>Playlist is empty. Add songs to listen!</li>";
+    if (playAllBtn) playAllBtn.style.display = "none";
     return;
   }
+
+  if (playAllBtn) playAllBtn.style.display = "block";
 
   pl.songs.forEach((song, songIdx) => {
     const li = document.createElement("li");
@@ -554,9 +518,59 @@ function removeSongFromPlaylist(plIdx, songIdx) {
   }
 }
 
+// ---------------- QUEUE OVERWRITE HELPER (FOR ALBUMS/PLAYLISTS) ----------------
+function executeQueueOverwrite(queueArray) {
+  if (queueArray.length > 0) {
+    // The first song plays immediately, the rest become the queue
+    const firstSong = queueArray.shift();
+    localStorage.setItem("crzy_queue", JSON.stringify(queueArray));
+    
+    renderQueue();
+    playTrackBySrc(firstSong.src, firstSong.title, null);
+    showPopup("Queue Updated", "#ff0000");
+  }
+}
+
 // ---------------- BIND UI ELEMENTS ----------------
 document.addEventListener("DOMContentLoaded", () => {
   const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
+
+  // --- PLAY ALBUM BUTTON LOGIC ---
+  document.body.addEventListener("click", (e) => {
+    if (e.target.classList.contains("play-album-btn")) {
+      const targetId = e.target.getAttribute("data-target");
+      const container = document.getElementById(targetId);
+      if (container) {
+        const queueBtns = container.querySelectorAll(".add-queue");
+        let newQueue = [];
+        queueBtns.forEach(btn => {
+          newQueue.push({
+            title: btn.getAttribute("data-title"),
+            artist: btn.getAttribute("data-artist"),
+            src: btn.getAttribute("data-src")
+          });
+        });
+        executeQueueOverwrite(newQueue);
+      }
+    }
+    
+    // --- PLAY ALL PLAYLIST BUTTON LOGIC ---
+    if (e.target.id === "play-all-playlist-btn") {
+      const list = document.getElementById("playlistTracksList");
+      if (list) {
+        const tracks = list.querySelectorAll(".track-line");
+        let newQueue = [];
+        tracks.forEach(li => {
+          newQueue.push({
+            src: li.getAttribute("data-src"),
+            title: li.childNodes[0].textContent.split('-')[0].trim() || "Unknown",
+            artist: "Playlist"
+          });
+        });
+        executeQueueOverwrite(newQueue);
+      }
+    }
+  });
 
   // --- AUTOPLAY LOGIC (FOR FALLBACK AUDIO PLAYER) ---
   if (audio) {
@@ -617,12 +631,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.querySelectorAll(".add-queue, .add-playlist").forEach(btn => btn.style.cursor = "pointer");
-
-  document.getElementById("open-queue-btn")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleQueuePanel();
-    renderQueue();
-  });
 
   // Initial UI Setups
   renderQueue();

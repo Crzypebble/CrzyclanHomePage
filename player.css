@@ -1,239 +1,182 @@
-/* player.css - CRZYCLAN Player (Persistent, Responsive, Visualizer) */
+/* player.css - CRZYCLAN Player v2 (float/dock, visualizer, queue, settings) */
 
 /* variables */
 :root { 
   --accent: #ff0000; 
   --bg: #000; 
-  --panel-bg: #0e0e0e; 
+  --panel-bg: #070707; 
   --text: #fff; 
 }
 
-/* ========================================= */
-/* --- Main Player Container --- */
-/* ========================================= */
-.player-container {
+#crzy-player {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 20px;
-  width: 500px; /* Widened slightly to fit the image */
-  max-width: 95vw;
+  left: 20px;
+  top: 60vh;
+  width: 360px;
   background: var(--panel-bg);
   color: var(--text);
-  border: 2px solid rgba(255, 0, 0, 0.5);
-  border-radius: 12px;
-  padding: 12px 15px;
-  z-index: 10000;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-  font-family: 'Poppins', sans-serif;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  z-index: 20000;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   user-select: none;
-  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  overflow: visible;
+  transition: width 0.2s, height 0.2s, border-radius 0.2s;
 }
 
-/* Glowing effect when playing */
-.player-container.playing {
-  border-color: rgba(255, 0, 0, 0.9);
-  box-shadow: 0 0 25px rgba(255, 0, 0, 0.25), 0 8px 30px rgba(0,0,0,0.8);
-  animation: pulse-border 2s infinite;
-}
-
-@keyframes pulse-border {
-  0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.15), 0 8px 30px rgba(0,0,0,0.8); }
-  50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.35), 0 8px 30px rgba(0,0,0,0.8); }
-  100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.15), 0 8px 30px rgba(0,0,0,0.8); }
-}
-
-/* ========================================= */
-/* --- Player Internal Layout (Grid) --- */
-/* ========================================= */
-.player-layout {
-  display: grid;
-  grid-template-columns: 80px 1fr; /* Image column | Content column */
-  gap: 15px;
-  align-items: center;
-}
-
-/* The Album Art inside the player */
-.player-cover {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 2px solid rgba(255, 0, 0, 0.4);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-.player-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0; /* Prevents flex blowout */
-}
-
-/* ========================================= */
-/* --- Player Information & Controls --- */
-/* ========================================= */
-.player-info {
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* --------------------------------- */
+/* DOCKED STATE                      */
+/* --------------------------------- */
+#crzy-player.docked {
+  left: 0 !important;
+  right: 0;
+  bottom: 0;
+  top: auto !important;
   width: 100%;
-}
-
-#now-playing {
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 0.95rem;
-}
-
-.player-controls {
+  height: 80px;
+  border-radius: 0;
   display: flex;
-  justify-content: flex-start;
   align-items: center;
+  padding: 0 20px;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+#crzy-player.docked .drag {
+  width: auto;
+  padding: 0 15px 0 0;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  margin-right: 15px;
+}
+
+#crzy-player.docked .body {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: 0;
+  grid-template-columns: none;
+}
+
+#crzy-player.docked .meta {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+#crzy-player.docked .cover {
+  width: 54px;
+  height: 54px;
+}
+
+#crzy-player.docked .visual-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#crzy-player.docked canvas#crz-canvas {
+  height: 50px;
+  flex: 1;
+}
+
+/* --------------------------------- */
+/* FLOATING STATE (Default)          */
+/* --------------------------------- */
+#crzy-player .drag {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  cursor: grab;
+}
+#crzy-player .drag .title { font-weight:700; color:var(--accent); font-size:14px; flex:1; }
+
+#crzy-player .body {
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
-.player-controls button {
-  background: #1a1a1a;
-  border: 1px solid rgba(255, 0, 0, 0.3);
-  color: var(--text);
-  padding: 6px 16px;
+#crzy-player:not(.docked) .meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* cover */
+#crzy-player .cover {
+  width: 84px;
+  height: 84px;
   border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.05);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.6);
 }
 
-.player-controls button:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
+/* meta */
+#crzy-player .now { flex: 1; min-width: 0; }
+#crzy-player .now .song { font-weight:700; color:#fff; font-size:14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#crzy-player .now .artist { color:#bbb; font-size:12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* controls */
+#crzy-player button.icon-btn {
+  background:transparent; border:1px solid transparent; color:var(--text); padding:6px 8px; border-radius:6px; cursor:pointer; font-size:16px; transition: background 0.1s;
+}
+#crzy-player button.icon-btn:hover { background: rgba(255,255,255,0.1); }
+#crzy-player .progress { width:100%; margin-top:4px; }
+#crzy-player input[type=range] { width:100%; accent-color:var(--accent); }
+
+/* canvas */
+#crzy-player canvas#crz-canvas { width:100%; height:70px; display:block; border-radius:6px; background:transparent; }
+
+/* settings panel */
+#crzy-player .settings {
+  position:absolute; right:12px; top:12px; background:#0a0a0a; border:1px solid rgba(255,255,255,0.04); padding:10px; border-radius:8px; display:none; min-width:220px; z-index:30000;
+}
+#crzy-player .settings.show { display:block; }
+
+/* pulsing styles */
+#crzy-player.pulse { box-shadow: 0 0 40px rgba(255,0,0,0.22), inset 0 0 20px rgba(255,0,0,0.06); transform: translateY(-2px); transition: box-shadow .12s, transform .12s; }
+
+/* --------------------------------- */
+/* QUEUE PANEL                       */
+/* --------------------------------- */
+.crzy-queue {
+  position: fixed;
+  width: 360px;
+  max-height: 320px;
+  overflow:auto;
+  background: #070707;
+  border:2px solid rgba(255,0,0,0.16);
+  border-radius:8px;
+  padding:10px;
+  z-index:19999;
+  box-shadow:0 12px 40px rgba(0,0,0,0.6);
+  display:none;
 }
 
-.player-controls button:active {
-  transform: translateY(0);
-}
+#crzy-player.queue-open + .crzy-queue { display:block; }
 
-#play-pause {
-  padding: 6px 20px;
-  background: rgba(255, 0, 0, 0.15);
-  border-color: var(--accent);
-}
+.crzy-queue .item { display:flex; align-items:center; gap:8px; padding:8px; border-radius:6px; background:#0f0f0f; margin-bottom:8px; border:1px solid rgba(255,0,0,0.06); }
+.crzy-queue .item .info { flex:1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crzy-queue .item .drag-handle { cursor:grab; padding:6px; }
 
-/* ========================================= */
-/* --- Visualizer Canvas --- */
-/* ========================================= */
-canvas#visualizer {
-  width: 100%;
-  height: 50px;
-  display: block;
-  background: #050505 !important;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 0, 0, 0.2) !important;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-}
+/* dropdown menu */
+.small-menu { background:transparent;border:0;color:#fff;padding:6px;border-radius:6px;cursor:pointer; }
+.small-menu + .menu { display:none; position:absolute; background:#0b0b0b; border:1px solid rgba(255,255,255,0.04); padding:6px; border-radius:6px; right:8px; top:26px; z-index:30001; }
+.small-menu.open + .menu { display:block; }
+.menu button { display:block; width:100%; background:transparent; border:0; color:#fff; text-align:left; padding:6px; cursor:pointer; }
 
-/* ========================================= */
-/* --- Side-Attached Queue Panel --- */
-/* ========================================= */
-#queuePanel {
-  /* Attach to the RIGHT side of the player on desktop */
-  position: absolute;
-  bottom: 0; 
-  left: calc(100% + 15px); 
-  width: 320px;
-  max-height: 400px;
-  overflow-y: auto;
-  background: rgba(12, 12, 12, 0.98);
-  border: 2px solid rgba(255, 0, 0, 0.4);
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9);
-  box-sizing: border-box;
-  z-index: 10011;
-  
-  /* Scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) #111;
-}
+.hidden { display:none !important; }
 
-#queuePanel::-webkit-scrollbar { width: 6px; }
-#queuePanel::-webkit-scrollbar-track { background: #111; border-radius: 4px; }
-#queuePanel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-
-/* Queue Items */
-.queue-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  background: #141414;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 0, 0, 0.1);
-  transition: background 0.1s;
-}
-
-.queue-item:hover {
-  background: #1a1a1a;
-  border-color: rgba(255, 0, 0, 0.3);
-}
-
-.queue-item b { display: block; font-size: 0.95rem; margin-bottom: 2px; color: #fff; }
-.queue-item small { color: #aaa; font-size: 0.8rem; }
-
-.queue-item button {
-  background: transparent;
-  border: none;
-  color: #888;
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.queue-item button.play-queue:hover { background: var(--accent); color: white; }
-.queue-item button.remove-queue:hover { background: rgba(255, 255, 255, 0.1); color: #ff4444; }
-
-/* ========================================= */
-/* --- Mobile Adjustments --- */
-/* ========================================= */
-@media (max-width: 900px) {
-  /* When screen gets too narrow for side-by-side, move queue back to top */
-  #queuePanel {
-    left: 0;
-    bottom: calc(100% + 15px);
-    width: 100%;
-    max-height: 50vh;
-  }
-}
-
-@media (max-width: 600px) {
-  .player-container {
-    width: 92vw;
-    padding: 10px;
-    bottom: 15px;
-  }
-  
-  /* Drop the image on very small screens to save space */
-  .player-cover {
-    display: none;
-  }
-  
-  .player-layout {
-    grid-template-columns: 1fr; /* Switch to single column */
-  }
-  
-  .player-info { text-align: center; }
-  .player-controls { justify-content: center; gap: 8px; }
-  .player-controls button { padding: 6px 12px; }
+/* Mobile Fallbacks */
+@media (max-width:768px) {
+  #crzy-player:not(.docked) { width:92vw; left:4vw; top:65vh; }
+  .crzy-queue { width: 92vw !important; left: 4vw !important; }
+  #crzy-player.docked .visual-wrap { display: none; } /* Hide visualizer on mobile docked to save space */
 }

@@ -1,6 +1,4 @@
-// player.js - CRZYCLAN Player v2 (injects #crzy-player, draggable, dock, visualizer, queue)
-// - removes old #simple-player if present
-// - exposes window.CrzyPlayer API for music.js
+// player.js - CRZYCLAN Player v2 (injects #crzy-player, draggable, dock, visualizer, queue, bg-visualizer)
 (function(){
   const STATE_KEY = 'crzy_player_state';
   const ACCENT_KEY = 'crzy_player_accent';
@@ -10,23 +8,28 @@
   const old = document.getElementById('simple-player');
   if (old) old.remove();
 
-  // PS5 FIX: Try to grab hardcoded audio tag first. If it fails, fallback to creation.
   let audio = document.getElementById('mainAudioPlayer');
   if (!audio) {
     audio = document.createElement('audio');
     audio.id = 'mainAudioPlayer';
     audio.preload = 'metadata';
     audio.style.display = 'none';
+    audio.crossOrigin = 'anonymous'; // Required for visualizer
     document.body.appendChild(audio);
   }
 
-  // create player container
   function $el(tag, attrs={}, html=''){
     const e=document.createElement(tag);
     Object.entries(attrs).forEach(([k,v])=>{ if(k==='class') e.className=v; else e.setAttribute(k,v); });
     e.innerHTML=html; return e;
   }
 
+  // --- BACKGROUND VISUALIZER CANVAS ---
+  const bgCanvas = $el('canvas', {id: 'crz-bg-canvas', style: 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:-1; pointer-events:none; opacity: 0.15; transition: opacity 0.3s; display:none;'});
+  document.body.prepend(bgCanvas);
+  const bgCtx = bgCanvas.getContext('2d');
+
+  // --- FOREGROUND PLAYER ---
   const player = $el('div',{id:'crzy-player'});
   player.innerHTML = `
     <div class="drag" title="Drag / Hold to move (When Unpinned)">
@@ -69,12 +72,11 @@
   `;
   document.body.appendChild(player);
 
-  // queue panel under the player (separate element sibling)
   const queuePanel = $el('div',{class:'crzy-queue'});
-  queuePanel.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong>Queue</strong><button id="crzy-clear-queue" title="Clear">Clear</button></div><div id="crzy-queue-items"></div>`;
+  queuePanel.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong>Queue</strong><button id="crzy-clear-queue" title="Clear" style="background:transparent;color:#ff0000;border:1px solid #ff0000;border-radius:4px;padding:2px 8px;cursor:pointer;">Clear</button></div><div id="crzy-queue-items"></div>`;
   player.after(queuePanel);
 
-  // nodes
+  // Nodes
   const playBtn = document.getElementById('crzy-play');
   const prevBtn = document.getElementById('crzy-prev');
   const nextBtn = document.getElementById('crzy-next');
@@ -96,23 +98,19 @@
   const downloadBtn = document.getElementById('crz-download');
   const queueItemsWrap = document.getElementById('crzy-queue-items');
 
-  // get saved accent/mode -- DEFAULT TO 'dock'
+  // Load Settings
   const savedAccent = localStorage.getItem(ACCENT_KEY) || '#ff0000';
   document.documentElement.style.setProperty('--accent', savedAccent);
   accentInput.value = savedAccent;
-  const savedMode = localStorage.getItem(MODE_KEY) || 'dock'; // Force docked by default
+  const savedMode = localStorage.getItem(MODE_KEY) || 'dock';
   if (savedMode === 'dock') player.classList.add('docked');
-
-  // Set initial autoplay check
   autoplayToggle.checked = localStorage.getItem('crz_autoplay') !== '0';
 
-  // audio context + visualizer
+  // Audio Context
   let audioCtx, analyser, sourceNode, dataArray, bufferLength;
   function setupAudioCtx(){
     if (!window.AudioContext && !window.webkitAudioContext) return false;
     if (audioCtx) return true;
-    
-    // PS5 FIX: Wrap in a try-catch because if PS5 blocks AudioContext, we still want playback
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioCtx.createAnalyser();
@@ -124,76 +122,110 @@
       analyser.connect(audioCtx.destination);
       return true;
     } catch(e){
-      console.warn('AudioContext failed to initialize (Common on consoles) - Visualizer disabled, but audio should still play.', e);
-      return false; // Return false so we don't try to animate
+      console.warn('AudioContext failed - Visualizer disabled.', e);
+      return false;
     }
   }
 
-  // canvas hi-dpi
+  // Canvas Resizing
   const ctx = canvas.getContext('2d');
-  function resizeCanvas(){ const rect = canvas.getBoundingClientRect(); canvas.width = rect.width * devicePixelRatio; canvas.height = rect.height * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio); }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  function resizeCanvas(){ 
+    const rect = canvas.getBoundingClientRect(); 
+    canvas.width = rect.width * (window.devicePixelRatio || 1); 
+    canvas.height = rect.height * (window.devicePixelRatio || 1); 
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1); 
 
-  // particles
+    bgCanvas.width = window.innerWidth * (window.devicePixelRatio || 1);
+    bgCanvas.height = window.innerHeight * (window.devicePixelRatio || 1);
+    bgCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Particles for foreground visualizer
   let particles = [];
   function createParticles(n=22){
     particles=[];
-    for(let i=0;i<n;i++){
-      particles.push({ x:Math.random()*canvas.clientWidth, y:Math.random()*canvas.clientHeight, vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6, size:1+Math.random()*3 });
-    }
+    for(let i=0;i<n;i++) particles.push({ x:Math.random()*canvas.clientWidth, y:Math.random()*canvas.clientHeight, vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6, size:1+Math.random()*3 });
   }
   createParticles(24);
 
   function drawViz(){
-    if (!visualToggle.checked || !analyser) { ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight); return; }
+    if (!visualToggle.checked || !analyser) { 
+      ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight); 
+      bgCanvas.style.display = 'none';
+      return; 
+    }
+    
     analyser.getByteTimeDomainData(dataArray);
+    const accentCol = localStorage.getItem(ACCENT_KEY) || '#ff0000';
+    
+    // FOREGROUND DRAWING
     const w = canvas.clientWidth, h = canvas.clientHeight;
     ctx.clearRect(0,0,w,h);
     ctx.lineWidth = 2;
-    ctx.strokeStyle = localStorage.getItem(ACCENT_KEY) || '#ff0000';
+    ctx.strokeStyle = accentCol;
     ctx.beginPath();
     const slice = w / dataArray.length;
-    for (let i=0;i<dataArray.length;i++){
+    for (let i=0; i<dataArray.length; i++){
       const v = (dataArray[i]-128)/128;
       const y = (h/2) + v*(h/2)*0.8;
       const x = i*slice;
       if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     }
     ctx.stroke();
+    
     let sum=0;
     for(let i=0;i<dataArray.length;i++) sum += Math.abs(dataArray[i]-128);
     const amp = sum/dataArray.length/128;
     for(let p of particles){
-      p.x += p.vx*(1+amp*4);
-      p.y += p.vy*(1+amp*4);
+      p.x += p.vx*(1+amp*4); p.y += p.vy*(1+amp*4);
       if (p.x < -10) p.x = w+10; if (p.x > w+10) p.x = -10;
       if (p.y < -10) p.y = h+10; if (p.y > h+10) p.y = -10;
       ctx.fillStyle = `rgba(255,0,0,${0.06+amp*0.6})`;
       ctx.beginPath(); ctx.arc(p.x,p.y,p.size+amp*4,0,Math.PI*2); ctx.fill();
     }
     if (amp > 0.02) player.classList.add('pulse'); else player.classList.remove('pulse');
+
+    // BACKGROUND FULL-SCREEN DRAWING (Only when docked)
+    if (player.classList.contains('docked')) {
+      bgCanvas.style.display = 'block';
+      const bgW = bgCanvas.clientWidth;
+      const bgH = bgCanvas.clientHeight;
+      bgCtx.clearRect(0, 0, bgW, bgH);
+      bgCtx.lineWidth = 3;
+      bgCtx.strokeStyle = accentCol;
+      bgCtx.beginPath();
+      const bgSlice = bgW / dataArray.length;
+      for (let i = 0; i < dataArray.length; i++) {
+        const v = (dataArray[i] - 128) / 128;
+        const y = (bgH / 2) + v * (bgH / 3); // Large waves across the screen
+        const x = i * bgSlice;
+        if (i === 0) bgCtx.moveTo(x, y); else bgCtx.lineTo(x, y);
+      }
+      bgCtx.stroke();
+    } else {
+      bgCanvas.style.display = 'none';
+    }
   }
+
   let rafId=null;
   function animate(){ drawViz(); rafId = requestAnimationFrame(animate); }
   function startVisual(){ if (!setupAudioCtx()) { player.classList.add('pulse'); return; } if (!rafId) animate(); }
-  function stopVisual(){ if (rafId){ cancelAnimationFrame(rafId); rafId=null; } }
+  function stopVisual(){ if (rafId){ cancelAnimationFrame(rafId); rafId=null; } player.classList.remove('pulse'); }
 
-  // state
   let isPlaying = false;
 
-  // update meta
   function updateMeta(){
     const src = audio.src || '';
     const filename = src.split('/').pop() || '';
     songText.textContent = audio.getAttribute('data-title') || filename || 'Not playing';
     artistText.textContent = audio.getAttribute('data-artist') || 'CRZYCLAN';
-    const cover = audio.getAttribute('data-cover') || coverImg.src;
+    const cover = audio.getAttribute('data-cover') || 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true';
     coverImg.src = cover;
     if (src && window.isMember) { downloadBtn.href = src; downloadBtn.classList.remove('hidden'); } else downloadBtn.classList.add('hidden');
   }
 
-  // progress updates
+  // Progress Bar
   audio.addEventListener('timeupdate', ()=>{
     if (!isNaN(audio.duration) && audio.duration>0){
       const pct = (audio.currentTime/audio.duration)*100;
@@ -207,12 +239,9 @@
   });
   function formatTime(t){ if (!t||isNaN(t)) return '0:00'; const m = Math.floor(t/60); const s = Math.floor(t%60).toString().padStart(2,'0'); return `${m}:${s}`; }
 
-  // play/pause
   function togglePlay(){
     if (audio.paused) {
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-      
-      // PS5 FIX: Catch and log the play promise explicitly so it doesn't crash the script
       let playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise.then(_ => {
@@ -220,10 +249,7 @@
           playBtn.textContent = '⏸️'; 
           startVisual();
           broadcast({action:'play', src:audio.src});
-        }).catch(error => {
-          console.error("Playback prevented by browser policies:", error);
-          showPopup("Playback blocked by browser. Please interact with the page first.", 3000);
-        });
+        }).catch(e => console.error(e));
       }
     } else {
       audio.pause(); isPlaying=false; playBtn.textContent='▶️'; stopVisual(); broadcast({action:'pause'});
@@ -231,14 +257,14 @@
   }
   playBtn.addEventListener('click', togglePlay);
 
-  // dock toggle
+  // Dock Logic
   dockBtn.addEventListener('click', ()=>{
     const docked = player.classList.toggle('docked'); 
     localStorage.setItem(MODE_KEY, docked ? 'dock' : 'float');
     positionQueue();
   });
 
-  // settings
+  // Settings
   settingsBtn.addEventListener('click', ()=> settingsPanel.classList.toggle('show'));
   document.getElementById('crz-close-settings').addEventListener('click', ()=> settingsPanel.classList.remove('show'));
   accentInput.addEventListener('input', (e)=> { document.documentElement.style.setProperty('--accent', e.target.value); localStorage.setItem(ACCENT_KEY, e.target.value); });
@@ -247,51 +273,27 @@
   volumeInput.addEventListener('input', (e)=> audio.volume = Number(e.target.value || 1));
   audio.volume = Number(volumeInput.value || 1);
 
-
-  // ============================================
-  // QUEUE & NAVIGATION LOGIC (Next/Prev/Autoplay)
-  // ============================================
+  // Queue
   function getQueue(){ return JSON.parse(localStorage.getItem('crzy_queue')||'[]'); }
   function saveQueue(q){ localStorage.setItem('crzy_queue', JSON.stringify(q)); renderQueue(); }
   function addToQueue(song){ const q=getQueue(); q.push(song); saveQueue(q); showPopup('Added to queue'); }
   function clearQueue(){ saveQueue([]); showPopup('Queue cleared'); }
   function popQueue(){ const q=getQueue(); const next=q.shift(); saveQueue(q); return next; }
 
-  // Next Track Logic
   function playNextInQueue() {
     const next = popQueue();
-    if (next) {
-      window.CrzyPlayer.play(next.src, next.title, next.cover, next.artist);
-    } else {
-      showPopup("Queue empty", 1500);
-    }
+    if (next) window.CrzyPlayer.play(next.src, next.title, next.cover, next.artist);
+    else showPopup("Queue empty", 1500);
   }
 
-  // Prev / Next Buttons
-  prevBtn.addEventListener('click', ()=> {
-    if (audio.currentTime > 3) {
-      audio.currentTime = 0; // Restart track if they are past 3 seconds
-    } else {
-      showPopup("No previous history tracked");
-    }
-  });
-
-  nextBtn.addEventListener('click', ()=> {
-    playNextInQueue();
-  });
-
-  // Autoplay when song finishes naturally
+  prevBtn.addEventListener('click', ()=> { if (audio.currentTime > 3) audio.currentTime = 0; else showPopup("No previous history tracked"); });
+  nextBtn.addEventListener('click', ()=> playNextInQueue());
   audio.addEventListener('ended', ()=> {
-    stopVisual();
-    playBtn.textContent = '▶️';
-    const auto = localStorage.getItem('crz_autoplay') !== '0';
-    if (auto) {
-      playNextInQueue();
-    }
+    stopVisual(); playBtn.textContent = '▶️';
+    if (localStorage.getItem('crz_autoplay') !== '0') playNextInQueue();
   });
 
-
-  // broadcast cross-tab
+  // Broadcast
   function broadcast(obj){ const payload = { ts: Date.now(), ...obj }; localStorage.setItem(STATE_KEY, JSON.stringify(payload)); handleState(payload, true); }
   window.addEventListener('storage', (e)=> { if (e.key === STATE_KEY && e.newValue) try{ handleState(JSON.parse(e.newValue), false); } catch(e){} });
 
@@ -307,15 +309,8 @@
         } 
         updateMeta(); 
       } 
-      
-      // PS5 FIX: Same play promise handling here
       let playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(_ => {
-          playBtn.textContent='⏸️'; 
-          startVisual(); 
-        }).catch(e => console.warn(e));
-      }
+      if (playPromise !== undefined) playPromise.then(_ => { playBtn.textContent='⏸️'; startVisual(); }).catch(e => console.warn(e));
     }
     else if (payload.action === 'pause'){ audio.pause(); playBtn.textContent='▶️'; stopVisual(); }
     else if (payload.action === 'setSrc'){ 
@@ -331,7 +326,6 @@
     }
   }
 
-  // expose API
   window.CrzyPlayer = {
     play: (src, title, cover, artist) => {
       if (src) {
@@ -341,20 +335,12 @@
         if (cover) audio.setAttribute('data-cover', cover);
         updateMeta();
       }
-      
-      // PS5 FIX: Trigger play directly from the API call rather than waiting for broadcast
       let playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise.then(_ => {
-          isPlaying = true;
-          playBtn.textContent = '⏸️';
-          startVisual();
-        }).catch(error => {
-          console.error("Autoplay prevented:", error);
-          showPopup("Playback blocked. Tap play.", 2000);
-        });
+          isPlaying = true; playBtn.textContent = '⏸️'; startVisual();
+        }).catch(error => { console.error("Autoplay prevented:", error); showPopup("Playback blocked. Tap play.", 2000); });
       }
-
       broadcast({action:'play', src: audio.src, meta:{title: audio.getAttribute('data-title'), artist: audio.getAttribute('data-artist'), cover: audio.getAttribute('data-cover')}});
     },
     setSrc: (src, meta) => {
@@ -365,18 +351,13 @@
       updateMeta();
       broadcast({action:'setSrc', src, meta});
     },
-    addToQueue: addToQueue,
-    clearQueue: clearQueue,
-    popQueue: popQueue
+    addToQueue: addToQueue, clearQueue: clearQueue, popQueue: popQueue
   };
 
-  // update meta on loadedmetadata
   audio.addEventListener('loadedmetadata', ()=> { updateMeta(); durEl.textContent = formatTime(audio.duration); });
-
-  // resize canvas at end
   setTimeout(()=> resizeCanvas(), 200);
 
-  // queue UI rendering and drag/drop reorder
+  // Queue Rendering
   function renderQueue(){
     const q=getQueue(); queueItemsWrap.innerHTML='';
     if (!q.length) { queueItemsWrap.innerHTML = '<div style="color:#aaa;padding:8px">Queue empty</div>'; return; }
@@ -389,10 +370,9 @@
         </div>`;
       queueItemsWrap.appendChild(item);
 
-      // menu handlers
       const menuBtn = item.querySelector('.small-menu');
       const menu = item.querySelector('.menu');
-      menuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); menuBtn.classList.toggle('open'); menuBtn.classList.toggle('active'); menuBtn.classList.toggle('open'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; });
+      menuBtn.addEventListener('click', (e)=>{ e.stopPropagation(); menuBtn.classList.toggle('open'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; });
 
       item.querySelector('.remove').addEventListener('click', (e)=> {
         e.stopPropagation();
@@ -400,10 +380,9 @@
         const arr = getQueue(); arr.splice(idx,1); saveQueue(arr); showPopup('Removed from queue');
       });
 
-      // drag/drop basics
       item.addEventListener('dragstart', (ev)=> { ev.dataTransfer.setData('text/plain', item.getAttribute('data-i')); item.classList.add('dragging'); });
       item.addEventListener('dragend', ()=> { item.classList.remove('dragging'); renderQueue(); });
-      item.addEventListener('dragover', (ev)=> { ev.preventDefault(); });
+      item.addEventListener('dragover', (ev)=> ev.preventDefault());
       item.addEventListener('drop', (ev)=> {
         ev.preventDefault();
         const from = +ev.dataTransfer.getData('text/plain');
@@ -417,35 +396,45 @@
     });
   }
 
-  // open/close queue panel
-  queueBtn.addEventListener('click', (e)=> {
-    e.stopPropagation();
-    player.classList.toggle('queue-open');
-    positionQueue();
-    renderQueue();
-  });
+  // Position Queue Dynamic Logic
+  queueBtn.addEventListener('click', (e)=> { e.stopPropagation(); player.classList.toggle('queue-open'); positionQueue(); renderQueue(); });
+  
   function positionQueue(){
-    // position the queue panel relative to player bottom-left (or docked center)
     const rect = player.getBoundingClientRect();
-    if (!player.classList.contains('docked')) {
-      queuePanel.style.left = Math.max(8, rect.left) + 'px';
-      queuePanel.style.bottom = (window.innerHeight - rect.bottom + 12) + 'px';
+    const qWidth = 360;
+
+    if (player.classList.contains('docked')) {
+      // DOCKED: Show above the player
+      queuePanel.style.left = '20px';
+      queuePanel.style.bottom = '90px'; // Taskbar height + margin
     } else {
-      queuePanel.style.left = '8px';
-      queuePanel.style.bottom = '90px';
+      // UNDOCKED: Side layout
+      if (window.innerWidth <= 768) {
+        // Mobile fallback if they undocked
+        queuePanel.style.left = '4vw';
+        queuePanel.style.bottom = (window.innerHeight - rect.top + 15) + 'px';
+      } else {
+        // Desktop floating: Attempt Right Side, fallback to Left Side
+        if (rect.right + qWidth + 20 > window.innerWidth) {
+          queuePanel.style.left = (rect.left - qWidth - 15) + 'px'; // Left Side
+        } else {
+          queuePanel.style.left = (rect.right + 15) + 'px'; // Right Side
+        }
+        queuePanel.style.bottom = (window.innerHeight - rect.bottom) + 'px'; // Align bottoms
+      }
     }
   }
   window.addEventListener('resize', positionQueue);
 
-  document.getElementById('crzy-clear-queue').addEventListener('click', ()=> { clearQueue(); });
+  document.getElementById('crzy-clear-queue').addEventListener('click', ()=> clearQueue());
 
-  // popup
+  // Popup
   const popup = document.createElement('div');
   popup.style.position='fixed'; popup.style.right='18px'; popup.style.bottom='18px'; popup.style.background='var(--accent)'; popup.style.padding='12px 18px'; popup.style.color='#fff'; popup.style.borderRadius='8px'; popup.style.opacity=0; popup.style.transition='opacity .2s'; popup.style.zIndex=99999;
   document.body.appendChild(popup);
   function showPopup(msg, t=1200){ popup.textContent = msg; popup.style.opacity=1; setTimeout(()=>{ popup.style.opacity=0; }, t); }
 
-  // drag the player when not docked
+  // Dragging Logic
   let isDragging=false, dragOffset={x:0,y:0};
   const dragBar = player.querySelector('.drag');
   dragBar.addEventListener('mousedown', startDrag);
@@ -461,7 +450,7 @@
     document.addEventListener('touchmove', onDrag, {passive:false});
     document.addEventListener('mouseup', stopDrag);
     document.addEventListener('touchend', stopDrag);
-    player.classList.add('pulse'); // pulse while dragging
+    player.classList.add('pulse'); 
   }
   function onDrag(e){
     if (!isDragging) return;
@@ -478,15 +467,13 @@
     isDragging=false; dragBar.style.cursor='grab'; document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag); player.classList.remove('pulse');
   }
 
-  // keyboard space toggles play (if not focused on input)
+  // Keyboard
   window.addEventListener('keydown',(e)=>{ if (e.code==='Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){ e.preventDefault(); togglePlay(); } });
 
-  // initial render
+  // Init
   renderQueue();
   updateMeta();
   positionQueue();
-
-  // init audio context on user gesture
   document.addEventListener('click', ()=>{ try { setupAudioCtx(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch(e){} }, { once:true });
 
 })();

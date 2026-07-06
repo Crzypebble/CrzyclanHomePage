@@ -440,39 +440,6 @@
         </ul>
       </div>
 
-      <!-- Persistent Player UI, Controls, and Visualizer Canvas -->
-      <!-- Added position relative so the absolute queue panel stays anchored to it -->
-      <div id="simple-player" class="player-container" style="position: relative;">
-        
-        <!-- ============================================== -->
-        <!-- HIDDEN QUEUE PANEL (NOW INSIDE THE PLAYER UI)  -->
-        <!-- ============================================== -->
-        <div id="queuePanel" style="display:none; position: absolute; bottom: 100%; left: 0; width: 100%; max-height: 350px; overflow-y: auto; background: rgba(15, 15, 15, 0.98); border: 2px solid rgba(255,0,0,0.5); padding: 10px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 -5px 25px rgba(0,0,0,0.8); box-sizing: border-box; z-index: 10011;">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 5px; margin-bottom: 10px;">
-            <h3 style="margin: 0; font-size: 1.1rem; color: #ff0000;">Up Next</h3>
-            <button onclick="document.getElementById('queuePanel').style.display='none'" style="background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer;">✖</button>
-          </div>
-          <div id="queueItems"></div>
-        </div>
-        <!-- ============================================== -->
-
-        <div class="player-info" style="text-align: center; font-weight: bold; margin-bottom: 5px;">
-          <span id="now-playing">No song selected</span>
-        </div>
-        
-        <!-- The visualizer links here -->
-        <canvas id="visualizer" width="400" height="80" style="width: 100%; max-width: 500px; display: block; margin: 0 auto; background: #000; border-radius: 4px; border: 1px solid rgba(255,0,0,0.3);"></canvas>
-        
-        <div class="player-controls" style="display: flex; justify-content: center; gap: 15px; margin-top: 10px;">
-          <button id="skip-back" title="Previous / Restart" style="cursor: pointer; padding: 5px 15px;">⏮</button>
-          <button id="play-pause" title="Play / Pause" style="cursor: pointer; padding: 5px 15px;">▶</button>
-          <button id="skip-forward" title="Next" style="cursor: pointer; padding: 5px 15px;">⏭</button>
-          <button id="open-queue-btn" title="Queue" style="cursor: pointer; padding: 5px 15px;" onclick="const q = document.getElementById('queuePanel'); q.style.display = q.style.display === 'none' ? 'block' : 'none';">☰</button>
-        </div>
-        
-        <!-- Audio engine with strict crossorigin tag required for the visualizer to read data -->
-        <audio id="mainAudioPlayer" preload="metadata" crossorigin="anonymous" style="display:none;"></audio>
-      </div>
     </section>
   </main>
 

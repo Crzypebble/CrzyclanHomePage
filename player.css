@@ -1,129 +1,222 @@
-/* player.css - CRZYCLAN Player v2 (float/dock, visualizer, queue, settings) */
+/* player.css - CRZYCLAN Player (Persistent, Responsive, Visualizer) */
 
 /* variables */
-:root { --accent: #ff0000; --bg: #000; --panel-bg: #070707; --text: #fff; }
+:root { 
+  --accent: #ff0000; 
+  --bg: #000; 
+  --panel-bg: #0e0e0e; 
+  --text: #fff; 
+}
 
-#crzy-player {
+/* ========================================= */
+/* --- Main Player Container --- */
+/* ========================================= */
+.player-container {
   position: fixed;
-  left: 20px;
-  top: 60vh;
-  width: 360px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 20px;
+  width: 380px;
+  max-width: 95vw;
   background: var(--panel-bg);
   color: var(--text);
-  border: 2px solid var(--accent);
-  border-radius: 10px;
-  z-index: 20000;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  user-select: none;
+  border: 2px solid rgba(255, 0, 0, 0.5);
+  border-radius: 12px;
+  padding: 12px 15px;
+  z-index: 10000;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
   font-family: 'Poppins', sans-serif;
-  overflow: visible;
+  user-select: none;
+  box-sizing: border-box;
 }
 
-/* docked */
-#crzy-player.docked {
-  left: 0 !important;
-  right: 0;
-  bottom: 0;
-  top: auto !important;
+/* Glowing effect when playing */
+.player-container.playing {
+  border-color: rgba(255, 0, 0, 0.9);
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.25), 0 8px 30px rgba(0,0,0,0.8);
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.15), 0 8px 30px rgba(0,0,0,0.8); }
+  50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.35), 0 8px 30px rgba(0,0,0,0.8); }
+  100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.15), 0 8px 30px rgba(0,0,0,0.8); }
+}
+
+/* ========================================= */
+/* --- Player Information & Controls --- */
+/* ========================================= */
+.player-info {
+  text-align: center;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   width: 100%;
-  height: 74px;
-  border-radius: 0;
+}
+
+#now-playing {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.player-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 12px;
+}
+
+.player-controls button {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: var(--text);
+  padding: 8px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  padding: 6px 14px;
+  justify-content: center;
 }
 
-/* header / drag */
-#crzy-player .drag {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px;
-  cursor: grab;
+.player-controls button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
 }
-#crzy-player .drag .title { font-weight:700; color:var(--accent); font-size:14px; flex:1; }
 
-/* main layout */
-#crzy-player .body {
-  padding: 10px;
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  gap: 10px;
+.player-controls button:active {
+  transform: translateY(0);
+}
+
+/* Play/Pause button styling */
+#play-pause {
+  padding: 8px 24px;
+  background: rgba(255, 0, 0, 0.15);
+  border-color: var(--accent);
+}
+
+/* ========================================= */
+/* --- Visualizer Canvas --- */
+/* ========================================= */
+canvas#visualizer {
+  width: 100%;
+  height: 60px;
+  display: block;
+  margin: 0 auto;
+  background: #050505 !important; /* Force dark background */
+  border-radius: 6px;
+  border: 1px solid rgba(255, 0, 0, 0.2) !important;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+/* ========================================= */
+/* --- Nested Queue Panel --- */
+/* ========================================= */
+#queuePanel {
+  /* Positioned absolutely within the relative .player-container */
+  position: absolute;
+  bottom: calc(100% + 15px); /* Push it 15px above the player */
+  left: 0;
+  width: 100%;
+  max-height: 350px;
+  overflow-y: auto;
+  background: rgba(12, 12, 12, 0.98);
+  border: 2px solid rgba(255, 0, 0, 0.4);
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.9);
+  box-sizing: border-box;
+  z-index: 10011;
+  
+  /* Scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) #111;
+}
+
+#queuePanel::-webkit-scrollbar { width: 6px; }
+#queuePanel::-webkit-scrollbar-track { background: #111; border-radius: 4px; }
+#queuePanel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+/* Queue Items */
+.queue-item {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: #141414;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 0, 0, 0.1);
+  transition: background 0.1s;
 }
 
-/* cover */
-#crzy-player .cover {
-  width:84px;
-  height:84px;
-  border-radius:8px;
-  object-fit:cover;
-  border:2px solid rgba(255,255,255,0.03);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.6);
+.queue-item:hover {
+  background: #1a1a1a;
+  border-color: rgba(255, 0, 0, 0.3);
 }
 
-/* meta */
-#crzy-player .now .song { font-weight:700; color:#fff; font-size:14px; }
-#crzy-player .now .artist { color:#bbb; font-size:12px; }
-
-/* controls */
-#crzy-player .controls { display:flex; gap:8px; align-items:center; justify-content:flex-start; }
-#crzy-player button.icon-btn {
-  background:transparent; border:1px solid transparent; color:var(--text); padding:6px 8px; border-radius:6px; cursor:pointer; font-size:16px;
-}
-#crzy-player .progress { width:100%; margin-top:8px; }
-#crzy-player input[type=range] { width:100%; accent-color:var(--accent); }
-
-/* canvas */
-#crzy-player canvas { width:100%; height:70px; display:block; border-radius:6px; background:transparent; }
-
-/* settings panel */
-#crzy-player .settings {
-  position:absolute; right:12px; top:12px; background:#0a0a0a; border:1px solid rgba(255,255,255,0.04); padding:10px; border-radius:8px; display:none; min-width:220px; z-index:30000;
-}
-#crzy-player .settings.show { display:block; }
-
-/* pulsing styles */
-#crzy-player.pulse { box-shadow: 0 0 40px rgba(255,0,0,0.22), inset 0 0 20px rgba(255,0,0,0.06); transform: translateY(-2px); transition: box-shadow .12s, transform .12s; }
-
-/* queue panel - placed below player when open */
-#crzy-player + .crzy-queue {
-  position: fixed;
-  left: 20px;
-  bottom: 100px;
-  width: 360px;
-  max-height: 320px;
-  overflow:auto;
-  background: #070707;
-  border:2px solid rgba(255,0,0,0.16);
-  border-radius:8px;
-  padding:10px;
-  z-index:19999;
-  box-shadow:0 12px 40px rgba(0,0,0,0.6);
-  display:none;
+.queue-item b {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+  color: #fff;
 }
 
-/* queue visible */
-#crzy-player.queue-open + .crzy-queue { display:block; }
-
-/* each queue item */
-.crzy-queue .item {
-  display:flex; align-items:center; gap:8px; padding:8px; border-radius:6px; background:#0f0f0f; margin-bottom:8px; border:1px solid rgba(255,0,0,0.06);
+.queue-item small {
+  color: #aaa;
+  font-size: 0.8rem;
 }
-.crzy-queue .item .info { flex:1; }
-.crzy-queue .item .drag-handle { cursor:grab; padding:6px; }
 
-/* dropdown menu button • no fade removal required */
-.small-menu { background:transparent;border:0;color:#fff;padding:6px;border-radius:6px;cursor:pointer; }
-.small-menu + .menu { display:none; position:absolute; background:#0b0b0b; border:1px solid rgba(255,255,255,0.04); padding:6px; border-radius:6px; right:8px; top:26px; z-index:30001; }
-.small-menu.open + .menu { display:block; }
+/* Queue Action Buttons */
+.queue-item button {
+  background: transparent;
+  border: none;
+  color: #888;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
 
-/* remove menu item */
-.menu button { display:block; width:100%; background:transparent; border:0; color:#fff; text-align:left; padding:6px; cursor:pointer; }
+.queue-item button.play-queue:hover {
+  background: var(--accent);
+  color: white;
+}
 
-/* small utilities */
-.hidden { display:none !important; }
-@media (max-width:700px) {
-  #crzy-player { width:92vw; left:4vw; top:65vh; }
-  #crzy-player + .crzy-queue { left:4vw; width:92vw; bottom:100px; }
+.queue-item button.remove-queue:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ff4444;
+}
+
+/* ========================================= */
+/* --- Mobile Adjustments --- */
+/* ========================================= */
+@media (max-width: 600px) {
+  .player-container {
+    width: 92vw;
+    padding: 10px;
+    bottom: 15px;
+  }
+  
+  .player-controls gap {
+    gap: 8px;
+  }
+  
+  .player-controls button {
+    padding: 8px 15px;
+  }
+  
+  #queuePanel {
+    max-height: 50vh; /* Don't let the queue take up the whole screen */
+  }
 }

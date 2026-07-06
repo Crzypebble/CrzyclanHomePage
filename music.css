@@ -5,6 +5,12 @@ body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* Prevents accidental horizontal scrolling */
+}
+
+/* Ensure padding doesn't inflate width on mobile */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 header h1 {
@@ -21,6 +27,7 @@ header h1 {
   padding: 15px 0;
   background: #111;
   border-bottom: 2px solid #ff0000;
+  flex-wrap: wrap; /* Allows nav to wrap on tiny screens */
 }
 
 .music-subnav a {
@@ -48,6 +55,7 @@ h3, h4, h2 {
 
 .music-search input#siteSearch {
   width: 320px;
+  max-width: 100%;
   padding: 10px 14px;
   border-radius: 24px;
   border: 2px solid rgba(255,0,0,0.15);
@@ -61,6 +69,7 @@ h3, h4, h2 {
   padding: 20px 40px;
   max-width: 1200px;
   margin: 0 auto 30px auto;
+  width: 100%;
 }
 
 /* --- Albums / tracks --- */
@@ -73,6 +82,7 @@ h3, h4, h2 {
   background: #141414;
   border-radius: 10px;
   border: 1px solid rgba(255,0,0,0.12);
+  width: 100%;
 }
 
 .album-cover {
@@ -82,11 +92,13 @@ h3, h4, h2 {
   border-radius: 8px;
   border: 2px solid #ff0000;
   pointer-events: none; /* make sure click doesn't open file */
+  flex-shrink: 0;
 }
 
 .album-info {
   flex: 1;
   text-align: left;
+  min-width: 0; /* Allows text truncation if needed */
 }
 
 .album-tracks {
@@ -105,12 +117,14 @@ h3, h4, h2 {
   justify-content: space-between;
   align-items: center;
   cursor: default;
+  width: 100%;
 }
 
 .track-actions-inline {
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-shrink: 0; /* Keeps buttons from shrinking */
 }
 
 /* small icon buttons used inline */
@@ -129,6 +143,7 @@ h3, h4, h2 {
   font-weight: bold;
   box-shadow: 0 4px 14px rgba(255,0,0,0.12);
   transition: transform .12s ease;
+  flex-shrink: 0;
 }
 
 .track-actions-inline button:hover,
@@ -147,6 +162,7 @@ h3, h4, h2 {
   border: 1px solid rgba(255,0,0,0.08);
   margin-bottom: 10px;
   position: relative;
+  width: 100%;
 }
 
 .track-art {
@@ -156,15 +172,26 @@ h3, h4, h2 {
   border-radius: 8px;
   border: 2px solid rgba(255,0,0,0.9);
   pointer-events: none;
+  flex-shrink: 0;
 }
 
-.track-body { flex: 1; }
+.track-body { flex: 1; min-width: 0; }
 
-.track-actions { display:flex; gap:8px; }
+.track-actions { display:flex; gap:8px; flex-shrink: 0; }
 
 /* list items */
 .track-list { list-style: none; padding: 0; margin: 10px 0; }
-.track-list li { padding: 10px; background:#131313; margin-bottom:8px; border-radius:6px; border:1px solid rgba(255,0,0,0.08); display:flex; justify-content:space-between; align-items:center; }
+.track-list li { 
+  padding: 10px; 
+  background:#131313; 
+  margin-bottom:8px; 
+  border-radius:6px; 
+  border:1px solid rgba(255,0,0,0.08); 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+  width: 100%;
+}
 
 /* --- Queue panel --- */
 .queue-panel {
@@ -172,6 +199,7 @@ h3, h4, h2 {
   right: 20px;
   bottom: 120px;
   width: 320px;
+  max-width: 90%;
   max-height: 420px;
   overflow: auto;
   background: #0f0f0f;
@@ -186,11 +214,11 @@ h3, h4, h2 {
 .queue-item { padding:8px; border-radius:6px; background:#141414; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(255,0,0,0.06); }
 
 /* --- Playlist picker modal --- */
-.modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10020; }
+.modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10020; padding: 10px; }
 .modal.show { display: flex; }
-.modal-inner { background: #0f0f0f; border-radius: 10px; padding: 18px; width: 420px; border: 2px solid rgba(255,0,0,0.12); box-shadow: 0 8px 40px rgba(255,0,0,0.06); }
+.modal-inner { background: #0f0f0f; border-radius: 10px; padding: 18px; width: 420px; max-width: 100%; border: 2px solid rgba(255,0,0,0.12); box-shadow: 0 8px 40px rgba(255,0,0,0.06); }
 .playlist-picker-item { display:flex; gap:10px; align-items:center; padding:8px; border-radius:8px; cursor:pointer; border:1px solid rgba(255,0,0,0.06); margin-bottom:8px; }
-.playlist-picker-item img { width:56px; height:56px; object-fit:cover; border-radius:6px; }
+.playlist-picker-item img { width:56px; height:56px; object-fit:cover; border-radius:6px; flex-shrink: 0; }
 
 /* --- Popup --- */
 .popup {
@@ -205,22 +233,75 @@ h3, h4, h2 {
   transform: translateY(8px);
   transition: opacity .25s, transform .25s;
   z-index: 10030;
+  max-width: 90%;
 }
 .popup.show { opacity: 1; transform: translateY(0); }
 
 /* --- Player pulses & layout tweaks --- */
-#simple-player.draggable { border: 2px solid rgba(255,0,0,0.8); background: #0e0e0e; width: 320px; border-radius: 8px; padding: 10px; position: fixed; left: 20px; bottom: 20px; z-index: 10000; }
+#simple-player.draggable { border: 2px solid rgba(255,0,0,0.8); background: #0e0e0e; width: 320px; max-width: 95vw; border-radius: 8px; padding: 10px; position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px; z-index: 10000; }
 #simple-player.playing { box-shadow: 0 0 28px rgba(255,0,0,0.18); animation: pulse 1.6s infinite; }
 @keyframes pulse { 0% { box-shadow: 0 0 8px rgba(255,0,0,0.12); } 50% { box-shadow: 0 0 26px rgba(255,0,0,0.28); } 100% { box-shadow: 0 0 8px rgba(255,0,0,0.12); } }
 
 /* visualizer canvas full width */
 #player-visualizer { width:100%; height:50px; display:block; margin-top:8px; }
 
-/* --- Responsive --- */
+/* ========================================= */
+/* --- Mobile Responsive Fixes --- */
+/* ========================================= */
 @media (max-width: 800px) {
-  .music-header-row { flex-direction: column; gap: 12px; padding: 12px; }
-  .music-search input#siteSearch { width: 92%; }
-  .album { flex-direction: column; align-items:center; text-align:center; }
-  .album-info { text-align:center; }
-  .modal-inner { width: 92%; }
+  .music-section {
+    padding: 15px; /* Reduce padding on mobile to maximize width */
+  }
+
+  .music-header-row { 
+    flex-direction: column; 
+    gap: 12px; 
+    padding: 12px 0; 
+  }
+  
+  .music-search input#siteSearch { 
+    width: 100%; 
+  }
+
+  /* Album structure on mobile */
+  .album { 
+    flex-direction: column; /* Stack cover on top of tracklist */
+    align-items: center; 
+  }
+  
+  .album-info { 
+    width: 100%; 
+  }
+
+  /* Fix for overflowing track lines */
+  .album-tracks .track-line,
+  .track-list li {
+    flex-direction: column; /* Stack song title above buttons */
+    align-items: flex-start; /* Align everything to the left */
+    gap: 10px; /* Space between title and buttons */
+    word-break: break-word; /* Prevent long titles from breaking out */
+  }
+
+  /* Wrap the buttons so they don't break layout */
+  .track-actions-inline, 
+  .track-actions {
+    width: 100%;
+    justify-content: flex-start; /* Align buttons to the left */
+    flex-wrap: wrap; /* Let buttons drop to next line if needed */
+  }
+
+  /* Standalone track cards */
+  .track-card {
+    flex-direction: column; /* Stack art, body, and buttons */
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .track-card .track-art {
+    margin-bottom: 5px;
+  }
+
+  .modal-inner { 
+    width: 100%; 
+  }
 }

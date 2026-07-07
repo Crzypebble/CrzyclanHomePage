@@ -326,13 +326,40 @@
     }
   }
 
+  // --- HELPER TO FIND MISSING ALBUM ART ON THE PAGE ---
+  function findCoverInDOM(src) {
+    if (!src) return null;
+    const el = document.querySelector(`[data-src="${src}"]`);
+    if (el) {
+      // Look for standard Album format
+      const album = el.closest('.album');
+      if (album) {
+        const img = album.querySelector('.album-cover');
+        if (img) return img.src;
+      }
+      // Look for standard Track Card format
+      const card = el.closest('.track-card');
+      if (card) {
+        const img = card.querySelector('.track-art');
+        if (img) return img.src;
+      }
+    }
+    return null;
+  }
+
   window.CrzyPlayer = {
     play: (src, title, cover, artist) => {
+      // Automatically pull album cover from page if not provided!
+      let finalCover = cover;
+      if (!finalCover || finalCover === 'null') {
+        finalCover = findCoverInDOM(src) || 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true';
+      }
+
       if (src) {
         audio.src = src;
         if (title) audio.setAttribute('data-title', title);
         if (artist) audio.setAttribute('data-artist', artist);
-        if (cover) audio.setAttribute('data-cover', cover);
+        if (finalCover) audio.setAttribute('data-cover', finalCover);
         updateMeta();
       }
       let playPromise = audio.play();

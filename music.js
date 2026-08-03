@@ -13,6 +13,7 @@ if (typeof firebase !== 'undefined') {
       globalVotes[doc.id] = doc.data();
     });
     updateVoteUI(); // Refresh the numbers on the screen
+    if (typeof renderTop10 === 'function') renderTop10(); // Refresh the Top 10 list
   });
 }
 
@@ -148,6 +149,56 @@ function updateVoteUI() {
       if (countSpan) countSpan.textContent = dbVotes.dislikes || 0;
     }
   });
+}
+
+// ---------------- TOP 10 RENDERER ----------------
+function renderTop10() {
+  const topListEl = document.getElementById("top-10-list");
+  if (!topListEl) return;
+
+  // Combine masterSongs with global votes
+  let sortedSongs = masterSongs.map(song => {
+    const songId = song.src.replace(/[^a-zA-Z0-9]/g, '_');
+    const votes = globalVotes[songId] || { likes: 0 };
+    return { ...song, likes: votes.likes || 0 };
+  });
+
+  // Sort by highest likes first
+  sortedSongs.sort((a, b) => b.likes - a.likes);
+  
+  // Only show songs that have at least 1 like, up to a max of 10
+  let top10 = sortedSongs.filter(s => s.likes > 0).slice(0, 10);
+
+  if (top10.length === 0) {
+    topListEl.innerHTML = '<li class="empty-notice" style="list-style: none; opacity: 0.7;">No likes yet. Be the first!</li>';
+    return;
+  }
+
+  topListEl.innerHTML = "";
+  top10.forEach((song, index) => {
+    const li = document.createElement("li");
+    li.className = "track-line";
+    li.dataset.src = song.src;
+    li.tabIndex = 0;
+    
+    // Add the glowing red border to the #1 spot
+    if (index === 0) li.style.borderLeft = "4px solid #ff0000";
+    
+    li.innerHTML = `
+      <strong>#${index + 1}</strong> - ${song.title} <small>(${song.artist})</small> 
+      <span style="color:#ff0000; font-weight:bold; margin-left: 8px;">[🔥 ${song.likes}]</span>
+      <span class="track-actions-inline">
+        <button class="like-btn" title="Like">👍 <span class="like-count">0</span></button>
+        <button class="dislike-btn" title="Dislike">👎 <span class="dislike-count">0</span></button>
+        <button class="add-queue" data-src="${song.src}" data-title="${song.title}" data-artist="${song.artist}">➜</button>
+        <button class="add-playlist" data-src="${song.src}" data-title="${song.title}" data-artist="${song.artist}">＋</button>
+      </span>
+    `;
+    topListEl.appendChild(li);
+  });
+  
+  // Re-run the visual update so the buttons in the Top 10 list glow if you liked them
+  updateVoteUI(); 
 }
 
 // Delegate events so likes work even on dynamically loaded tracks (like inside search/playlists)
@@ -635,6 +686,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial UI Setups
   renderQueue();
   renderPlaylistDashboard();
+  renderTop10(); 
   updateVoteUI(); 
 
   // Player Resume Logic

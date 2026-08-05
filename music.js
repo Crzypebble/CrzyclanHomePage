@@ -18,11 +18,18 @@ if (typeof firebase !== 'undefined') {
 }
 
 async function updateSongVote(src, type, increment) {
-  if (typeof firebase === 'undefined') return; // Failsafe if Firebase isn't loaded
+  if (typeof firebase === 'undefined') return; 
   
   const db = firebase.firestore();
-  const songId = src.replace(/[^a-zA-Z0-9]/g, '_'); // Makes a safe ID for the database
+  const songId = src.replace(/[^a-zA-Z0-9]/g, '_'); 
   const songRef = db.collection("songVotes").doc(songId);
+  
+  // FIX FOR THE -1 BUG: Stop it from going below 0 in the database
+  const currentData = globalVotes[songId] || { likes: 0, dislikes: 0 };
+  const currentCount = currentData[type] || 0;
+  if (increment < 0 && currentCount <= 0) {
+      return; // Do nothing if it's already at 0!
+  }
   
   try {
     await songRef.set({
@@ -77,11 +84,47 @@ function showPopup(msg, color = "#ff0000") {
   }, 1500);
 }
 
-// Initialize Local Storage Arrays
 if (!localStorage.getItem("playlists")) localStorage.setItem("playlists", JSON.stringify([]));
 if (!localStorage.getItem("crzy_queue")) localStorage.setItem("crzy_queue", JSON.stringify([]));
 if (!localStorage.getItem("crzy_likes")) localStorage.setItem("crzy_likes", JSON.stringify([]));
 if (!localStorage.getItem("crzy_dislikes")) localStorage.setItem("crzy_dislikes", JSON.stringify([]));
+
+// ---------------- AUTHENTICATION MODAL LOGIC ----------------
+function closeAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (modal) modal.classList.remove('show');
+  document.getElementById('modal-auth-status').textContent = "";
+}
+
+function modalLogin() {
+  const e = document.getElementById('modal-email').value;
+  const p = document.getElementById('modal-password').value;
+  const status = document.getElementById('modal-auth-status');
+  
+  if (!e || !p) return status.textContent = "Please enter email and password.";
+  
+  firebase.auth().signInWithEmailAndPassword(e, p)
+    .then(() => {
+      closeAuthModal();
+      showPopup("Logged in successfully!", "#00ff00");
+    })
+    .catch(error => status.textContent = error.message);
+}
+
+function modalSignUp() {
+  const e = document.getElementById('modal-email').value;
+  const p = document.getElementById('modal-password').value;
+  const status = document.getElementById('modal-auth-status');
+  
+  if (!e || !p) return status.textContent = "Please enter email and password.";
+  
+  firebase.auth().createUserWithEmailAndPassword(e, p)
+    .then(() => {
+      closeAuthModal();
+      showPopup("Account created! You can now vote.", "#00ff00");
+    })
+    .catch(error => status.textContent = error.message);
+}
 
 // ---------------- LIKES & DISLIKES SYSTEM ----------------
 function toggleVote(src, type) {
@@ -90,14 +133,14 @@ function toggleVote(src, type) {
 
   if (type === 'like') {
     if (likes.includes(src)) {
-      likes = likes.filter(s => s !== src); // Remove like locally
-      updateSongVote(src, "likes", -1); // Remove from Database
+      likes = likes.filter(s => s !== src); 
+      updateSongVote(src, "likes", -1); 
     } else {
-      likes.push(src); // Add like locally
-      updateSongVote(src, "likes", 1); // Add to Database
+      likes.push(src); 
+      updateSongVote(src, "likes", 1); 
       if (dislikes.includes(src)) {
         dislikes = dislikes.filter(s => s !== src);
-        updateSongVote(src, "dislikes", -1); // Remove conflict from Database
+        updateSongVote(src, "dislikes", -1); 
       }
     }
   } else {
@@ -116,7 +159,7 @@ function toggleVote(src, type) {
 
   localStorage.setItem("crzy_likes", JSON.stringify(likes));
   localStorage.setItem("crzy_dislikes", JSON.stringify(dislikes));
-  updateVoteUI(); // Update glows immediately
+  updateVoteUI(); 
 }
 
 function updateVoteUI() {
@@ -129,24 +172,23 @@ function updateVoteUI() {
     
     if(!src) return;
 
-    // Grab the global counts from the Firestore dictionary we built at the top
     const songId = src.replace(/[^a-zA-Z0-9]/g, '_');
     const dbVotes = globalVotes[songId] || { likes: 0, dislikes: 0 };
 
+    // SECOND FIX FOR THE -1 BUG: Force UI to display 0 if the math gets messed up
+    const safeLikes = Math.max(0, dbVotes.likes || 0);
+    const safeDislikes = Math.max(0, dbVotes.dislikes || 0);
+
     if (btn.classList.contains('like-btn') || btn.classList.contains('vote-like')) {
-      // Glow if local user liked it
       btn.style.opacity = likes.includes(src) ? "1" : "0.5";
       btn.style.filter = likes.includes(src) ? "drop-shadow(0 0 5px #00ff00)" : "none";
-      // Inject global count
       const countSpan = btn.querySelector('.like-count');
-      if (countSpan) countSpan.textContent = dbVotes.likes || 0;
+      if (countSpan) countSpan.textContent = safeLikes;
     } else {
-      // Glow if local user disliked it
       btn.style.opacity = dislikes.includes(src) ? "1" : "0.5";
       btn.style.filter = dislikes.includes(src) ? "drop-shadow(0 0 5px #ff0000)" : "none";
-      // Inject global count
       const countSpan = btn.querySelector('.dislike-count');
-      if (countSpan) countSpan.textContent = dbVotes.dislikes || 0;
+      if (countSpan) countSpan.textContent = safeDislikes;
     }
   });
 }
@@ -156,17 +198,13 @@ function renderTop10() {
   const topListEl = document.getElementById("top-10-list");
   if (!topListEl) return;
 
-  // Combine masterSongs with global votes
   let sortedSongs = masterSongs.map(song => {
     const songId = song.src.replace(/[^a-zA-Z0-9]/g, '_');
     const votes = globalVotes[songId] || { likes: 0 };
-    return { ...song, likes: votes.likes || 0 };
+    return { ...song, likes: Math.max(0, votes.likes || 0) }; // Enforce minimum 0
   });
 
-  // Sort by highest likes first
   sortedSongs.sort((a, b) => b.likes - a.likes);
-  
-  // Only show songs that have at least 1 like, up to a max of 10
   let top10 = sortedSongs.filter(s => s.likes > 0).slice(0, 10);
 
   if (top10.length === 0) {
@@ -181,7 +219,6 @@ function renderTop10() {
     li.dataset.src = song.src;
     li.tabIndex = 0;
     
-    // Add the glowing red border to the #1 spot
     if (index === 0) li.style.borderLeft = "4px solid #ff0000";
     
     li.innerHTML = `
@@ -197,11 +234,10 @@ function renderTop10() {
     topListEl.appendChild(li);
   });
   
-  // Re-run the visual update so the buttons in the Top 10 list glow if you liked them
   updateVoteUI(); 
 }
 
-// Delegate events so likes work even on dynamically loaded tracks (like inside search/playlists)
+// Delegate events
 document.body.addEventListener("click", (e) => {
   const likeBtn = e.target.closest('.like-btn, .vote-like');
   const dislikeBtn = e.target.closest('.dislike-btn, .vote-dislike');
@@ -209,7 +245,15 @@ document.body.addEventListener("click", (e) => {
   const trackEl = e.target.closest('.track-line, .playable, .search-row');
   
   if (likeBtn || dislikeBtn) {
-    e.stopPropagation(); // Stop the row click (play) from triggering
+    e.stopPropagation(); 
+    
+    // AUTH CHECK: Intercept click if not logged in
+    if (!firebase.auth().currentUser) {
+      const modal = document.getElementById('authModal');
+      if (modal) modal.classList.add('show');
+      return; 
+    }
+    
     const type = likeBtn ? 'like' : 'dislike';
     let src = trackEl?.dataset.src || trackEl?.querySelector('[data-src]')?.dataset.src;
     
@@ -217,13 +261,11 @@ document.body.addEventListener("click", (e) => {
       toggleVote(src, type);
     }
   } 
-  // If we clicked the row, but NOT an action button, play the song
   else if (trackEl && !actionBtn) {
       e.stopPropagation();
       const src = trackEl.getAttribute('data-src');
       let rawTitle = trackEl.textContent.split('-')[0].trim();
       
-      // Attempt to clean up the title from the UI text
       if (trackEl.classList.contains('track-line')) {
          const split = trackEl.textContent.split('-');
          if (split.length > 1) rawTitle = split[1].trim();
@@ -238,14 +280,12 @@ document.body.addEventListener("click", (e) => {
 // ---------------- PLAYER INTERFACE ----------------
 function playTrackBySrc(src, title, cover) {
   if (window.CrzyPlayer && typeof window.CrzyPlayer.play === "function") {
-    // Determine artist from master list if possible
     let artist = "Crzypebble";
     const songData = masterSongs.find(s => s.src === src);
     if (songData && songData.artist) artist = songData.artist;
       
     window.CrzyPlayer.play(src, title, cover, artist);
   } else {
-    // Fallback if CrzyPlayer fails to load entirely
     const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
     if (audio) {
       audio.src = src;
@@ -454,7 +494,7 @@ function createNewPlaylistFromPicker() {
   pls.push({ name, cover: null, songs: [] });
   localStorage.setItem("playlists", JSON.stringify(pls));
   loadPlaylistsForPicker();
-  renderPlaylistDashboard(); // Update viewer dashboard if visible
+  renderPlaylistDashboard(); 
   showPopup("Playlist created", "#ff0000");
 }
 
@@ -467,13 +507,13 @@ function addSongToPlaylist(index, song) {
   }
   pls[index].songs.push(song);
   localStorage.setItem("playlists", JSON.stringify(pls));
-  renderPlaylistDashboard(); // Update viewer dashboard if visible
+  renderPlaylistDashboard(); 
   showPopup("Added to playlist", "#ff0000");
 }
 
 function renderPlaylistDashboard() {
   const container = document.getElementById("playlistContainer");
-  if (!container) return; // Fail silently if not on music page
+  if (!container) return; 
   
   const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
   container.innerHTML = "";
@@ -482,14 +522,12 @@ function renderPlaylistDashboard() {
     container.innerHTML = "<div style='color:#aaa;'>You haven't created any playlists yet.</div>";
     document.getElementById("playlistTracksList").innerHTML = "<li class='empty-notice' style='list-style: none; opacity: 0.7;'>No playlist selected.</li>";
     
-    // Hide Play All button if no playlists exist
     const playAllBtn = document.getElementById("play-all-playlist-btn");
     if (playAllBtn) playAllBtn.style.display = "none";
     
     return;
   }
 
-  // Create a tab button for each playlist
   pls.forEach((pl, idx) => {
     const btn = document.createElement("button");
     btn.textContent = pl.name;
@@ -530,7 +568,6 @@ function loadActivePlaylist(plIdx) {
     li.className = "track-line";
     li.dataset.src = song.src;
     
-    // Generates the buttons WITH the counter spans for the dynamic playlists
     li.innerHTML = `
       ${song.title} - <small>${song.artist || 'Unknown'}</small>
       <span class="track-actions-inline">
@@ -541,13 +578,11 @@ function loadActivePlaylist(plIdx) {
       </span>
     `;
 
-    // Play action
     li.querySelector('.play-pl-song').onclick = (e) => {
       e.stopPropagation();
       playTrackBySrc(song.src, song.title, song.cover);
     };
 
-    // Remove action
     li.querySelector('.remove-pl-song').onclick = (e) => {
       e.stopPropagation();
       removeSongFromPlaylist(plIdx, songIdx);
@@ -564,15 +599,14 @@ function removeSongFromPlaylist(plIdx, songIdx) {
   if (pls[plIdx] && pls[plIdx].songs) {
     pls[plIdx].songs.splice(songIdx, 1);
     localStorage.setItem("playlists", JSON.stringify(pls));
-    loadActivePlaylist(plIdx); // Refresh the view dynamically
+    loadActivePlaylist(plIdx); 
     showPopup("Removed from playlist", "#ff0000");
   }
 }
 
-// ---------------- QUEUE OVERWRITE HELPER (FOR ALBUMS/PLAYLISTS) ----------------
+// ---------------- QUEUE OVERWRITE HELPER ----------------
 function executeQueueOverwrite(queueArray) {
   if (queueArray.length > 0) {
-    // The first song plays immediately, the rest become the queue
     const firstSong = queueArray.shift();
     localStorage.setItem("crzy_queue", JSON.stringify(queueArray));
     
@@ -586,7 +620,6 @@ function executeQueueOverwrite(queueArray) {
 document.addEventListener("DOMContentLoaded", () => {
   const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
 
-  // --- PLAY ALBUM BUTTON LOGIC ---
   document.body.addEventListener("click", (e) => {
     if (e.target.classList.contains("play-album-btn")) {
       const targetId = e.target.getAttribute("data-target");
@@ -605,7 +638,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     
-    // --- PLAY ALL PLAYLIST BUTTON LOGIC ---
     if (e.target.id === "play-all-playlist-btn") {
       const list = document.getElementById("playlistTracksList");
       if (list) {
@@ -623,7 +655,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- AUTOPLAY LOGIC (FOR FALLBACK AUDIO PLAYER) ---
   if (audio) {
     audio.addEventListener("ended", () => {
       const next = popQueue();
@@ -635,7 +666,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- SKIP FORWARD ---
   document.getElementById("skip-forward")?.addEventListener("click", () => {
     const next = popQueue();
     if (next) {
@@ -645,18 +675,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- SKIP BACK ---
   document.getElementById("skip-back")?.addEventListener("click", () => {
     if (audio) {
       if (audio.currentTime > 3) {
-        audio.currentTime = 0; // Restart track if more than 3 seconds in
+        audio.currentTime = 0;
       } else {
         showPopup("Backwards navigation requires history tracking", "#b30000");
       }
     }
   });
 
-  // Add to queue handlers
   document.querySelectorAll(".add-queue").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -668,7 +696,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Add to playlist handlers
   document.querySelectorAll(".add-playlist").forEach(btn => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -683,13 +710,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".add-queue, .add-playlist").forEach(btn => btn.style.cursor = "pointer");
 
-  // Initial UI Setups
   renderQueue();
   renderPlaylistDashboard();
   renderTop10(); 
   updateVoteUI(); 
 
-  // Player Resume Logic
   const last = JSON.parse(localStorage.getItem("crzy_player_last") || "null");
   if (last && last.src) {
     if (window.CrzyPlayer && typeof window.CrzyPlayer.load === "function") {
@@ -708,3 +733,6 @@ window.openAddPicker = openAddPicker;
 window.openAddPickerFromButton = openAddPickerFromButton;
 window.addToQueue = addToQueue;
 window.playTrackBySrc = playTrackBySrc;
+window.modalLogin = modalLogin;
+window.modalSignUp = modalSignUp;
+window.closeAuthModal = closeAuthModal;

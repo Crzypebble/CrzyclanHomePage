@@ -493,23 +493,23 @@
     &copy; 2025 CRZYCLAN. All rights reserved.
   </footer>
 
- <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+ <!-- UPDATED FIREBASE LINKS TO MATCH SETTINGS TAB EXACTLY -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
-  // Your actual Firebase configuration
+  // UPDATED CONFIG TO MATCH SETTINGS TAB EXACTLY
   const firebaseConfig = {
     apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
     authDomain: "crzyclansite.firebaseapp.com",
     projectId: "crzyclansite",
-    storageBucket: "crzyclansite.firebasestorage.app",
+    storageBucket: "crzyclansite.appspot.com",
     messagingSenderId: "534485925500",
     appId: "1:534485925500:web:56c7c798780e477e7e13f9",
     measurementId: "G-1NFCH3JEVW"
   };
   
-  // Initialize Firebase
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }

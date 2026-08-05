@@ -2,25 +2,52 @@
 
 // ---------------- GLOBAL VOTE DATABASE & AUTH ----------------
 let globalVotes = {};
-let loggedInUser = null; // This will reliably track if the user is signed in
+let loggedInUser = null; 
+let userLikes = [];    // Now stored in memory via Database, NOT LocalStorage
+let userDislikes = [];
+let userVotesUnsubscribe = null; // Helps us clean up when logging out
 
 // Listen to Firestore in real-time if Firebase is loaded
 if (typeof firebase !== 'undefined') {
-  
-  // Track login state in the background so it doesn't fail when switching tabs
+  const db = firebase.firestore();
+
+  // Track login state in the background
   firebase.auth().onAuthStateChanged((user) => {
     loggedInUser = user;
-  });
+    
+    // Stop listening to previous user's data if they logged out
+    if (userVotesUnsubscribe) {
+      userVotesUnsubscribe();
+      userVotesUnsubscribe = null;
+    }
 
-  const db = firebase.firestore();
+    if (user) {
+      // User is LOGGED IN: Fetch their personal likes from their Account ID
+      userVotesUnsubscribe = db.collection("userVotes").doc(user.uid).onSnapshot((doc) => {
+        if (doc.exists) {
+          userLikes = doc.data().likes || [];
+          userDislikes = doc.data().dislikes || [];
+        } else {
+          userLikes = [];
+          userDislikes = [];
+        }
+        updateVoteUI(); // Light up their specific buttons
+      });
+    } else {
+      // User is LOGGED OUT: Instantly clear personal likes from the screen
+      userLikes = [];
+      userDislikes = [];
+      updateVoteUI(); 
+    }
+  });
   
-  // This automatically fetches the global counts and updates the page whenever someone votes
+  // This automatically fetches the global counts for ALL users
   db.collection("songVotes").onSnapshot((snapshot) => {
     snapshot.forEach(doc => {
       globalVotes[doc.id] = doc.data();
     });
-    updateVoteUI(); // Refresh the numbers on the screen
-    if (typeof renderTop10 === 'function') renderTop10(); // Refresh the Top 10 list
+    updateVoteUI(); 
+    if (typeof renderTop10 === 'function') renderTop10(); 
   });
 }
 
@@ -31,12 +58,10 @@ async function updateSongVote(src, type, increment) {
   const songId = src.replace(/[^a-zA-Z0-9]/g, '_'); 
   const songRef = db.collection("songVotes").doc(songId);
   
-  // FIX FOR THE -1 BUG: Stop it from going below 0 in the database
+  // Stop it from going below 0 in the global database
   const currentData = globalVotes[songId] || { likes: 0, dislikes: 0 };
   const currentCount = currentData[type] || 0;
-  if (increment < 0 && currentCount <= 0) {
-      return; // Do nothing if it's already at 0!
-  }
+  if (increment < 0 && currentCount <= 0) return; 
   
   try {
     await songRef.set({
@@ -91,10 +116,12 @@ function showPopup(msg, color = "#ff0000") {
   }, 1500);
 }
 
+// Clean up old legacy likes data from local storage so it doesn't cause conflicts
+localStorage.removeItem("crzy_likes");
+localStorage.removeItem("crzy_dislikes");
 if (!localStorage.getItem("playlists")) localStorage.setItem("playlists", JSON.stringify([]));
 if (!localStorage.getItem("crzy_queue")) localStorage.setItem("crzy_queue", JSON.stringify([]));
-if (!localStorage.getItem("crzy_likes")) localStorage.setItem("crzy_likes", JSON.stringify([]));
-if (!localStorage.getItem("crzy_dislikes")) localStorage.setItem("crzy_dislikes", JSON.stringify([]));
+
 
 // ---------------- AUTHENTICATION MODAL LOGIC ----------------
 function closeAuthModal() {
@@ -134,45 +161,60 @@ function modalSignUp() {
 }
 
 // ---------------- LIKES & DISLIKES SYSTEM ----------------
-function toggleVote(src, type) {
-  let likes = JSON.parse(localStorage.getItem("crzy_likes") || "[]");
-  let dislikes = JSON.parse(localStorage.getItem("crzy_dislikes") || "[]");
+async function toggleVote(src, type) {
+  if (!loggedInUser) return; // Safeguard
+
+  const uid = loggedInUser.uid;
+  const db = firebase.firestore();
+  const userRef = db.collection("userVotes").doc(uid);
+
+  // We modify the memory variables directly so the screen feels instantly responsive
+  let newLikes = [...userLikes];
+  let newDislikes = [...userDislikes];
 
   if (type === 'like') {
-    if (likes.includes(src)) {
-      likes = likes.filter(s => s !== src); 
+    if (newLikes.includes(src)) {
+      newLikes = newLikes.filter(s => s !== src); 
       updateSongVote(src, "likes", -1); 
     } else {
-      likes.push(src); 
+      newLikes.push(src); 
       updateSongVote(src, "likes", 1); 
-      if (dislikes.includes(src)) {
-        dislikes = dislikes.filter(s => s !== src);
+      if (newDislikes.includes(src)) {
+        newDislikes = newDislikes.filter(s => s !== src);
         updateSongVote(src, "dislikes", -1); 
       }
     }
   } else {
-    if (dislikes.includes(src)) {
-      dislikes = dislikes.filter(s => s !== src);
+    if (newDislikes.includes(src)) {
+      newDislikes = newDislikes.filter(s => s !== src);
       updateSongVote(src, "dislikes", -1);
     } else {
-      dislikes.push(src);
+      newDislikes.push(src);
       updateSongVote(src, "dislikes", 1);
-      if (likes.includes(src)) {
-        likes = likes.filter(s => s !== src);
+      if (newLikes.includes(src)) {
+        newLikes = newLikes.filter(s => s !== src);
         updateSongVote(src, "likes", -1);
       }
     }
   }
 
-  localStorage.setItem("crzy_likes", JSON.stringify(likes));
-  localStorage.setItem("crzy_dislikes", JSON.stringify(dislikes));
+  // Update local memory and screen instantly
+  userLikes = newLikes;
+  userDislikes = newDislikes;
   updateVoteUI(); 
+
+  // Save the new personal list to the Database tied to their account!
+  try {
+    await userRef.set({
+      likes: newLikes,
+      dislikes: newDislikes
+    }, { merge: true });
+  } catch(e) {
+    console.error("Error saving user vote:", e);
+  }
 }
 
 function updateVoteUI() {
-  let likes = JSON.parse(localStorage.getItem("crzy_likes") || "[]");
-  let dislikes = JSON.parse(localStorage.getItem("crzy_dislikes") || "[]");
-
   document.querySelectorAll('.like-btn, .vote-like, .dislike-btn, .vote-dislike').forEach(btn => {
     const container = btn.closest('.track-line, .track-card, .search-row');
     let src = container?.dataset.src || container?.querySelector('[data-src]')?.dataset.src;
@@ -186,14 +228,15 @@ function updateVoteUI() {
     const safeLikes = Math.max(0, dbVotes.likes || 0);
     const safeDislikes = Math.max(0, dbVotes.dislikes || 0);
 
+    // Reading from userLikes memory instead of local storage!
     if (btn.classList.contains('like-btn') || btn.classList.contains('vote-like')) {
-      btn.style.opacity = likes.includes(src) ? "1" : "0.5";
-      btn.style.filter = likes.includes(src) ? "drop-shadow(0 0 5px #00ff00)" : "none";
+      btn.style.opacity = userLikes.includes(src) ? "1" : "0.5";
+      btn.style.filter = userLikes.includes(src) ? "drop-shadow(0 0 5px #00ff00)" : "none";
       const countSpan = btn.querySelector('.like-count');
       if (countSpan) countSpan.textContent = safeLikes;
     } else {
-      btn.style.opacity = dislikes.includes(src) ? "1" : "0.5";
-      btn.style.filter = dislikes.includes(src) ? "drop-shadow(0 0 5px #ff0000)" : "none";
+      btn.style.opacity = userDislikes.includes(src) ? "1" : "0.5";
+      btn.style.filter = userDislikes.includes(src) ? "drop-shadow(0 0 5px #ff0000)" : "none";
       const countSpan = btn.querySelector('.dislike-count');
       if (countSpan) countSpan.textContent = safeDislikes;
     }
@@ -208,7 +251,7 @@ function renderTop10() {
   let sortedSongs = masterSongs.map(song => {
     const songId = song.src.replace(/[^a-zA-Z0-9]/g, '_');
     const votes = globalVotes[songId] || { likes: 0 };
-    return { ...song, likes: Math.max(0, votes.likes || 0) }; // Enforce minimum 0
+    return { ...song, likes: Math.max(0, votes.likes || 0) }; 
   });
 
   sortedSongs.sort((a, b) => b.likes - a.likes);
@@ -254,7 +297,6 @@ document.body.addEventListener("click", (e) => {
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); 
     
-    // AUTH CHECK: Uses the background tracker we set up at the very top!
     if (!loggedInUser) {
       const modal = document.getElementById('authModal');
       if (modal) modal.classList.add('show');

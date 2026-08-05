@@ -1,10 +1,17 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
-// ---------------- GLOBAL VOTE DATABASE (FIRESTORE) ----------------
+// ---------------- GLOBAL VOTE DATABASE & AUTH ----------------
 let globalVotes = {};
+let loggedInUser = null; // This will reliably track if the user is signed in
 
 // Listen to Firestore in real-time if Firebase is loaded
 if (typeof firebase !== 'undefined') {
+  
+  // Track login state in the background so it doesn't fail when switching tabs
+  firebase.auth().onAuthStateChanged((user) => {
+    loggedInUser = user;
+  });
+
   const db = firebase.firestore();
   
   // This automatically fetches the global counts and updates the page whenever someone votes
@@ -175,7 +182,7 @@ function updateVoteUI() {
     const songId = src.replace(/[^a-zA-Z0-9]/g, '_');
     const dbVotes = globalVotes[songId] || { likes: 0, dislikes: 0 };
 
-    // SECOND FIX FOR THE -1 BUG: Force UI to display 0 if the math gets messed up
+    // Force UI to display 0 if the math gets messed up
     const safeLikes = Math.max(0, dbVotes.likes || 0);
     const safeDislikes = Math.max(0, dbVotes.dislikes || 0);
 
@@ -247,8 +254,8 @@ document.body.addEventListener("click", (e) => {
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); 
     
-    // AUTH CHECK: Intercept click if not logged in
-    if (!firebase.auth().currentUser) {
+    // AUTH CHECK: Uses the background tracker we set up at the very top!
+    if (!loggedInUser) {
       const modal = document.getElementById('authModal');
       if (modal) modal.classList.add('show');
       return; 

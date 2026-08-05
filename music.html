@@ -456,6 +456,26 @@
     <p id="membership-status"></p>
   </div>
 
+  <!-- AUTH MODAL (Pops up when trying to like without logging in) -->
+  <div id="authModal" class="modal">
+    <div class="modal-inner">
+      <h3 style="margin-top:0;">Login Required</h3>
+      <p style="color:#aaa; font-size:0.9rem; margin-bottom:15px;">You must be signed in to like songs.</p>
+      
+      <input type="email" id="modal-email" placeholder="Email..." style="width:90%; padding:10px; margin-bottom:10px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;">
+      
+      <input type="password" id="modal-password" placeholder="Password..." style="width:90%; padding:10px; margin-bottom:15px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;">
+      
+      <div class="modal-actions" style="justify-content:center; gap:10px; flex-wrap: wrap;">
+        <button onclick="modalLogin()" style="background:#ff0000;">Login</button>
+        <button onclick="modalSignUp()" style="background:#555;">Sign Up</button>
+        <button onclick="closeAuthModal()" style="background:transparent; border:1px solid #777;">Cancel</button>
+      </div>
+      
+      <p id="modal-auth-status" style="color:#ff0000; margin-top:10px; font-size:0.85rem; height:15px;"></p>
+    </div>
+  </div>
+
   <div id="playlistPicker" class="modal">
     <div class="modal-inner">
       <h3>Select Playlist</h3>

@@ -74,30 +74,44 @@ async function updateSongVote(src, type, increment) {
 
 // ---------------- SITE-WIDE SONG LIST ----------------
 const masterSongs = [
+  // Voices From The Past Album
+  { title: "Thick And The Bad(Ft.BiggieTrev)", artist: "Crzypebble", src: "Thick_And_The_Bad.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+  { title: "i just wanna make good music", artist: "Crzypebble", src: "i_just_wanna_make_good_music.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+  { title: "WHY(REMAKE)(Ft.BiggieTrev)", artist: "Crzypebble", src: "WHY_REMAKEFtBiggieTrev.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+  { title: "Live My Life", artist: "Crzypebble", src: "Live_My_Life.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+  { title: "Gold in the Backyard(From 2022:The Game)(Ft.BiggieTrev)", artist: "Crzypebble", src: "GoldInTheBackyard.m4a", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+  { title: "These Days(ft.CrzyReaper)", artist: "Crzypebble", src: "These_DaysftCrzyReaper.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+  { title: "Lost In Time(From 2022:The Game)", artist: "Crzypebble", src: "Lost_In_Time.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
+
+  // The Pebble Deluxe (and Standard)
   { title: "Welcome To Hell", artist: "Crzypebble", src: "welcometohellprodblksaturn.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
-  { title: "Smoke Bitches", artist: "Crzypebble", src: "smokebitchesprodsmxkypete.mp3", source: "Official" },
-  { title: "THE BOULDER", artist: "Crzypebble", src: "theboulderrocksandpebblesprodfuckserbab.mp3", source: "Official" },
-  { title: "Gas", artist: "Crzypebble", src: "gas.mp3", source: "Official" },
-  { title: "Collide", artist: "Crzypebble", src: "collideprodmyss.mp3", source: "Official" },
-  { title: "Hurt Pebble", artist: "Crzypebble", src: "hurtpebbleproddimebaggiefeaturingrockandjamma.mp3", source: "Official" },
-  { title: "The Fading Light Of The Renaissance", artist: "Crzypebble", src: "fadinglight.mp3", source: "Official" },
-  { title: "Renaissance (Stoned)", artist: "Crzypebble", src: "renaissancestoned.mp3", source: "Official" },
-  { title: "Straight Ahead", artist: "Crzypebble", src: "straightahead.mp3", source: "Official" },
-  { title: "WHY", artist: "Crzypebble", src: "why.mp3", source: "Official" },
-  { title: "Carry The Fight", artist: "Crzypebble", src: "carrythefight.mp3", source: "Official" },
-  { title: "Kiss Of Death (Memories)", artist: "Crzypebble", src: "kissofdeath.mp3", source: "Official" },
-  { title: "Collide FT. BIGGIETREV", artist: "Crzypebble", src: "collidebiggietrev.mp3", source: "Official" },
-  { title: "C3ZYCL4N", artist: "Crzypebble", src: "c3zycl4n.mp3", source: "Official" },
-  { title: "EVERYTHING", artist: "Crzypebble", src: "everything.m4a", source: "Official" },
-  { title: "Why Do I Try?", artist: "Crzypebble", src: "whydoitry.mp3", source: "Official" },
-  { title: "Thick And The Bad", artist: "Crzypebble", src: "thickandthebad.mp3", source: "Official" },
+  { title: "Smoke Bitches", artist: "Crzypebble", src: "smokebitchesprodsmxkypete.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "THE BOULDER", artist: "Crzypebble", src: "theboulderrocksandpebblesprodfuckserbab.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Gas", artist: "Crzypebble", src: "gas.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Collide", artist: "Crzypebble", src: "collideprodmyss.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Hurt Pebble", artist: "Crzypebble", src: "hurtpebbleproddimebaggiefeaturingrockandjamma.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "The Fading Light Of The Renaissance", artist: "Crzypebble", src: "fadinglight.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Renaissance (Stoned)", artist: "Crzypebble", src: "renaissancestoned.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Straight Ahead", artist: "Crzypebble", src: "straightahead.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "WHY", artist: "Crzypebble", src: "why.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Carry The Fight", artist: "Crzypebble", src: "carrythefight.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Kiss Of Death (Memories)", artist: "Crzypebble", src: "kissofdeath.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "Collide FT. BIGGIETREV", artist: "Crzypebble", src: "collidebiggietrev.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "C3ZYCL4N", artist: "Crzypebble", src: "c3zycl4n.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+  { title: "EVERYTHING", artist: "Crzypebble", src: "everything.m4a", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
+
+  // Singles / Genres
   { title: "Flesh and Signal", artist: "Crzypebble", src: "fleshandsignal.mp3", source: "Official" },
   { title: "Mind in Red", artist: "Crzypebble", src: "mindinred.mp3", source: "Official" },
+
+  // Game Music
   { title: "Trigger Run", artist: "Days Before Death", src: "triggerrun.mp3", source: "Game" },
   { title: "Down Below", artist: "Days Before Death", src: "downbelow.mp3", source: "Game" },
   { title: "Days Before Death", artist: "Days Before Death", src: "daysbeforedeath.mp3", source: "Game" },
   { title: "Dead Weight", artist: "Days Before Death", src: "deadweight.mp3", source: "Game" },
   { title: "Eye Of The Loop", artist: "Days Before Death", src: "eyeoftheloop.mp3", source: "Game" },
+  
+  // AI / User
   { title: "Crimson Code", artist: "AI", src: "crimsoncode.mp3", source: "AI" },
   { title: "Cart was full", artist: "User", src: "cartwasfull.mp3", source: "Uploads" }
 ];

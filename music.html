@@ -29,8 +29,8 @@
         <p style="color: #888; font-size: 0.9rem;">Explore our sounds — from the crzyclan to game OSTs and AI experiments.</p>
         
         <div class="music-search">
-          <!-- autocomplete="new-password" forces browsers to ignore email autofill -->
-          <input type="text" id="siteSearch" placeholder="Search songs, artists..." autocomplete="new-password" spellcheck="false" />
+          <!-- type="search" and ignore tags force browsers to stop auto-filling emails -->
+          <input type="search" id="siteSearch" name="q_music_search" placeholder="Search songs, artists..." autocomplete="off" data-lpignore="true" data-1p-ignore="true" spellcheck="false" />
         </div>
       </div>
 
@@ -473,19 +473,6 @@
       </div>
     </section>
   </main>
-
-  <!-- FLOATING QUEUE BUTTON & QUEUE PANEL -->
-  <button id="toggleQueueBtn" class="floating-queue-btn" onclick="document.getElementById('queuePanel').classList.toggle('show')">
-    ☰ Queue
-  </button>
-
-  <div id="queuePanel" class="queue-panel">
-    <div class="queue-header">
-      <h4 style="margin:0; color:#fff;">Up Next</h4>
-      <button onclick="clearQueue()" style="background:transparent; border:1px solid rgba(255,255,255,0.4); color:#fff; padding:4px 8px; border-radius:12px; cursor:pointer; font-size: 0.8rem;">Clear</button>
-    </div>
-    <div id="queueItems"></div>
-  </div>
 
   <!-- AUTH MODAL -->
   <div id="authModal" class="modal">

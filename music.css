@@ -38,7 +38,7 @@ h3.section-title, h4, h2 {
   margin-bottom: 20px;
 }
 
-/* CENTERED header row & search */
+/* CENTERED header row & expanding search */
 .music-header-row {
   display: flex;
   flex-direction: column;
@@ -50,18 +50,31 @@ h3.section-title, h4, h2 {
   margin: 0 auto 20px auto;
   gap: 15px;
 }
+
+/* EXPANDING MAGNIFYING GLASS SEARCH CSS */
+.music-search { position: relative; display: inline-block; }
 .music-search input#siteSearch {
-  width: 320px;
-  max-width: 100%;
-  padding: 12px 18px;
-  border-radius: 24px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: #181818;
-  color: #fff;
+  width: 46px; 
+  height: 46px;
+  border-radius: 23px;
+  padding: 10px 15px 10px 40px;
+  background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fff"><path d="M10 2a8 8 0 105.293 14.707l5 5a1 1 0 001.414-1.414l-5-5A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z"/></svg>') no-repeat 13px center;
+  background-size: 20px;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: transparent;
+  cursor: pointer;
+  transition: width 0.4s ease, background-color 0.4s ease, color 0.4s ease;
   outline: none;
-  font-size: 1rem;
-  text-align: center;
 }
+.music-search input#siteSearch:focus, .music-search input#siteSearch:not(:placeholder-shown) {
+  width: 320px;
+  background-color: #181818;
+  color: #fff;
+  cursor: text;
+  border-color: #ff0000;
+}
+.music-search input#siteSearch::placeholder { color: transparent; }
+.music-search input#siteSearch:focus::placeholder { color: #888; }
 
 /* --- main sections --- */
 .music-section {
@@ -182,6 +195,11 @@ h3.section-title, h4, h2 {
   padding: 10px;
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.track-card:hover {
+  background: #222;
 }
 .track-card .track-art { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; pointer-events: none; }
 .track-body { flex: 1; min-width: 0; font-size: 0.9rem; pointer-events: none; }

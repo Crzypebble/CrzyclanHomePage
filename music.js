@@ -1,75 +1,117 @@
 // music.js - site-wide UI for music library, queue, playlists, search
 
-// ---------------- GLOBAL VOTE DATABASE & AUTH ----------------
+// ---------------- GLOBAL DATABASE, AUTH & MEMORY ----------------
 let globalVotes = {};
 let loggedInUser = null; 
-let userLikes = [];    // Now stored in memory via Database, NOT LocalStorage
-let userDislikes = [];
-let userVotesUnsubscribe = null; // Helps us clean up when logging out
 
-// Listen to Firestore in real-time if Firebase is loaded
+// Memory state for user session
+let userLikes = [];    
+let userDislikes = [];
+let userPlaylists = [];
+let userQueue = [];       // Usable by EVERYONE (guests + logged-in users)
+let userLastPlayed = null;
+
+let userVotesUnsubscribe = null; 
+let hasLoadedInitialState = false;
+
+// Helper function to require login ONLY for account-bound actions (Likes & Playlists)
+function requireAuth() {
+  if (loggedInUser) return true;
+  const modal = document.getElementById('authModal');
+  if (modal) modal.classList.add('show');
+  return false;
+}
+
+// Listen to Firestore in real-time
 if (typeof firebase !== 'undefined') {
   const db = firebase.firestore();
 
-  // Track login state in the background
   firebase.auth().onAuthStateChanged((user) => {
     loggedInUser = user;
     
-    // Stop listening to previous user's data if they logged out
     if (userVotesUnsubscribe) {
       userVotesUnsubscribe();
       userVotesUnsubscribe = null;
     }
 
     if (user) {
-      // User is LOGGED IN: Fetch their personal likes from their Account ID
+      // User is LOGGED IN: Fetch account data from Firestore
       userVotesUnsubscribe = db.collection("userVotes").doc(user.uid).onSnapshot((doc) => {
         if (doc.exists) {
-          userLikes = doc.data().likes || [];
-          userDislikes = doc.data().dislikes || [];
+          const d = doc.data();
+          userLikes = d.likes || [];
+          userDislikes = d.dislikes || [];
+          userPlaylists = d.playlists || [];
+          userQueue = d.queue || userQueue; // Preserve local guest queue if cloud is empty
+          userLastPlayed = d.lastPlayed || null;
         } else {
-          userLikes = [];
-          userDislikes = [];
+          userLikes = []; userDislikes = []; userPlaylists = []; userLastPlayed = null;
         }
-        updateVoteUI(); // Light up their specific buttons
+        
+        updateVoteUI(); 
+        renderPlaylistDashboard();
+        renderQueue();
+
+        // Load last played song on initial login
+        if (!hasLoadedInitialState && userLastPlayed && userLastPlayed.src) {
+          hasLoadedInitialState = true;
+          if (window.CrzyPlayer && typeof window.CrzyPlayer.load === "function") {
+            window.CrzyPlayer.load(userLastPlayed.src, userLastPlayed.title, userLastPlayed.cover || null);
+          } else {
+            const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
+            if (audio && !audio.src) {
+              audio.src = userLastPlayed.src;
+              const np = document.getElementById("now-playing");
+              if (np) np.textContent = "Last: " + userLastPlayed.title;
+            }
+          }
+        }
       });
     } else {
-      // User is LOGGED OUT: Instantly clear personal likes from the screen
+      // User is LOGGED OUT: Reset personal likes and playlists
       userLikes = [];
       userDislikes = [];
+      userPlaylists = [];
+      userLastPlayed = null;
+      hasLoadedInitialState = false;
+      
       updateVoteUI(); 
+      renderPlaylistDashboard();
+      renderQueue();
     }
   });
   
-  // This automatically fetches the global counts for ALL users
+  // Fetches global like counts
   db.collection("songVotes").onSnapshot((snapshot) => {
-    snapshot.forEach(doc => {
-      globalVotes[doc.id] = doc.data();
-    });
+    snapshot.forEach(doc => { globalVotes[doc.id] = doc.data(); });
     updateVoteUI(); 
     if (typeof renderTop10 === 'function') renderTop10(); 
   });
 }
 
+// Sync user updates to Firebase cloud document
+async function syncUserData(updates) {
+  if (!loggedInUser) return;
+  try {
+    await firebase.firestore().collection("userVotes").doc(loggedInUser.uid).set(updates, { merge: true });
+  } catch(e) { 
+    console.error("Sync error:", e); 
+  }
+}
+
 async function updateSongVote(src, type, increment) {
   if (typeof firebase === 'undefined') return; 
-  
   const db = firebase.firestore();
   const songId = src.replace(/[^a-zA-Z0-9]/g, '_'); 
   const songRef = db.collection("songVotes").doc(songId);
   
-  // Stop it from going below 0 in the global database
   const currentData = globalVotes[songId] || { likes: 0, dislikes: 0 };
   const currentCount = currentData[type] || 0;
   if (increment < 0 && currentCount <= 0) return; 
   
   try {
-    await songRef.set({
-      [type]: firebase.firestore.FieldValue.increment(increment)
-    }, { merge: true });
-  } catch (e) {
-    console.error("Firebase Database Error:", e);
-  }
+    await songRef.set({ [type]: firebase.firestore.FieldValue.increment(increment) }, { merge: true });
+  } catch (e) { console.error(e); }
 }
 
 // ---------------- SITE-WIDE SONG LIST ----------------
@@ -83,7 +125,7 @@ const masterSongs = [
   { title: "These Days(ft.CrzyReaper)", artist: "Crzypebble", src: "These_DaysftCrzyReaper.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
   { title: "Lost In Time(From 2022:The Game)", artist: "Crzypebble", src: "Lost_In_Time.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
 
-  // The Pebble Deluxe (and Standard)
+  // The Pebble Deluxe
   { title: "Welcome To Hell", artist: "Crzypebble", src: "welcometohellprodblksaturn.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
   { title: "Smoke Bitches", artist: "Crzypebble", src: "smokebitchesprodsmxkypete.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
   { title: "THE BOULDER", artist: "Crzypebble", src: "theboulderrocksandpebblesprodfuckserbab.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/The%20Pebble%20Deluxe%20Cover.jpg?raw=true" },
@@ -130,12 +172,12 @@ function showPopup(msg, color = "#ff0000") {
   }, 1500);
 }
 
-// Clean up old legacy likes data from local storage so it doesn't cause conflicts
+// DESTROY ALL LEGACY DEVICE STORAGE 
 localStorage.removeItem("crzy_likes");
 localStorage.removeItem("crzy_dislikes");
-if (!localStorage.getItem("playlists")) localStorage.setItem("playlists", JSON.stringify([]));
-if (!localStorage.getItem("crzy_queue")) localStorage.setItem("crzy_queue", JSON.stringify([]));
-
+localStorage.removeItem("playlists");
+localStorage.removeItem("crzy_queue");
+localStorage.removeItem("crzy_player_last");
 
 // ---------------- AUTHENTICATION MODAL LOGIC ----------------
 function closeAuthModal() {
@@ -169,20 +211,15 @@ function modalSignUp() {
   firebase.auth().createUserWithEmailAndPassword(e, p)
     .then(() => {
       closeAuthModal();
-      showPopup("Account created! You can now vote.", "#00ff00");
+      showPopup("Account created!", "#00ff00");
     })
     .catch(error => status.textContent = error.message);
 }
 
 // ---------------- LIKES & DISLIKES SYSTEM ----------------
 async function toggleVote(src, type) {
-  if (!loggedInUser) return; // Safeguard
+  if (!requireAuth()) return; // Must be logged in!
 
-  const uid = loggedInUser.uid;
-  const db = firebase.firestore();
-  const userRef = db.collection("userVotes").doc(uid);
-
-  // We modify the memory variables directly so the screen feels instantly responsive
   let newLikes = [...userLikes];
   let newDislikes = [...userDislikes];
 
@@ -212,20 +249,11 @@ async function toggleVote(src, type) {
     }
   }
 
-  // Update local memory and screen instantly
   userLikes = newLikes;
   userDislikes = newDislikes;
   updateVoteUI(); 
 
-  // Save the new personal list to the Database tied to their account!
-  try {
-    await userRef.set({
-      likes: newLikes,
-      dislikes: newDislikes
-    }, { merge: true });
-  } catch(e) {
-    console.error("Error saving user vote:", e);
-  }
+  syncUserData({ likes: newLikes, dislikes: newDislikes });
 }
 
 function updateVoteUI() {
@@ -237,12 +265,9 @@ function updateVoteUI() {
 
     const songId = src.replace(/[^a-zA-Z0-9]/g, '_');
     const dbVotes = globalVotes[songId] || { likes: 0, dislikes: 0 };
-
-    // Force UI to display 0 if the math gets messed up
     const safeLikes = Math.max(0, dbVotes.likes || 0);
     const safeDislikes = Math.max(0, dbVotes.dislikes || 0);
 
-    // Reading from userLikes memory instead of local storage!
     if (btn.classList.contains('like-btn') || btn.classList.contains('vote-like')) {
       btn.style.opacity = userLikes.includes(src) ? "1" : "0.5";
       btn.style.filter = userLikes.includes(src) ? "drop-shadow(0 0 5px #00ff00)" : "none";
@@ -310,43 +335,50 @@ document.body.addEventListener("click", (e) => {
   
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); 
-    
-    if (!loggedInUser) {
-      const modal = document.getElementById('authModal');
-      if (modal) modal.classList.add('show');
-      return; 
-    }
+    if (!requireAuth()) return; 
     
     const type = likeBtn ? 'like' : 'dislike';
     let src = trackEl?.dataset.src || trackEl?.querySelector('[data-src]')?.dataset.src;
     
-    if (src) {
-      toggleVote(src, type);
-    }
+    if (src) toggleVote(src, type);
   } 
   else if (trackEl && !actionBtn) {
       e.stopPropagation();
       const src = trackEl.getAttribute('data-src');
-      let rawTitle = trackEl.textContent.split('-')[0].trim();
+      const foundSong = masterSongs.find(s => s.src === src);
+      let rawTitle = foundSong ? foundSong.title : trackEl.textContent.split('-')[0].trim();
+      let cover = foundSong ? foundSong.cover : null;
       
-      if (trackEl.classList.contains('track-line')) {
+      if (trackEl.classList.contains('track-line') && !foundSong) {
          const split = trackEl.textContent.split('-');
          if (split.length > 1) rawTitle = split[1].trim();
       }
       
       if (src && !src.startsWith('hidden')) {
-          playTrackBySrc(src, rawTitle, null);
+          playTrackBySrc(src, rawTitle, cover);
       }
   }
 });
 
 // ---------------- PLAYER INTERFACE ----------------
 function playTrackBySrc(src, title, cover) {
+  // Automatic cover art lookup from masterSongs if not explicitly passed
+  const songData = masterSongs.find(s => s.src === src);
+  if (!cover && songData && songData.cover) {
+    cover = songData.cover;
+  }
+  if (!title && songData && songData.title) {
+    title = songData.title;
+  }
+
+  // Sync last played song if logged in
+  if (loggedInUser) {
+    userLastPlayed = { src, title, cover };
+    syncUserData({ lastPlayed: userLastPlayed });
+  }
+
   if (window.CrzyPlayer && typeof window.CrzyPlayer.play === "function") {
-    let artist = "Crzypebble";
-    const songData = masterSongs.find(s => s.src === src);
-    if (songData && songData.artist) artist = songData.artist;
-      
+    let artist = (songData && songData.artist) ? songData.artist : "Crzypebble";
     window.CrzyPlayer.play(src, title, cover, artist);
   } else {
     const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
@@ -368,41 +400,49 @@ function playTrackFromElement(el) {
   const title = el.textContent.trim();
   if (!src) return showPopup("No file attached", "#b30000");
   playTrackBySrc(src, title);
-  localStorage.setItem("crzy_player_last", JSON.stringify({src, title, time:0}));
 }
 
-// ---------------- QUEUE ----------------
-function getQueue() { return JSON.parse(localStorage.getItem("crzy_queue") || "[]"); }
-function saveQueue(q) { localStorage.setItem("crzy_queue", JSON.stringify(q)); }
-function addToQueue(song) {
-  const q = getQueue();
-  q.push(song);
-  saveQueue(q);
+// ---------------- QUEUE (AVAILABLE TO ALL USERS) ----------------
+function saveQueue() { 
   renderQueue();
+  if (loggedInUser) {
+    syncUserData({ queue: userQueue });
+  }
+}
+
+function addToQueue(song) {
+  // Look up missing cover art if needed
+  if (!song.cover) {
+    const found = masterSongs.find(s => s.src === song.src);
+    if (found && found.cover) song.cover = found.cover;
+  }
+  userQueue.push(song);
+  saveQueue();
   showPopup("Added to queue", "#ff0000");
 }
+
 function clearQueue() {
-  saveQueue([]);
-  renderQueue();
+  userQueue = [];
+  saveQueue();
   showPopup("Queue cleared", "#ff0000");
 }
+
 function popQueue() {
-  const q = getQueue();
-  const next = q.shift();
-  saveQueue(q);
-  renderQueue();
+  if (userQueue.length === 0) return null;
+  const next = userQueue.shift();
+  saveQueue();
   return next;
 }
+
 function renderQueue() {
-  const q = getQueue();
   const el = document.getElementById("queueItems");
   if (!el) return;
   el.innerHTML = "";
-  if (!q.length) {
+  if (!userQueue.length) {
     el.innerHTML = "<div style='padding:8px;color:#aaa'>Queue is empty</div>";
     return;
   }
-  q.forEach((s, i) => {
+  userQueue.forEach((s, i) => {
     const d = document.createElement("div");
     d.className = "queue-item";
     d.innerHTML = `<div style="flex:1"><b>${s.title}</b><br><small>${s.artist}</small></div><div style="display:flex;gap:6px"><button class="play-queue" data-i="${i}">▶</button><button class="remove-queue" data-i="${i}">✖</button></div>`;
@@ -410,16 +450,14 @@ function renderQueue() {
   });
   el.querySelectorAll(".play-queue").forEach(btn => {
     btn.addEventListener("click", () => {
-      const s = getQueue()[+btn.dataset.i];
+      const s = userQueue[+btn.dataset.i];
       if (s) playTrackBySrc(s.src, s.title, s.cover);
     });
   });
   el.querySelectorAll(".remove-queue").forEach(btn => {
     btn.addEventListener("click", () => {
-      const q = getQueue();
-      q.splice(+btn.dataset.i, 1);
-      saveQueue(q);
-      renderQueue();
+      userQueue.splice(+btn.dataset.i, 1);
+      saveQueue();
       showPopup("Removed from queue", "#ff0000");
     });
   });
@@ -508,20 +546,19 @@ siteSearch && siteSearch.addEventListener("input", (e) => {
   showSearchResults(val);
 });
 
-// ---------------- PLAYLIST PICKER, ADD & DASHBOARD ----------------
+// ---------------- PLAYLISTS (ACCOUNT-BOUND) ----------------
 const playlistPicker = document.getElementById("playlistPicker");
 const playlistList = document.getElementById("playlistList");
 const createPlaylistBtn = document.getElementById("createPlaylistBtn");
 createPlaylistBtn && createPlaylistBtn.addEventListener("click", createNewPlaylistFromPicker);
 
 function loadPlaylistsForPicker() {
-  const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
   playlistList.innerHTML = "";
-  if (!pls.length) {
+  if (!userPlaylists.length) {
     playlistList.innerHTML = `<div style="color:#aaa;padding:8px">No playlists yet</div>`;
     return;
   }
-  pls.forEach((pl, idx) => {
+  userPlaylists.forEach((pl, idx) => {
     const div = document.createElement("div");
     div.className = "playlist-picker-item";
     div.innerHTML = `<img src="${pl.cover || 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true'}" alt="cover"><div style="flex:1"><b>${pl.name}</b><br><small>${(pl.songs||[]).length} songs</small></div>`;
@@ -537,6 +574,7 @@ function loadPlaylistsForPicker() {
 }
 
 function openAddPicker(song) {
+  if (!requireAuth()) return; // Must be logged in to manage playlists
   window.__crzy_pending_add = song;
   loadPlaylistsForPicker();
   playlistPicker.classList.add("show");
@@ -551,25 +589,30 @@ function closePicker() {
 }
 
 function createNewPlaylistFromPicker() {
+  if (!requireAuth()) return; 
   const name = prompt("Playlist name:");
   if (!name) return;
-  const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
-  pls.push({ name, cover: null, songs: [] });
-  localStorage.setItem("playlists", JSON.stringify(pls));
+  
+  userPlaylists.push({ name, cover: null, songs: [] });
+  syncUserData({ playlists: userPlaylists }); 
+  
   loadPlaylistsForPicker();
   renderPlaylistDashboard(); 
   showPopup("Playlist created", "#ff0000");
 }
 
 function addSongToPlaylist(index, song) {
-  const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
-  if (!pls[index]) return showPopup("Playlist not found", "#b30000");
-  pls[index].songs = pls[index].songs || [];
-  if (pls[index].songs.find(s => s.src === song.src)) {
+  if (!requireAuth()) return;
+  if (!userPlaylists[index]) return showPopup("Playlist not found", "#b30000");
+  
+  userPlaylists[index].songs = userPlaylists[index].songs || [];
+  if (userPlaylists[index].songs.find(s => s.src === song.src)) {
     return showPopup("Already in playlist", "#b30000");
   }
-  pls[index].songs.push(song);
-  localStorage.setItem("playlists", JSON.stringify(pls));
+  
+  userPlaylists[index].songs.push(song);
+  syncUserData({ playlists: userPlaylists }); 
+  
   renderPlaylistDashboard(); 
   showPopup("Added to playlist", "#ff0000");
 }
@@ -578,20 +621,19 @@ function renderPlaylistDashboard() {
   const container = document.getElementById("playlistContainer");
   if (!container) return; 
   
-  const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
   container.innerHTML = "";
 
-  if (pls.length === 0) {
-    container.innerHTML = "<div style='color:#aaa;'>You haven't created any playlists yet.</div>";
-    document.getElementById("playlistTracksList").innerHTML = "<li class='empty-notice' style='list-style: none; opacity: 0.7;'>No playlist selected.</li>";
+  if (userPlaylists.length === 0) {
+    container.innerHTML = "<div style='color:#aaa;'>You haven't created any playlists yet. Log in to save them!</div>";
+    const tList = document.getElementById("playlistTracksList");
+    if(tList) tList.innerHTML = "<li class='empty-notice' style='list-style: none; opacity: 0.7;'>No playlist selected.</li>";
     
     const playAllBtn = document.getElementById("play-all-playlist-btn");
     if (playAllBtn) playAllBtn.style.display = "none";
-    
     return;
   }
 
-  pls.forEach((pl, idx) => {
+  userPlaylists.forEach((pl, idx) => {
     const btn = document.createElement("button");
     btn.textContent = pl.name;
     btn.style.margin = "0 8px 8px 0";
@@ -608,8 +650,7 @@ function renderPlaylistDashboard() {
 }
 
 function loadActivePlaylist(plIdx) {
-  const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
-  const pl = pls[plIdx];
+  const pl = userPlaylists[plIdx];
   if (!pl) return;
 
   document.getElementById("activePlaylistTitle").textContent = pl.name;
@@ -658,10 +699,10 @@ function loadActivePlaylist(plIdx) {
 }
 
 function removeSongFromPlaylist(plIdx, songIdx) {
-  const pls = JSON.parse(localStorage.getItem("playlists") || "[]");
-  if (pls[plIdx] && pls[plIdx].songs) {
-    pls[plIdx].songs.splice(songIdx, 1);
-    localStorage.setItem("playlists", JSON.stringify(pls));
+  if (!requireAuth()) return;
+  if (userPlaylists[plIdx] && userPlaylists[plIdx].songs) {
+    userPlaylists[plIdx].songs.splice(songIdx, 1);
+    syncUserData({ playlists: userPlaylists }); 
     loadActivePlaylist(plIdx); 
     showPopup("Removed from playlist", "#ff0000");
   }
@@ -670,11 +711,17 @@ function removeSongFromPlaylist(plIdx, songIdx) {
 // ---------------- QUEUE OVERWRITE HELPER ----------------
 function executeQueueOverwrite(queueArray) {
   if (queueArray.length > 0) {
+    // Fill cover art for each queued item if missing
+    queueArray.forEach(item => {
+      if (!item.cover) {
+        const found = masterSongs.find(s => s.src === item.src);
+        if (found && found.cover) item.cover = found.cover;
+      }
+    });
     const firstSong = queueArray.shift();
-    localStorage.setItem("crzy_queue", JSON.stringify(queueArray));
-    
-    renderQueue();
-    playTrackBySrc(firstSong.src, firstSong.title, null);
+    userQueue = queueArray;
+    saveQueue();
+    playTrackBySrc(firstSong.src, firstSong.title, firstSong.cover);
     showPopup("Queue Updated", "#ff0000");
   }
 }
@@ -777,21 +824,9 @@ document.addEventListener("DOMContentLoaded", () => {
   renderPlaylistDashboard();
   renderTop10(); 
   updateVoteUI(); 
-
-  const last = JSON.parse(localStorage.getItem("crzy_player_last") || "null");
-  if (last && last.src) {
-    if (window.CrzyPlayer && typeof window.CrzyPlayer.load === "function") {
-      window.CrzyPlayer.load(last.src, last.title, last.cover || null);
-    } else {
-      if (audio) {
-        audio.src = last.src;
-        document.getElementById("now-playing") && (document.getElementById("now-playing").textContent = "Last: " + last.title);
-      }
-    }
-  }
 });
 
-// expose globally
+// Expose globally
 window.openAddPicker = openAddPicker;
 window.openAddPickerFromButton = openAddPickerFromButton;
 window.addToQueue = addToQueue;

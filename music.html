@@ -23,18 +23,17 @@
 
   <main>
     <section id="music">
-      <!-- CENTERED HEADER & FIXED AUTOFILL -->
       <div class="music-header-row">
         <h2>Crzyclan Music Library</h2>
         <p style="color: #888; font-size: 0.9rem;">Explore our sounds — from the crzyclan to game OSTs and AI experiments.</p>
         
+        <!-- EXPANDING SEARCH BAR (Kills Chrome Autofill) -->
         <div class="music-search">
-          <!-- type="search" and ignore tags force browsers to stop auto-filling emails -->
-          <input type="search" id="siteSearch" name="q_music_search" placeholder="Search songs, artists..." autocomplete="off" data-lpignore="true" data-1p-ignore="true" spellcheck="false" />
+          <input type="text" id="siteSearch" placeholder="Search songs..." readonly onfocus="this.removeAttribute('readonly');" onblur="if(this.value==='') this.setAttribute('readonly', 'readonly');" />
         </div>
       </div>
 
-      <!-- PLAYLIST SECTION WITH SLEEK TOGGLE -->
+      <!-- PLAYLIST SECTION -->
       <div class="music-section playlist-container-block">
         <div style="text-align: center; margin-bottom: 1.5rem;">
           <button onclick="const w = document.getElementById('playlist-dashboard-wrapper'); w.style.display = w.style.display === 'none' ? 'block' : 'none';" class="sleek-btn">
@@ -67,7 +66,7 @@
         </ul>
       </div>
 
-      <!-- ALBUMS SECTION (SPOTIFY-STYLE GRID) -->
+      <!-- ALBUMS SECTION -->
       <div class="music-section">
         <h3 class="section-title">Albums</h3>
         
@@ -358,86 +357,93 @@
         </div>
       </div>
 
-      <!-- SINGLES -->
+      <!-- SINGLES (Clickable Cards & Playlist Buttons) -->
       <div class="music-section">
         <h3 class="section-title">Singles</h3>
         <div class="track-grid">
-          <div class="track-card">
+          <div class="track-card" data-src="fleshandsignal.mp3">
             <img src="images/metal-track.jpg" alt="Flesh and Signal" class="track-art" draggable="false">
             <div class="track-body">
-              <strong data-src="fleshandsignal.mp3" class="playable" tabindex="0">Flesh and Signal</strong><br>
+              <strong>Flesh and Signal</strong><br>
               <small>Crzypebble · Metal</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">➜</button>
+              <button class="icon add-playlist" data-src="fleshandsignal.mp3" data-title="Flesh and Signal" data-artist="Crzypebble">＋</button>
             </div>
           </div>
 
-          <div class="track-card">
+          <div class="track-card" data-src="mindinred.mp3">
             <img src="images/rap-track.jpg" alt="Mind in Red" class="track-art" draggable="false">
             <div class="track-body">
-              <strong data-src="mindinred.mp3" class="playable" tabindex="0">Mind in Red</strong><br>
+              <strong>Mind in Red</strong><br>
               <small>Crzypebble · Rap</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">➜</button>
+              <button class="icon add-playlist" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">＋</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- GAME SOUNDTRACKS -->
+      <!-- GAME SOUNDTRACKS (Clickable Cards & Playlist Buttons) -->
       <div class="music-section">
         <h3 class="section-title">Game Soundtracks</h3>
         <div class="track-grid">
           
-          <div class="track-card">
+          <div class="track-card" data-src="triggerrun.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="triggerrun.mp3" class="playable" tabindex="0">Trigger Run</strong><br>
+              <strong>Trigger Run</strong><br>
               <small>Days Before Death OST</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">➜</button>
+              <button class="icon add-playlist" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">＋</button>
             </div>
           </div>
 
-          <div class="track-card">
+          <div class="track-card" data-src="downbelow.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="downbelow.mp3" class="playable" tabindex="0">Down Below</strong><br>
+              <strong>Down Below</strong><br>
               <small>Days Before Death OST</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">➜</button>
+              <button class="icon add-playlist" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">＋</button>
             </div>
           </div>
 
-          <div class="track-card">
+          <div class="track-card" data-src="daysbeforedeath.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="daysbeforedeath.mp3" class="playable" tabindex="0">Days Before Death</strong><br>
+              <strong>Days Before Death</strong><br>
               <small>Days Before Death OST</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">➜</button>
+              <button class="icon add-playlist" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">＋</button>
             </div>
           </div>
 
-          <div class="track-card">
+          <div class="track-card" data-src="deadweight.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="deadweight.mp3" class="playable" tabindex="0">Dead Weight</strong><br>
+              <strong>Dead Weight</strong><br>
               <small>Days Before Death OST</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">➜</button>
+              <button class="icon add-playlist" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">＋</button>
             </div>
           </div>
 
-          <div class="track-card">
+          <div class="track-card" data-src="eyeoftheloop.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="eyeoftheloop.mp3" class="playable" tabindex="0">Eye Of The Loop</strong><br>
+              <strong>Eye Of The Loop</strong><br>
               <small>Days Before Death OST</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">➜</button>
+              <button class="icon add-playlist" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">＋</button>
             </div>
           </div>
 
@@ -449,23 +455,25 @@
         <h3 class="section-title">AI & User Experiments</h3>
         <div class="track-grid">
           
-          <div class="track-card">
+          <div class="track-card" data-src="crimsoncode.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="crimsoncode.mp3" class="playable" tabindex="0">Crimson Code</strong><br>
+              <strong>Crimson Code</strong><br>
               <small>AI Synthwave/Rock</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">➜</button>
+              <button class="icon add-playlist" data-src="crimsoncode.mp3" data-title="Crimson Code" data-artist="AI">＋</button>
             </div>
           </div>
 
-          <div class="track-card">
+          <div class="track-card" data-src="cartwasfull.mp3">
             <div class="track-body" style="padding-left: 8px;">
-              <strong data-src="cartwasfull.mp3" class="playable" tabindex="0">Cart was full</strong><br>
+              <strong>Cart was full</strong><br>
               <small>User Upload · Rock/Alt</small>
             </div>
             <div class="track-actions">
               <button class="icon add-queue" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">➜</button>
+              <button class="icon add-playlist" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">＋</button>
             </div>
           </div>
 

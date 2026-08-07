@@ -96,7 +96,7 @@ h3.section-title, h4, h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
-  align-items: flex-start; /* FIX: PREVENTS SIBLING ALBUMS FROM STRETCHING */
+  align-items: flex-start;
 }
 .album-wrapper {
   background: #181818;
@@ -164,7 +164,7 @@ h3.section-title, h4, h2 {
   cursor: pointer;
   font-size: 0.8rem;
   transition: all 0.2s ease;
-  pointer-events: auto; /* FIX: MAKES SURE CLICKS ALWAYS REGISTER */
+  pointer-events: auto;
 }
 .track-actions-inline button:hover, .track-actions .icon:hover { background: rgba(255,255,255,0.1); border-color: #fff; transform: scale(1.05); }
 
@@ -186,45 +186,6 @@ h3.section-title, h4, h2 {
 .track-card .track-art { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; pointer-events: none; }
 .track-body { flex: 1; min-width: 0; font-size: 0.9rem; pointer-events: none; }
 .track-body small { color: #aaa; }
-
-/* --- Floating Queue Button & Panel --- */
-.floating-queue-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #ff0000; 
-  color: #fff;
-  border: none;
-  border-radius: 24px;
-  padding: 10px 20px;
-  font-weight: bold;
-  cursor: pointer;
-  z-index: 10005;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  transition: transform 0.2s;
-}
-.floating-queue-btn:hover { transform: scale(1.05); }
-
-.queue-panel {
-  position: fixed;
-  right: 20px;
-  bottom: 70px;
-  width: 320px;
-  max-width: 90%;
-  max-height: 400px;
-  overflow: auto;
-  background: #121212;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
-  padding: 15px;
-  border-radius: 8px;
-  display: none;
-  z-index: 10010;
-}
-.queue-panel.show { display: block; }
-.queue-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
-.queue-item { padding: 8px; border-radius: 4px; background: rgba(255,255,255,0.05); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
-.play-queue, .remove-queue { background: transparent; border: none; color: #fff; cursor: pointer; padding: 4px; }
 
 /* --- Modals & Popups --- */
 .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 10020; padding: 10px; background: rgba(0,0,0,0.8); }

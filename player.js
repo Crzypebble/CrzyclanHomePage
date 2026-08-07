@@ -3,8 +3,8 @@
   const STATE_KEY = 'crzy_player_state';
   const ACCENT_KEY = 'crzy_player_accent';
   const MODE_KEY = 'crzy_player_mode';
+  const VIZ_STYLE_KEY = 'crzy_player_viz_style';
 
-  // remove old player block if present
   const old = document.getElementById('simple-player');
   if (old) old.remove();
 
@@ -14,7 +14,7 @@
     audio.id = 'mainAudioPlayer';
     audio.preload = 'metadata';
     audio.style.display = 'none';
-    audio.crossOrigin = 'anonymous'; // Required for visualizer
+    audio.crossOrigin = 'anonymous'; 
     document.body.appendChild(audio);
   }
 
@@ -64,10 +64,16 @@
       </div>
     </div>
     <div id="crz-settings" class="settings">
-      <label>Visualizer <input id="crz-visual-toggle" type="checkbox" checked></label>
-      <label>Autoplay Next <input id="crz-autoplay" type="checkbox" checked></label>
-      <label>Accent <input id="crz-accent" type="color" value="#ff0000"></label>
-      <div style="text-align:right;margin-top:8px;"><button id="crz-close-settings" class="icon-btn">Close</button></div>
+      <label style="display:flex; justify-content:space-between; margin-bottom:8px;">Visualizer Style 
+        <select id="crz-viz-style" style="background:#222; color:#fff; border:1px solid #444; border-radius:4px;">
+          <option value="bars">Bars</option>
+          <option value="wave">Wave</option>
+          <option value="off">Off</option>
+        </select>
+      </label>
+      <label style="display:flex; justify-content:space-between; margin-bottom:8px;">Autoplay Next <input id="crz-autoplay" type="checkbox" checked></label>
+      <label style="display:flex; justify-content:space-between; margin-bottom:8px;">Accent <input id="crz-accent" type="color" value="#ff0000"></label>
+      <div style="text-align:right;margin-top:12px;"><button id="crz-close-settings" class="icon-btn">Close</button></div>
     </div>
   `;
   document.body.appendChild(player);
@@ -84,7 +90,7 @@
   const queueBtn = document.getElementById('crzy-queue-btn');
   const settingsBtn = document.getElementById('crzy-settings-btn');
   const settingsPanel = document.getElementById('crz-settings');
-  const visualToggle = document.getElementById('crz-visual-toggle');
+  const vizStyleSelect = document.getElementById('crz-viz-style');
   const autoplayToggle = document.getElementById('crz-autoplay');
   const accentInput = document.getElementById('crz-accent');
   const coverImg = document.getElementById('crz-cover');
@@ -102,21 +108,26 @@
   const savedAccent = localStorage.getItem(ACCENT_KEY) || '#ff0000';
   document.documentElement.style.setProperty('--accent', savedAccent);
   accentInput.value = savedAccent;
+  
+  const savedViz = localStorage.getItem(VIZ_STYLE_KEY) || 'bars';
+  vizStyleSelect.value = savedViz;
+
   const savedMode = localStorage.getItem(MODE_KEY) || 'dock';
   if (savedMode === 'dock') player.classList.add('docked');
   autoplayToggle.checked = localStorage.getItem('crz_autoplay') !== '0';
 
   // Audio Context
-  let audioCtx, analyser, sourceNode, dataArray, bufferLength;
+  let audioCtx, analyser, sourceNode, timeDataArray, freqDataArray, bufferLength;
   function setupAudioCtx(){
     if (!window.AudioContext && !window.webkitAudioContext) return false;
     if (audioCtx) return true;
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
+      analyser.fftSize = 256; 
       bufferLength = analyser.frequencyBinCount;
-      dataArray = new Uint8Array(bufferLength);
+      timeDataArray = new Uint8Array(bufferLength);
+      freqDataArray = new Uint8Array(bufferLength);
       sourceNode = audioCtx.createMediaElementSource(audio);
       sourceNode.connect(analyser);
       analyser.connect(audioCtx.destination);
@@ -140,69 +151,74 @@
     bgCtx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
   }
   window.addEventListener('resize', resizeCanvas);
-  
-  // Particles for foreground visualizer
-  let particles = [];
-  function createParticles(n=22){
-    particles=[];
-    for(let i=0;i<n;i++) particles.push({ x:Math.random()*canvas.clientWidth, y:Math.random()*canvas.clientHeight, vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6, size:1+Math.random()*3 });
-  }
-  createParticles(24);
 
   function drawViz(){
-    if (!visualToggle.checked || !analyser) { 
+    const style = vizStyleSelect.value;
+    if (style === 'off' || !analyser) { 
       ctx.clearRect(0,0,canvas.clientWidth,canvas.clientHeight); 
       bgCanvas.style.display = 'none';
       return; 
     }
     
-    analyser.getByteTimeDomainData(dataArray);
     const accentCol = localStorage.getItem(ACCENT_KEY) || '#ff0000';
-    
-    // FOREGROUND DRAWING
     const w = canvas.clientWidth, h = canvas.clientHeight;
     ctx.clearRect(0,0,w,h);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = accentCol;
-    ctx.beginPath();
-    const slice = w / dataArray.length;
-    for (let i=0; i<dataArray.length; i++){
-      const v = (dataArray[i]-128)/128;
-      const y = (h/2) + v*(h/2)*0.8;
-      const x = i*slice;
-      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    }
-    ctx.stroke();
     
-    let sum=0;
-    for(let i=0;i<dataArray.length;i++) sum += Math.abs(dataArray[i]-128);
-    const amp = sum/dataArray.length/128;
-    for(let p of particles){
-      p.x += p.vx*(1+amp*4); p.y += p.vy*(1+amp*4);
-      if (p.x < -10) p.x = w+10; if (p.x > w+10) p.x = -10;
-      if (p.y < -10) p.y = h+10; if (p.y > h+10) p.y = -10;
-      ctx.fillStyle = `rgba(255,0,0,${0.06+amp*0.6})`;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.size+amp*4,0,Math.PI*2); ctx.fill();
+    if (style === 'bars') {
+      analyser.getByteFrequencyData(freqDataArray);
+      const barWidth = (w / bufferLength) * 2.5;
+      let x = 0;
+      
+      for(let i = 0; i < bufferLength; i++) {
+        const barHeight = (freqDataArray[i] / 255) * h;
+        ctx.fillStyle = accentCol;
+        ctx.fillRect(x, h - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    } else if (style === 'wave') {
+      analyser.getByteTimeDomainData(timeDataArray);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = accentCol;
+      ctx.beginPath();
+      const slice = w / bufferLength;
+      for (let i=0; i<bufferLength; i++){
+        const v = (timeDataArray[i]-128)/128;
+        const y = (h/2) + v*(h/2)*0.9;
+        const x = i*slice;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
     }
-    if (amp > 0.02) player.classList.add('pulse'); else player.classList.remove('pulse');
 
-    // BACKGROUND FULL-SCREEN DRAWING (Only when docked)
-    if (player.classList.contains('docked')) {
+    // BACKGROUND FULL-SCREEN DRAWING (Only when docked & playing)
+    if (player.classList.contains('docked') && isPlaying) {
       bgCanvas.style.display = 'block';
       const bgW = bgCanvas.clientWidth;
       const bgH = bgCanvas.clientHeight;
       bgCtx.clearRect(0, 0, bgW, bgH);
-      bgCtx.lineWidth = 3;
-      bgCtx.strokeStyle = accentCol;
-      bgCtx.beginPath();
-      const bgSlice = bgW / dataArray.length;
-      for (let i = 0; i < dataArray.length; i++) {
-        const v = (dataArray[i] - 128) / 128;
-        const y = (bgH / 2) + v * (bgH / 3); // Large waves across the screen
-        const x = i * bgSlice;
-        if (i === 0) bgCtx.moveTo(x, y); else bgCtx.lineTo(x, y);
+      
+      if (style === 'bars') {
+        const bgBarW = (bgW / bufferLength) * 3;
+        let bx = 0;
+        bgCtx.fillStyle = accentCol;
+        for(let i = 0; i < bufferLength; i++) {
+          const bH = (freqDataArray[i] / 255) * (bgH * 0.4);
+          bgCtx.fillRect(bx, bgH - bH, bgBarW, bH);
+          bx += bgBarW + 2;
+        }
+      } else {
+        bgCtx.lineWidth = 3;
+        bgCtx.strokeStyle = accentCol;
+        bgCtx.beginPath();
+        const bgSlice = bgW / bufferLength;
+        for (let i = 0; i < bufferLength; i++) {
+          const v = (timeDataArray[i] - 128) / 128;
+          const y = (bgH / 2) + v * (bgH / 3); 
+          const x = i * bgSlice;
+          if (i === 0) bgCtx.moveTo(x, y); else bgCtx.lineTo(x, y);
+        }
+        bgCtx.stroke();
       }
-      bgCtx.stroke();
     } else {
       bgCanvas.style.display = 'none';
     }
@@ -268,7 +284,7 @@
   settingsBtn.addEventListener('click', ()=> settingsPanel.classList.toggle('show'));
   document.getElementById('crz-close-settings').addEventListener('click', ()=> settingsPanel.classList.remove('show'));
   accentInput.addEventListener('input', (e)=> { document.documentElement.style.setProperty('--accent', e.target.value); localStorage.setItem(ACCENT_KEY, e.target.value); });
-  visualToggle.addEventListener('change', ()=> localStorage.setItem('crz_visual_on', visualToggle.checked ? '1':'0'));
+  vizStyleSelect.addEventListener('change', ()=> localStorage.setItem(VIZ_STYLE_KEY, vizStyleSelect.value));
   autoplayToggle.addEventListener('change', ()=> localStorage.setItem('crz_autoplay', autoplayToggle.checked ? '1':'0'));
   volumeInput.addEventListener('input', (e)=> audio.volume = Number(e.target.value || 1));
   audio.volume = Number(volumeInput.value || 1);
@@ -326,18 +342,15 @@
     }
   }
 
-  // --- HELPER TO FIND MISSING ALBUM ART ON THE PAGE ---
   function findCoverInDOM(src) {
     if (!src) return null;
     const el = document.querySelector(`[data-src="${src}"]`);
     if (el) {
-      // Look for standard Album format
-      const album = el.closest('.album');
+      const album = el.closest('.album-wrapper');
       if (album) {
         const img = album.querySelector('.album-cover');
         if (img) return img.src;
       }
-      // Look for standard Track Card format
       const card = el.closest('.track-card');
       if (card) {
         const img = card.querySelector('.track-art');
@@ -349,7 +362,6 @@
 
   window.CrzyPlayer = {
     play: (src, title, cover, artist) => {
-      // Automatically pull album cover from page if not provided!
       let finalCover = cover;
       if (!finalCover || finalCover === 'null') {
         finalCover = findCoverInDOM(src) || 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true';
@@ -431,23 +443,19 @@
     const qWidth = 360;
 
     if (player.classList.contains('docked')) {
-      // DOCKED: Show above the player
       queuePanel.style.left = '20px';
-      queuePanel.style.bottom = '90px'; // Taskbar height + margin
+      queuePanel.style.bottom = '90px'; 
     } else {
-      // UNDOCKED: Side layout
       if (window.innerWidth <= 768) {
-        // Mobile fallback if they undocked
         queuePanel.style.left = '4vw';
         queuePanel.style.bottom = (window.innerHeight - rect.top + 15) + 'px';
       } else {
-        // Desktop floating: Attempt Right Side, fallback to Left Side
         if (rect.right + qWidth + 20 > window.innerWidth) {
-          queuePanel.style.left = (rect.left - qWidth - 15) + 'px'; // Left Side
+          queuePanel.style.left = (rect.left - qWidth - 15) + 'px'; 
         } else {
-          queuePanel.style.left = (rect.right + 15) + 'px'; // Right Side
+          queuePanel.style.left = (rect.right + 15) + 'px'; 
         }
-        queuePanel.style.bottom = (window.innerHeight - rect.bottom) + 'px'; // Align bottoms
+        queuePanel.style.bottom = (window.innerHeight - rect.bottom) + 'px'; 
       }
     }
   }
@@ -455,21 +463,18 @@
 
   document.getElementById('crzy-clear-queue').addEventListener('click', ()=> clearQueue());
 
-  // Popup
   const popup = document.createElement('div');
   popup.style.position='fixed'; popup.style.right='18px'; popup.style.bottom='18px'; popup.style.background='var(--accent)'; popup.style.padding='12px 18px'; popup.style.color='#fff'; popup.style.borderRadius='8px'; popup.style.opacity=0; popup.style.transition='opacity .2s'; popup.style.zIndex=99999;
   document.body.appendChild(popup);
   function showPopup(msg, t=1200){ popup.textContent = msg; popup.style.opacity=1; setTimeout(()=>{ popup.style.opacity=0; }, t); }
 
-  // Dragging Logic
   let isDragging=false, dragOffset={x:0,y:0};
   const dragBar = player.querySelector('.drag');
   dragBar.addEventListener('mousedown', startDrag);
   dragBar.addEventListener('touchstart', startDrag, {passive:false});
   function startDrag(e){
     if (player.classList.contains('docked')) return;
-    isDragging=true;
-    dragBar.style.cursor='grabbing';
+    isDragging=true; dragBar.style.cursor='grabbing';
     const ev = e.touches ? e.touches[0] : e;
     dragOffset.x = ev.clientX - player.offsetLeft;
     dragOffset.y = ev.clientY - player.offsetTop;
@@ -477,7 +482,6 @@
     document.addEventListener('touchmove', onDrag, {passive:false});
     document.addEventListener('mouseup', stopDrag);
     document.addEventListener('touchend', stopDrag);
-    player.classList.add('pulse'); 
   }
   function onDrag(e){
     if (!isDragging) return;
@@ -486,18 +490,15 @@
     let y = ev.clientY - dragOffset.y;
     x = Math.max(6, Math.min(window.innerWidth - player.offsetWidth - 6, x));
     y = Math.max(6, Math.min(window.innerHeight - player.offsetHeight - 6, y));
-    player.style.left = x + 'px';
-    player.style.top = y + 'px';
+    player.style.left = x + 'px'; player.style.top = y + 'px';
     positionQueue();
   }
   function stopDrag(){
-    isDragging=false; dragBar.style.cursor='grab'; document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag); player.classList.remove('pulse');
+    isDragging=false; dragBar.style.cursor='grab'; document.removeEventListener('mousemove', onDrag); document.removeEventListener('touchmove', onDrag); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag);
   }
 
-  // Keyboard
   window.addEventListener('keydown',(e)=>{ if (e.code==='Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){ e.preventDefault(); togglePlay(); } });
 
-  // Init
   renderQueue();
   updateMeta();
   positionQueue();

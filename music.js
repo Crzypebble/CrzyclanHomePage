@@ -97,6 +97,8 @@ async function updateSongVote(src, type, increment) {
 }
 
 // ---------------- SITE-WIDE SONG LIST ----------------
+const defaultCoverURL = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
+
 const masterSongs = [
   { title: "Thick And The Bad(Ft.BiggieTrev)", artist: "Crzypebble", src: "Thick_And_The_Bad.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
   { title: "i just wanna make good music", artist: "Crzypebble", src: "i_just_wanna_make_good_music.mp3", source: "Official", cover: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Voices%20From%20The%20Past.webp?raw=true" },
@@ -130,6 +132,11 @@ const masterSongs = [
   { title: "Crimson Code", artist: "AI", src: "crimsoncode.mp3", source: "AI" },
   { title: "Cart was full", artist: "User", src: "cartwasfull.mp3", source: "Uploads" }
 ];
+
+// Force fallback cover on any song missing one so it NEVER shows a broken image
+masterSongs.forEach(song => {
+  if (!song.cover) song.cover = defaultCoverURL;
+});
 
 // ---------------- UTIL / MODALS ----------------
 const popupEl = document.getElementById("popup");
@@ -184,7 +191,7 @@ window.toggleAlbum = toggleAlbum;
 // ---------------- EVENT DELEGATION ----------------
 document.body.addEventListener("click", (e) => {
   
-  // 1. Queue Button Fix (Hooks directly into player.js now)
+  // 1. Queue Button Fix
   const addQueueBtn = e.target.closest('.add-queue');
   if (addQueueBtn) {
     e.stopPropagation();
@@ -248,7 +255,9 @@ document.body.addEventListener("click", (e) => {
   const likeBtn = e.target.closest('.like-btn, .vote-like');
   const dislikeBtn = e.target.closest('.dislike-btn, .vote-dislike');
   const actionBtn = e.target.closest('button');
-  const trackEl = e.target.closest('.track-line, .playable, .search-row');
+  
+  // FIX: Added .track-card so you can click ANYWHERE on the Game OST / Single cards
+  const trackEl = e.target.closest('.track-line, .track-card, .search-row');
   
   if (likeBtn || dislikeBtn) {
     e.stopPropagation(); 
@@ -260,15 +269,17 @@ document.body.addEventListener("click", (e) => {
   // 6. Track Play
   else if (trackEl && !actionBtn) {
       e.stopPropagation();
-      const src = trackEl.getAttribute('data-src');
+      const src = trackEl.getAttribute('data-src') || trackEl.querySelector('[data-src]')?.getAttribute('data-src');
       const foundSong = masterSongs.find(s => s.src === src);
+      
       let rawTitle = foundSong ? foundSong.title : trackEl.textContent.split('-')[0].trim();
-      let cover = foundSong ? foundSong.cover : null;
+      let cover = foundSong ? foundSong.cover : defaultCoverURL;
       
       if (trackEl.classList.contains('track-line') && !foundSong) {
          const split = trackEl.textContent.split('-');
          if (split.length > 1) rawTitle = split[1].trim();
       }
+      
       if (src && !src.startsWith('hidden')) {
           playTrackBySrc(src, rawTitle, cover);
       }
@@ -353,6 +364,7 @@ function renderTop10() {
 function playTrackBySrc(src, title, cover) {
   const songData = masterSongs.find(s => s.src === src);
   if (!cover && songData && songData.cover) cover = songData.cover;
+  if (!cover || cover === 'null' || cover === 'undefined') cover = defaultCoverURL;
   if (!title && songData && songData.title) title = songData.title;
 
   if (loggedInUser) {
@@ -374,14 +386,13 @@ function playTrackBySrc(src, title, cover) {
 function executeQueueOverwrite(queueArray) {
   if (queueArray.length > 0) {
     queueArray.forEach(item => {
-      if (!item.cover) { const found = masterSongs.find(s => s.src === item.src); if (found && found.cover) item.cover = found.cover; }
+      if (!item.cover) { const found = masterSongs.find(s => s.src === item.src); if (found && found.cover) item.cover = found.cover; else item.cover = defaultCoverURL; }
     });
     
     const firstSong = queueArray.shift();
     
     // Overwrite the local storage directly so player.js picks it up
     localStorage.setItem('crzy_queue', JSON.stringify(queueArray));
-    // Dispatching this lets player.js know it needs to refresh the queue if open
     window.dispatchEvent(new Event('storage'));
     
     playTrackBySrc(firstSong.src, firstSong.title, firstSong.cover);
@@ -396,7 +407,7 @@ function showSearchResults(term) {
   let existing = document.getElementById("searchResultsBox");
   if (existing) existing.remove();
   const box = document.createElement("div"); box.id = "searchResultsBox"; box.className = "queue-panel show";
-  box.style.bottom = "auto"; box.style.top = "180px";
+  box.style.bottom = "auto"; box.style.top = "200px";
   if (!results.length) {
     box.innerHTML = "<div style='padding:8px;color:#aaa;'>No results</div>";
   } else {
@@ -440,7 +451,7 @@ function loadPlaylistsForPicker() {
   if (!userPlaylists.length) { playlistList.innerHTML = `<div style="color:#aaa;padding:8px">No playlists yet</div>`; return; }
   userPlaylists.forEach((pl, idx) => {
     const div = document.createElement("div"); div.className = "playlist-picker-item";
-    div.innerHTML = `<img src="${pl.cover || 'https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true'}" alt="cover"><div style="flex:1"><b>${pl.name}</b><br><small>${(pl.songs||[]).length} songs</small></div>`;
+    div.innerHTML = `<img src="${pl.cover || defaultCoverURL}" alt="cover"><div style="flex:1"><b>${pl.name}</b><br><small>${(pl.songs||[]).length} songs</small></div>`;
     div.onclick = () => { if (window.__crzy_pending_add) { addSongToPlaylist(idx, window.__crzy_pending_add); window.__crzy_pending_add = null; } closePicker(); };
     playlistList.appendChild(div);
   });

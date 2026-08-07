@@ -18,7 +18,7 @@
   width: 100vw;
   height: 100vh;
   z-index: -1;
-  pointer-events: none; /* Crucial: lets you click the buttons on the page */
+  pointer-events: none; 
   opacity: 0.15;
   display: none;
 }
@@ -91,8 +91,8 @@
 /* meta info */
 #crzy-player .now { 
   flex: 1; 
-  min-width: 0; /* Prevents container blowout */
-  max-width: 200px; /* Forces text wrap/ellipsis */
+  min-width: 0; 
+  max-width: 200px; 
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -143,7 +143,7 @@
   box-sizing: border-box;
 }
 
-/* canvas - REMOVED RED BORDER */
+/* canvas - NO RED BORDER */
 #crzy-player canvas#crz-canvas { 
   width: 100%; 
   height: 60px; 
@@ -205,8 +205,8 @@
 
 #crzy-player.docked .now {
   flex: 1 1 auto;
-  min-width: 0; /* Important constraint */
-  max-width: 250px; /* Ensures the player doesn't stretch */
+  min-width: 0; 
+  max-width: 250px; 
 }
 
 #crzy-player.docked .cover {
@@ -224,6 +224,13 @@
 #crzy-player.docked canvas#crz-canvas {
   height: 50px;
   flex: 1;
+}
+
+/* FIX: Popping the settings panel UPWARD when docked so it doesn't go off screen */
+#crzy-player.docked .settings {
+  top: auto;
+  bottom: 70px;
+  right: 20px;
 }
 
 /* --------------------------------- */

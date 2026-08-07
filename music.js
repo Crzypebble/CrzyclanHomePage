@@ -1,4 +1,4 @@
-// music.js - site-wide UI for music library, queue, playlists, search
+// music.js - site-wide UI for music library, playlists, search, and UI interactions
 
 let globalVotes = {};
 let loggedInUser = null; 
@@ -6,7 +6,6 @@ let loggedInUser = null;
 let userLikes = [];    
 let userDislikes = [];
 let userPlaylists = [];
-let userQueue = [];       
 let userLastPlayed = null;
 
 let userVotesUnsubscribe = null; 
@@ -36,7 +35,6 @@ if (typeof firebase !== 'undefined') {
           userLikes = d.likes || [];
           userDislikes = d.dislikes || [];
           userPlaylists = d.playlists || [];
-          userQueue = d.queue || userQueue; 
           userLastPlayed = d.lastPlayed || null;
         } else {
           userLikes = []; userDislikes = []; userPlaylists = []; userLastPlayed = null;
@@ -44,7 +42,6 @@ if (typeof firebase !== 'undefined') {
         
         updateVoteUI(); 
         renderPlaylistDashboard();
-        renderQueue();
 
         if (!hasLoadedInitialState && userLastPlayed && userLastPlayed.src) {
           hasLoadedInitialState = true;
@@ -54,8 +51,6 @@ if (typeof firebase !== 'undefined') {
             const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
             if (audio && !audio.src) {
               audio.src = userLastPlayed.src;
-              const np = document.getElementById("now-playing");
-              if (np) np.textContent = "Last: " + userLastPlayed.title;
             }
           }
         }
@@ -69,7 +64,6 @@ if (typeof firebase !== 'undefined') {
       
       updateVoteUI(); 
       renderPlaylistDashboard();
-      renderQueue();
     }
   });
   
@@ -187,17 +181,20 @@ function toggleAlbum(id) {
 }
 window.toggleAlbum = toggleAlbum;
 
-// ---------------- EVENT DELEGATION (FIXES QUEUE BUG) ----------------
+// ---------------- EVENT DELEGATION ----------------
 document.body.addEventListener("click", (e) => {
-  // 1. Queue Button Fix
+  
+  // 1. Queue Button Fix (Hooks directly into player.js now)
   const addQueueBtn = e.target.closest('.add-queue');
   if (addQueueBtn) {
     e.stopPropagation();
-    addToQueue({
-      title: addQueueBtn.dataset.title || addQueueBtn.getAttribute('data-title'),
-      artist: addQueueBtn.dataset.artist || addQueueBtn.getAttribute('data-artist'),
-      src: addQueueBtn.dataset.src || addQueueBtn.getAttribute('data-src')
-    });
+    if (window.CrzyPlayer && window.CrzyPlayer.addToQueue) {
+      window.CrzyPlayer.addToQueue({
+        title: addQueueBtn.dataset.title || addQueueBtn.getAttribute('data-title'),
+        artist: addQueueBtn.dataset.artist || addQueueBtn.getAttribute('data-artist'),
+        src: addQueueBtn.dataset.src || addQueueBtn.getAttribute('data-src')
+      });
+    }
     return;
   }
 
@@ -352,7 +349,7 @@ function renderTop10() {
   updateVoteUI(); 
 }
 
-// ---------------- PLAYER & QUEUE ----------------
+// ---------------- PLAYER OVERWRITES ----------------
 function playTrackBySrc(src, title, cover) {
   const songData = masterSongs.find(s => s.src === src);
   if (!cover && songData && songData.cover) cover = songData.cover;
@@ -373,61 +370,25 @@ function playTrackBySrc(src, title, cover) {
   }
 }
 
-function saveQueue() { 
-  renderQueue();
-  if (loggedInUser) syncUserData({ queue: userQueue });
-}
-
-function addToQueue(song) {
-  if (!song.cover) {
-    const found = masterSongs.find(s => s.src === song.src);
-    if (found && found.cover) song.cover = found.cover;
-  }
-  userQueue.push(song);
-  saveQueue();
-  showPopup("Added to queue", "#1db954");
-}
-
-function clearQueue() {
-  userQueue = []; saveQueue(); showPopup("Queue cleared", "#ff0000");
-}
-
-function popQueue() {
-  if (userQueue.length === 0) return null;
-  const next = userQueue.shift(); saveQueue(); return next;
-}
-
-function renderQueue() {
-  const el = document.getElementById("queueItems");
-  if (!el) return;
-  el.innerHTML = "";
-  if (!userQueue.length) {
-    el.innerHTML = "<div style='padding:8px;color:#aaa'>Queue is empty</div>"; return;
-  }
-  userQueue.forEach((s, i) => {
-    const d = document.createElement("div"); d.className = "queue-item";
-    d.innerHTML = `<div style="flex:1"><b>${s.title}</b><br><small>${s.artist}</small></div>
-      <div style="display:flex;gap:6px"><button class="play-queue" data-i="${i}">▶</button><button class="remove-queue" data-i="${i}">✖</button></div>`;
-    el.appendChild(d);
-  });
-  el.querySelectorAll(".play-queue").forEach(btn => {
-    btn.addEventListener("click", () => { const s = userQueue[+btn.dataset.i]; if (s) playTrackBySrc(s.src, s.title, s.cover); });
-  });
-  el.querySelectorAll(".remove-queue").forEach(btn => {
-    btn.addEventListener("click", () => { userQueue.splice(+btn.dataset.i, 1); saveQueue(); showPopup("Removed from queue", "#ff0000"); });
-  });
-}
-
+// Feeds the album or playlist directly into the player.js queue logic 
 function executeQueueOverwrite(queueArray) {
   if (queueArray.length > 0) {
     queueArray.forEach(item => {
       if (!item.cover) { const found = masterSongs.find(s => s.src === item.src); if (found && found.cover) item.cover = found.cover; }
     });
-    const firstSong = queueArray.shift(); userQueue = queueArray; saveQueue();
+    
+    const firstSong = queueArray.shift();
+    
+    // Overwrite the local storage directly so player.js picks it up
+    localStorage.setItem('crzy_queue', JSON.stringify(queueArray));
+    // Dispatching this lets player.js know it needs to refresh the queue if open
+    window.dispatchEvent(new Event('storage'));
+    
     playTrackBySrc(firstSong.src, firstSong.title, firstSong.cover);
     showPopup("Queue Updated", "#1db954");
   }
 }
+
 
 // ---------------- SEARCH ----------------
 function showSearchResults(term) {
@@ -540,16 +501,8 @@ function loadActivePlaylist(plIdx) {
 
 // ---------------- INIT ----------------
 document.addEventListener("DOMContentLoaded", () => {
-  const audio = document.getElementById("mainAudioPlayer") || document.getElementById("audio-player");
-  if (audio) {
-    audio.addEventListener("ended", () => {
-      const next = popQueue();
-      if (next) playTrackBySrc(next.src, next.title, next.cover);
-      else showPopup("Queue finished", "#ff0000");
-    });
-  }
-  renderQueue(); renderPlaylistDashboard(); renderTop10(); updateVoteUI(); 
+  renderPlaylistDashboard(); renderTop10(); updateVoteUI(); 
 });
 
-window.openAddPicker = openAddPicker; window.addToQueue = addToQueue; window.playTrackBySrc = playTrackBySrc;
-window.modalLogin = modalLogin; window.modalSignUp = modalSignUp; window.closeAuthModal = closeAuthModal; window.clearQueue = clearQueue;
+window.openAddPicker = openAddPicker; window.playTrackBySrc = playTrackBySrc;
+window.modalLogin = modalLogin; window.modalSignUp = modalSignUp; window.closeAuthModal = closeAuthModal;

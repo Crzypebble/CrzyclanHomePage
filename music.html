@@ -27,13 +27,13 @@
         <h2>Crzyclan Music Library</h2>
         <p style="color: #888; font-size: 0.9rem;">Explore our sounds — from the crzyclan to game OSTs and AI experiments.</p>
         
-        <!-- EXPANDING SEARCH BAR (Kills Chrome Autofill) -->
+        <!-- EXPANDING SEARCH BAR -->
         <div class="music-search">
           <input type="text" id="siteSearch" placeholder="Search songs..." readonly onfocus="this.removeAttribute('readonly');" onblur="if(this.value==='') this.setAttribute('readonly', 'readonly');" />
         </div>
       </div>
 
-      <!-- PLAYLIST SECTION -->
+      <!-- PLAYLIST SECTION WITH NEW MANAGEMENT UI -->
       <div class="music-section playlist-container-block">
         <div style="text-align: center; margin-bottom: 1.5rem;">
           <button onclick="const w = document.getElementById('playlist-dashboard-wrapper'); w.style.display = w.style.display === 'none' ? 'block' : 'none';" class="sleek-btn">
@@ -45,11 +45,22 @@
           <div class="playlist-dashboard" style="background: #111; padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
             <div id="playlistContainer" class="playlist-tabs-row" style="margin-bottom: 1rem;"></div>
             
-            <div id="activePlaylistViewer" class="active-playlist-view">
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,0,0,0.2); padding-bottom: 10px; margin-bottom: 10px;">
-                <h4 id="activePlaylistTitle" style="margin: 0; color: #fff;">Select or Create a Playlist</h4>
-                <button id="play-all-playlist-btn" class="sleek-btn-red" style="display: none;">▶ Play All</button>
+            <div id="activePlaylistViewer" class="active-playlist-view" style="display: none;">
+              <!-- CUSTOMIZABLE PLAYLIST HEADER -->
+              <div class="active-pl-header">
+                <div class="editable-cover-wrap" onclick="promptChangeCover()" title="Click to change cover image">
+                  <img id="activePlCover" src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true">
+                  <div class="editable-cover-overlay">✏️ Edit</div>
+                </div>
+                <div style="flex:1;">
+                  <h3 id="activePlaylistTitle" class="editable-title" onclick="promptRenamePlaylist()" title="Click to rename">Playlist Title</h3>
+                  <div style="display:flex; gap:10px;">
+                    <button id="play-all-playlist-btn" class="sleek-btn-red" style="display:none;">▶ Play All</button>
+                    <button onclick="deleteActivePlaylist()" class="sleek-btn" style="border-color:#ff0000; color:#ff0000;">🗑 Delete</button>
+                  </div>
+                </div>
               </div>
+
               <ul id="playlistTracksList" class="track-list">
                 <li class="empty-notice" style="list-style: none; opacity: 0.5;">No playlist selected.</li>
               </ul>
@@ -71,7 +82,6 @@
         <h3 class="section-title">Albums</h3>
         
         <div class="albums-grid">
-          
           <!-- ALBUM 1 -->
           <div class="album-wrapper">
             <div class="album-card" onclick="toggleAlbum('album-1')">
@@ -357,7 +367,7 @@
         </div>
       </div>
 
-      <!-- SINGLES (Clickable Cards & Playlist Buttons) -->
+      <!-- SINGLES -->
       <div class="music-section">
         <h3 class="section-title">Singles</h3>
         <div class="track-grid">
@@ -387,7 +397,7 @@
         </div>
       </div>
 
-      <!-- GAME SOUNDTRACKS (Clickable Cards & Playlist Buttons) -->
+      <!-- GAME SOUNDTRACKS -->
       <div class="music-section">
         <h3 class="section-title">Game Soundtracks</h3>
         <div class="track-grid">

@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const logoutBtn = document.getElementById('logout-btn'); // Fixed ID mismatch
+  const logoutBtn = document.getElementById('logout-btn');
+  const authInputs = document.getElementById('auth-inputs');
+  const securitySection = document.getElementById('security-section');
   const changeEmailBtn = document.getElementById('change-email-button');
   const changePasswordBtn = document.getElementById('change-password-button');
   const resetPasswordBtn = document.getElementById('reset-password-button');
@@ -15,11 +17,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if(bgUploadText) bgUploadText.style.display = 'none';
   }
 
-  logoutBtn?.addEventListener('click', logout);
+  // --- AUTHENTICATION STATE LISTENER ---
+  // This automatically shows/hides the Security and Login sections based on if you are logged in
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      if (authInputs) authInputs.style.display = 'none';
+      if (logoutBtn) logoutBtn.style.display = 'block';
+      if (securitySection) securitySection.style.display = 'block';
+      showStatus(`Logged in securely as ${user.email}`, "#00ff00");
+    } else {
+      if (authInputs) authInputs.style.display = 'block';
+      if (logoutBtn) logoutBtn.style.display = 'none';
+      if (securitySection) securitySection.style.display = 'none';
+      showStatus("Please log in to view security settings.", "#aaa");
+    }
+  });
+
+  // Attach button event listeners
   changeEmailBtn?.addEventListener('click', changeEmail);
   changePasswordBtn?.addEventListener('click', changePassword);
   resetPasswordBtn?.addEventListener('click', resetPassword);
 
+  // Background Image Uploader Logic
   customBgInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -35,7 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if(bgUploadText) bgUploadText.style.display = 'none';
         
         // Apply immediately to current page
-        applyBackground(imageUrl);
+        if (typeof applyBackground === 'function') {
+           applyBackground(imageUrl);
+        } else {
+           document.body.style.backgroundImage = `url('${imageUrl}')`;
+           document.body.style.backgroundSize = "cover";
+           document.body.style.backgroundRepeat = "no-repeat";
+           document.body.style.backgroundPosition = "center center";
+           document.body.style.backgroundAttachment = "fixed"; 
+        }
         showStatus("Custom background applied site-wide!", "#00ff00");
       };
       reader.readAsDataURL(file);
@@ -56,14 +83,64 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// --- HELPER FUNCTIONS ---
+
 function showStatus(msg, color) {
   const statusEl = document.getElementById('status-msg');
   if (statusEl) {
     statusEl.textContent = msg;
     statusEl.style.color = color;
-    setTimeout(() => statusEl.textContent = "", 3000);
+    setTimeout(() => statusEl.textContent = "", 4000);
   }
 }
+
+// --- AUTHENTICATION FUNCTIONS ---
+
+window.login = function() {
+  const emailInput = document.getElementById('email').value.trim();
+  const passwordInput = document.getElementById('password').value;
+  if (!emailInput || !passwordInput) {
+    return showStatus("Please enter both email and password.", "#ff0000");
+  }
+  
+  firebase.auth().signInWithEmailAndPassword(emailInput, passwordInput)
+    .then(() => {
+      showStatus("Logged in successfully!", "#00ff00");
+    })
+    .catch((error) => {
+      showStatus(error.message, "#ff0000");
+    });
+};
+
+window.signUp = function() {
+  const emailInput = document.getElementById('email').value.trim();
+  const passwordInput = document.getElementById('password').value;
+  if (!emailInput || !passwordInput) {
+    return showStatus("Please enter both email and password.", "#ff0000");
+  }
+
+  firebase.auth().createUserWithEmailAndPassword(emailInput, passwordInput)
+    .then(() => {
+      showStatus("Account created successfully!", "#00ff00");
+    })
+    .catch((error) => {
+      showStatus(error.message, "#ff0000");
+    });
+};
+
+window.logout = function() {
+  firebase.auth().signOut()
+    .then(() => {
+      showStatus("Logged out.", "#00ff00");
+      document.getElementById('email').value = "";
+      document.getElementById('password').value = "";
+    })
+    .catch((error) => {
+      showStatus(error.message, "#ff0000");
+    });
+};
+
+// --- SECURITY FUNCTIONS ---
 
 function changeEmail() {
   const newEmail = prompt("Enter your new email:");

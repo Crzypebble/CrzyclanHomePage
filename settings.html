@@ -5,6 +5,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crzyclan Settings</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Sleek Settings Dashboard Styles */
+    #settings-dashboard {
+      max-width: 1000px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      padding: 0 20px;
+    }
+    .settings-card {
+      background: #151515;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    }
+    .settings-card h3 {
+      margin-top: 0;
+      color: #fff;
+      border-bottom: 1px solid rgba(255,0,0,0.3);
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+      font-size: 1.5rem;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+    .settings-input {
+      width: 100%;
+      padding: 14px;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .settings-input:focus {
+      border-color: #ff0000;
+      outline: none;
+    }
+    .btn-primary {
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #d90000; }
+    .btn-secondary {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+    
+    /* Background Uploader specific styles */
+    .bg-preview-box {
+      width: 100%;
+      height: 150px;
+      background: #0a0a0a;
+      border: 2px dashed #555;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      cursor: pointer;
+      margin-bottom: 15px;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      transition: border-color 0.2s;
+    }
+    .bg-preview-box:hover { border-color: #ff0000; color: #fff; }
+    #status-msg { text-align: center; font-size: 0.9rem; min-height: 20px; margin-bottom: 20px; }
+  </style>
 </head>
 <body>
   <header>
@@ -12,7 +110,7 @@
     <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
       <a href="index.html">Home</a>
-      <a href="membership.html">Membership</a>
+      <a href="other.html">Other</a>
       <a href="music.html">Music</a>
       <a href="shop.html">Shop</a>
       <a href="settings.html" class="active">Settings</a>
@@ -21,29 +119,64 @@
 
   <main>
     <section id="settings">
-      <h2>Settings</h2>
-      <div id="auth-section">
-        <input type="email" id="email" placeholder="Email" />
-        <input type="password" id="password" placeholder="Password" />
-        <button onclick="signUp()">Sign Up</button>
-        <button onclick="login()">Login</button>
-        <button id="logout-btn" onclick="logout()" style="display: none;">Logout</button>
-      </div>
-      <p id="auth-status"></p>
+      <h2 style="text-align: center; margin-top: 20px;">Control Panel</h2>
+      <p id="status-msg" style="color:#00ff00;"></p>
 
-      <h3>Account Settings</h3>
-      <input type="file" id="custom-background" accept="image/*" />
-      <button id="clear-background">Clear Background</button>
-      <hr />
-      <button id="change-email-button">Change Email</button>
-      <button id="change-password-button">Change Password</button>
-      <button id="reset-password-button">Send Password Reset Email</button>
+      <div id="settings-dashboard">
+        
+        <!-- AUTHENTICATION CARD -->
+        <div class="settings-card">
+          <h3>Account Access</h3>
+          <div id="auth-section">
+            <div class="input-group">
+              <label>Email Address</label>
+              <input type="email" id="email" class="settings-input" placeholder="Enter your email" />
+            </div>
+            <div class="input-group">
+              <label>Password</label>
+              <input type="password" id="password" class="settings-input" placeholder="Enter your password" />
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button class="btn-secondary" onclick="signUp()">Sign Up</button>
+              <button class="btn-primary" onclick="login()">Login</button>
+            </div>
+            <button id="logout-btn" class="btn-secondary" onclick="logout()" style="display: none; border-color: #ff0000; color: #ff0000; margin-top: 20px;">Logout</button>
+          </div>
+        </div>
+
+        <!-- SITE PREFERENCES & SECURITY CARD -->
+        <div class="settings-card">
+          <h3>Site Preferences</h3>
+          
+          <div class="input-group">
+            <label>Custom Site Background</label>
+            <p style="font-size: 0.8rem; color: #888; margin-top: 0;">Upload an image from your device to change the background across the entire CRZYCLAN website.</p>
+            
+            <div class="bg-preview-box" id="bg-preview" onclick="document.getElementById('custom-background').click()">
+              <span id="bg-upload-text">📸 Click to upload image</span>
+            </div>
+            <input type="file" id="custom-background" accept="image/*" style="display: none;" />
+            <button id="clear-background" class="btn-secondary">Revert to Default Background</button>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;" />
+          
+          <h3>Security</h3>
+          <button id="change-email-button" class="btn-secondary">Change Registered Email</button>
+          <button id="change-password-button" class="btn-secondary">Update Password</button>
+          <button id="reset-password-button" class="btn-secondary">Send Password Reset Email</button>
+        </div>
+
+      </div>
     </section>
   </main>
 
   <footer>
-    &copy; 2025 CRZYCLAN. All rights reserved.
+    &copy; 2026 CRZYCLAN. All rights reserved.
   </footer>
+
+  <!-- Global Script for applying background -->
+  <script src="global.js"></script>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>

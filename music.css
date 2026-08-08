@@ -1,6 +1,6 @@
 /* --- General Music Section Styles --- */
 body {
-  background: #0d0d0d;
+  background-color: #0d0d0d; /* STRICTLY background-color so it doesn't override global custom images */
   color: white;
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -75,6 +75,37 @@ h3.section-title, h4, h2 {
 }
 .music-search input#siteSearch::placeholder { color: transparent; }
 .music-search input#siteSearch:focus::placeholder { color: #888; }
+
+/* --- SEARCH DROPDOWN FIX --- */
+#searchResultsBox {
+  position: absolute;
+  top: 60px; /* Positions right below the search bar */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  min-width: 320px;
+  background: #181818;
+  border: 1px solid rgba(255,0,0,0.4);
+  border-radius: 8px;
+  z-index: 10000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+  max-height: 400px;
+  overflow-y: auto;
+  text-align: left;
+}
+#searchResultsBox .search-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+#searchResultsBox .search-row:hover {
+  background: #222;
+}
+#searchResultsBox .search-row:last-child {
+  border-bottom: none;
+}
 
 /* --- main sections --- */
 .music-section {

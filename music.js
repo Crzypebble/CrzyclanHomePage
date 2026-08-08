@@ -11,7 +11,6 @@ let userLastPlayed = null;
 let userVotesUnsubscribe = null; 
 let hasLoadedInitialState = false;
 
-// NEW: Tracks which playlist is currently open for editing/playing
 let currentActivePlaylistIndex = null;
 
 function requireAuth() {
@@ -338,6 +337,8 @@ function renderTop10() {
     topListEl.innerHTML = '<li class="empty-notice" style="list-style: none; opacity: 0.7;">No likes yet. Be the first!</li>'; return;
   }
   topListEl.innerHTML = "";
+  
+  // FIX: Renders inside the new Grid Layout
   top10.forEach((song, index) => {
     const li = document.createElement("li");
     li.className = "track-line";
@@ -464,7 +465,6 @@ function addSongToPlaylist(index, song) {
   
   userPlaylists[index].songs.push(song);
   
-  // FIX: Auto-set cover image to the first track added
   if (userPlaylists[index].songs.length === 1 && (!userPlaylists[index].cover || userPlaylists[index].cover === defaultCoverURL)) {
       const foundMaster = masterSongs.find(s => s.src === song.src);
       userPlaylists[index].cover = (foundMaster && foundMaster.cover) ? foundMaster.cover : defaultCoverURL;
@@ -512,33 +512,31 @@ function loadActivePlaylist(plIdx) {
   playAllBtn.style.display = "block";
   pl.songs.forEach((song, songIdx) => {
     const li = document.createElement("li"); li.className = "track-line"; li.dataset.src = song.src;
+    
+    // FIX: Removed the redundant play button from track row
     li.innerHTML = `${song.title} - <small>${song.artist || 'Unknown'}</small>
       <span class="track-actions-inline">
         <button class="like-btn">👍 <span class="like-count">0</span></button>
         <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
-        <button class="play-pl-song">▶️</button>
-        <button class="remove-pl-song" style="color:#ff0000;">✖</button>
+        <button class="remove-pl-song" style="color:#ff0000;" title="Remove">✖</button>
       </span>`;
-    li.querySelector('.play-pl-song').onclick = (e) => { e.stopPropagation(); playTrackBySrc(song.src, song.title, song.cover); };
-    li.querySelector('.remove-pl-song').onclick = (e) => { e.stopPropagation(); if (requireAuth()) { userPlaylists[plIdx].songs.splice(songIdx, 1); syncUserData({ playlists: userPlaylists }); loadActivePlaylist(plIdx); showPopup("Removed", "#ff0000"); } };
+      
+    li.querySelector('.remove-pl-song').onclick = (e) => { 
+        e.stopPropagation(); 
+        if (requireAuth()) { 
+            userPlaylists[plIdx].songs.splice(songIdx, 1); 
+            syncUserData({ playlists: userPlaylists }); 
+            loadActivePlaylist(plIdx); 
+            showPopup("Removed", "#ff0000"); 
+        } 
+    };
     tracksList.appendChild(li);
   });
   updateVoteUI(); 
 }
 
-// FIX: Playlist Management Functions
-function promptChangeCover() {
-  if (!requireAuth() || currentActivePlaylistIndex === null) return;
-  const newUrl = prompt("Enter the new image URL for your playlist cover:");
-  if (newUrl && newUrl.trim() !== "") {
-      userPlaylists[currentActivePlaylistIndex].cover = newUrl.trim();
-      syncUserData({ playlists: userPlaylists });
-      loadActivePlaylist(currentActivePlaylistIndex);
-      loadPlaylistsForPicker();
-      showPopup("Cover updated", "#1db954");
-  }
-}
 
+// --- FIX: PLAYLIST MANAGEMENT & FILE UPLOADS ---
 function promptRenamePlaylist() {
   if (!requireAuth() || currentActivePlaylistIndex === null) return;
   const newName = prompt("Enter new playlist name:", userPlaylists[currentActivePlaylistIndex].name);
@@ -562,7 +560,54 @@ function deleteActivePlaylist() {
       showPopup("Playlist deleted", "#ff0000");
   }
 }
-window.promptChangeCover = promptChangeCover; window.promptRenamePlaylist = promptRenamePlaylist; window.deleteActivePlaylist = deleteActivePlaylist;
+
+function triggerCoverUpload() {
+  if (!requireAuth() || currentActivePlaylistIndex === null) return;
+  const uploader = document.getElementById('coverUploader');
+  if(uploader) uploader.click();
+}
+
+// Automatically compresses the image on upload so it fits safely in the database
+document.getElementById('coverUploader')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_SIZE = 300; // Compress size to keep database fast
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+      } else {
+        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convert drawing to a tiny compressed jpeg string
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      userPlaylists[currentActivePlaylistIndex].cover = dataUrl;
+      
+      syncUserData({ playlists: userPlaylists });
+      loadActivePlaylist(currentActivePlaylistIndex);
+      loadPlaylistsForPicker();
+      showPopup("Cover updated", "#1db954");
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = ''; // Reset input
+});
+
+window.triggerCoverUpload = triggerCoverUpload; window.promptRenamePlaylist = promptRenamePlaylist; window.deleteActivePlaylist = deleteActivePlaylist;
 
 // ---------------- INIT ----------------
 document.addEventListener("DOMContentLoaded", () => {

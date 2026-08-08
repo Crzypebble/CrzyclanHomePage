@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <!-- PLAYLIST SECTION WITH NEW MANAGEMENT UI -->
+      <!-- PLAYLIST SECTION WITH CUSTOM MANAGEMENT UI -->
       <div class="music-section playlist-container-block">
         <div style="text-align: center; margin-bottom: 1.5rem;">
           <button onclick="const w = document.getElementById('playlist-dashboard-wrapper'); w.style.display = w.style.display === 'none' ? 'block' : 'none';" class="sleek-btn">
@@ -367,6 +367,96 @@
         </div>
       </div>
 
+      <!-- GAME SOUNDTRACKS (NOW ALBUM BASED) -->
+      <div class="music-section">
+        <h3 class="section-title">Game Soundtracks</h3>
+        <div class="albums-grid">
+          
+          <!-- DAYS BEFORE DEATH OST ALBUM -->
+          <div class="album-wrapper">
+            <div class="album-card" onclick="toggleAlbum('album-dbd')">
+              <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Days Before Death OST" class="album-cover">
+              <div class="album-info">
+                <strong>Days Before Death OST</strong>
+                <small>Days Before Death • Game Soundtrack</small>
+              </div>
+              <div class="album-chevron">▼</div>
+            </div>
+            <div id="album-dbd" class="album-tracks-container">
+              <button class="play-album-btn sleek-btn-red" data-target="album-dbd" style="margin-bottom: 10px; width: 100%;">▶ Play Full Soundtrack</button>
+              <ul class="album-tracks">
+                <li data-src="triggerrun.mp3" class="track-line" tabindex="0">1. Trigger Run
+                  <span class="track-actions-inline">
+                    <button class="like-btn">👍 <span class="like-count">0</span></button>
+                    <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
+                    <button class="add-queue" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">➜</button>
+                    <button class="add-playlist" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">＋</button>
+                  </span>
+                </li>
+                <li data-src="downbelow.mp3" class="track-line" tabindex="0">2. Down Below
+                  <span class="track-actions-inline">
+                    <button class="like-btn">👍 <span class="like-count">0</span></button>
+                    <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
+                    <button class="add-queue" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">➜</button>
+                    <button class="add-playlist" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">＋</button>
+                  </span>
+                </li>
+                <li data-src="daysbeforedeath.mp3" class="track-line" tabindex="0">3. Days Before Death
+                  <span class="track-actions-inline">
+                    <button class="like-btn">👍 <span class="like-count">0</span></button>
+                    <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
+                    <button class="add-queue" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">➜</button>
+                    <button class="add-playlist" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">＋</button>
+                  </span>
+                </li>
+                <li data-src="deadweight.mp3" class="track-line" tabindex="0">4. Dead Weight
+                  <span class="track-actions-inline">
+                    <button class="like-btn">👍 <span class="like-count">0</span></button>
+                    <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
+                    <button class="add-queue" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">➜</button>
+                    <button class="add-playlist" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">＋</button>
+                  </span>
+                </li>
+                <li data-src="eyeoftheloop.mp3" class="track-line" tabindex="0">5. Eye Of The Loop
+                  <span class="track-actions-inline">
+                    <button class="like-btn">👍 <span class="like-count">0</span></button>
+                    <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
+                    <button class="add-queue" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">➜</button>
+                    <button class="add-playlist" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">＋</button>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 2022: THE GAME OST ALBUM (READY FOR YOUR SOUNDTRACK) -->
+          <div class="album-wrapper">
+            <div class="album-card" onclick="toggleAlbum('album-2022')">
+              <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="2022: The Game OST" class="album-cover">
+              <div class="album-info">
+                <strong>2022: The Game OST</strong>
+                <small>Crzypebble • Game Soundtrack</small>
+              </div>
+              <div class="album-chevron">▼</div>
+            </div>
+            <div id="album-2022" class="album-tracks-container">
+              <button class="play-album-btn sleek-btn-red" data-target="album-2022" style="margin-bottom: 10px; width: 100%;">▶ Play Full Soundtrack</button>
+              <ul class="album-tracks">
+                <li data-src="Lost_In_Time.mp3" class="track-line" tabindex="0">1. Lost In Time
+                  <span class="track-actions-inline">
+                    <button class="like-btn">👍 <span class="like-count">0</span></button>
+                    <button class="dislike-btn">👎 <span class="dislike-count">0</span></button>
+                    <button class="add-queue" data-src="Lost_In_Time.mp3" data-title="Lost In Time" data-artist="Crzypebble">➜</button>
+                    <button class="add-playlist" data-src="Lost_In_Time.mp3" data-title="Lost In Time" data-artist="Crzypebble">＋</button>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- SINGLES -->
       <div class="music-section">
         <h3 class="section-title">Singles</h3>
@@ -394,69 +484,6 @@
               <button class="icon add-playlist" data-src="mindinred.mp3" data-title="Mind in Red" data-artist="Crzypebble">＋</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- GAME SOUNDTRACKS -->
-      <div class="music-section">
-        <h3 class="section-title">Game Soundtracks</h3>
-        <div class="track-grid">
-          
-          <div class="track-card" data-src="triggerrun.mp3">
-            <div class="track-body" style="padding-left: 8px;">
-              <strong>Trigger Run</strong><br>
-              <small>Days Before Death OST</small>
-            </div>
-            <div class="track-actions">
-              <button class="icon add-queue" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">➜</button>
-              <button class="icon add-playlist" data-src="triggerrun.mp3" data-title="Trigger Run" data-artist="Days Before Death">＋</button>
-            </div>
-          </div>
-
-          <div class="track-card" data-src="downbelow.mp3">
-            <div class="track-body" style="padding-left: 8px;">
-              <strong>Down Below</strong><br>
-              <small>Days Before Death OST</small>
-            </div>
-            <div class="track-actions">
-              <button class="icon add-queue" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">➜</button>
-              <button class="icon add-playlist" data-src="downbelow.mp3" data-title="Down Below" data-artist="Days Before Death">＋</button>
-            </div>
-          </div>
-
-          <div class="track-card" data-src="daysbeforedeath.mp3">
-            <div class="track-body" style="padding-left: 8px;">
-              <strong>Days Before Death</strong><br>
-              <small>Days Before Death OST</small>
-            </div>
-            <div class="track-actions">
-              <button class="icon add-queue" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">➜</button>
-              <button class="icon add-playlist" data-src="daysbeforedeath.mp3" data-title="Days Before Death" data-artist="Days Before Death">＋</button>
-            </div>
-          </div>
-
-          <div class="track-card" data-src="deadweight.mp3">
-            <div class="track-body" style="padding-left: 8px;">
-              <strong>Dead Weight</strong><br>
-              <small>Days Before Death OST</small>
-            </div>
-            <div class="track-actions">
-              <button class="icon add-queue" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">➜</button>
-              <button class="icon add-playlist" data-src="deadweight.mp3" data-title="Dead Weight" data-artist="Days Before Death">＋</button>
-            </div>
-          </div>
-
-          <div class="track-card" data-src="eyeoftheloop.mp3">
-            <div class="track-body" style="padding-left: 8px;">
-              <strong>Eye Of The Loop</strong><br>
-              <small>Days Before Death OST</small>
-            </div>
-            <div class="track-actions">
-              <button class="icon add-queue" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">➜</button>
-              <button class="icon add-playlist" data-src="eyeoftheloop.mp3" data-title="Eye Of The Loop" data-artist="Days Before Death">＋</button>
-            </div>
-          </div>
-
         </div>
       </div>
 

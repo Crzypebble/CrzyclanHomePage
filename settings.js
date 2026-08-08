@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const securitySection = document.getElementById('security-section');
   const changeEmailBtn = document.getElementById('change-email-button');
   const changePasswordBtn = document.getElementById('change-password-button');
-  const resetPasswordBtn = document.getElementById('reset-password-button');
   const customBgInput = document.getElementById('custom-background');
   const clearBgBtn = document.getElementById('clear-background');
   const bgPreviewBox = document.getElementById('bg-preview');
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- AUTHENTICATION STATE LISTENER ---
-  // This automatically shows/hides the Security and Login sections based on if you are logged in
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       if (authInputs) authInputs.style.display = 'none';
@@ -29,14 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (authInputs) authInputs.style.display = 'block';
       if (logoutBtn) logoutBtn.style.display = 'none';
       if (securitySection) securitySection.style.display = 'none';
-      showStatus("Please log in to view security settings.", "#aaa");
     }
   });
 
   // Attach button event listeners
   changeEmailBtn?.addEventListener('click', changeEmail);
   changePasswordBtn?.addEventListener('click', changePassword);
-  resetPasswordBtn?.addEventListener('click', resetPassword);
 
   // Background Image Uploader Logic
   customBgInput?.addEventListener('change', (e) => {
@@ -46,14 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.onload = (event) => {
         const imageUrl = event.target.result;
         
-        // Save globally
         localStorage.setItem('customBackground', imageUrl);
         
-        // Update the visual preview box
         if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${imageUrl}')`;
         if(bgUploadText) bgUploadText.style.display = 'none';
         
-        // Apply immediately to current page
         if (typeof applyBackground === 'function') {
            applyBackground(imageUrl);
         } else {
@@ -142,6 +135,27 @@ window.logout = function() {
 
 // --- SECURITY FUNCTIONS ---
 
+window.resetPassword = function() {
+  let targetEmail = "";
+  const user = firebase.auth().currentUser;
+  
+  // If logged in, use their account email. If logged out, grab it from the text box.
+  if (user) {
+    targetEmail = user.email;
+  } else {
+    targetEmail = document.getElementById('email').value.trim();
+  }
+
+  if (!targetEmail) {
+    showStatus("Please enter your email in the box to reset your password.", "#ff0000");
+    return;
+  }
+
+  firebase.auth().sendPasswordResetEmail(targetEmail)
+    .then(() => showStatus("Password reset email sent. Check your inbox.", "#00ff00"))
+    .catch(error => showStatus(error.message, "#ff0000"));
+};
+
 function changeEmail() {
   const newEmail = prompt("Enter your new email:");
   if (!newEmail) return;
@@ -159,17 +173,5 @@ function changePassword() {
   const user = firebase.auth().currentUser;
   user.updatePassword(newPassword)
     .then(() => showStatus("Password successfully updated.", "#00ff00"))
-    .catch(error => showStatus(error.message, "#ff0000"));
-}
-
-function resetPassword() {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    showStatus("You must be logged in to do this.", "#ff0000");
-    return;
-  }
-  const emailAddress = user.email;
-  firebase.auth().sendPasswordResetEmail(emailAddress)
-    .then(() => showStatus("Password reset email sent. Check your inbox.", "#00ff00"))
     .catch(error => showStatus(error.message, "#ff0000"));
 }

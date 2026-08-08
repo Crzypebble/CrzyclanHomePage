@@ -1,15 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const logoutBtn = document.getElementById('logout-button');
+  const logoutBtn = document.getElementById('logout-btn'); // Fixed ID mismatch
   const changeEmailBtn = document.getElementById('change-email-button');
   const changePasswordBtn = document.getElementById('change-password-button');
   const resetPasswordBtn = document.getElementById('reset-password-button');
   const customBgInput = document.getElementById('custom-background');
   const clearBgBtn = document.getElementById('clear-background');
+  const bgPreviewBox = document.getElementById('bg-preview');
+  const bgUploadText = document.getElementById('bg-upload-text');
 
-  // ✅ Reapply background from localStorage on page load
+  // Load visual preview in settings if background exists
   const savedBg = localStorage.getItem('customBackground');
   if (savedBg) {
-    applyBackground(savedBg);
+    if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${savedBg}')`;
+    if(bgUploadText) bgUploadText.style.display = 'none';
   }
 
   logoutBtn?.addEventListener('click', logout);
@@ -23,8 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target.result;
+        
+        // Save globally
         localStorage.setItem('customBackground', imageUrl);
+        
+        // Update the visual preview box
+        if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${imageUrl}')`;
+        if(bgUploadText) bgUploadText.style.display = 'none';
+        
+        // Apply immediately to current page
         applyBackground(imageUrl);
+        showStatus("Custom background applied site-wide!", "#00ff00");
       };
       reader.readAsDataURL(file);
     }
@@ -36,14 +48,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.backgroundSize = "";
     document.body.style.backgroundRepeat = "";
     document.body.style.backgroundPosition = "";
+    document.body.style.backgroundAttachment = "";
+    
+    if(bgPreviewBox) bgPreviewBox.style.backgroundImage = "none";
+    if(bgUploadText) bgUploadText.style.display = 'block';
+    showStatus("Background reverted to default.", "#ff0000");
   });
 });
 
-function applyBackground(imageUrl) {
-  document.body.style.backgroundImage = `url('${imageUrl}')`;
-  document.body.style.backgroundSize = "cover";
-  document.body.style.backgroundRepeat = "no-repeat";
-  document.body.style.backgroundPosition = "center center";
+function showStatus(msg, color) {
+  const statusEl = document.getElementById('status-msg');
+  if (statusEl) {
+    statusEl.textContent = msg;
+    statusEl.style.color = color;
+    setTimeout(() => statusEl.textContent = "", 3000);
+  }
 }
 
 function changeEmail() {
@@ -52,8 +71,8 @@ function changeEmail() {
 
   const user = firebase.auth().currentUser;
   user.updateEmail(newEmail)
-    .then(() => alert("Email updated."))
-    .catch(error => alert(error.message));
+    .then(() => showStatus("Email successfully updated.", "#00ff00"))
+    .catch(error => showStatus(error.message, "#ff0000"));
 }
 
 function changePassword() {
@@ -62,14 +81,18 @@ function changePassword() {
 
   const user = firebase.auth().currentUser;
   user.updatePassword(newPassword)
-    .then(() => alert("Password updated."))
-    .catch(error => alert(error.message));
+    .then(() => showStatus("Password successfully updated.", "#00ff00"))
+    .catch(error => showStatus(error.message, "#ff0000"));
 }
 
 function resetPassword() {
   const user = firebase.auth().currentUser;
+  if (!user) {
+    showStatus("You must be logged in to do this.", "#ff0000");
+    return;
+  }
   const emailAddress = user.email;
   firebase.auth().sendPasswordResetEmail(emailAddress)
-    .then(() => alert("Reset email sent."))
-    .catch(error => alert(error.message));
+    .then(() => showStatus("Password reset email sent. Check your inbox.", "#00ff00"))
+    .catch(error => showStatus(error.message, "#ff0000"));
 }

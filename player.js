@@ -176,14 +176,15 @@
         x += barWidth + 1;
       }
     } else if (style === 'wave') {
+      // FIX: Made the foreground wave much thicker (linewidth 4) and taller (multiplier 1.8)
       analyser.getByteTimeDomainData(timeDataArray);
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 4;
       ctx.strokeStyle = accentCol;
       ctx.beginPath();
       const slice = w / bufferLength;
       for (let i=0; i<bufferLength; i++){
         const v = (timeDataArray[i]-128)/128;
-        const y = (h/2) + v*(h/2)*0.9;
+        const y = (h/2) + v*(h/2)*1.8;
         const x = i*slice;
         if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
       }
@@ -207,17 +208,33 @@
           bx += bgBarW + 2;
         }
       } else {
-        bgCtx.lineWidth = 3;
+        // FIX: Thick double-wave background
+        const bgSlice = bgW / bufferLength;
+        
+        // Primary massive background wave
+        bgCtx.lineWidth = 8;
         bgCtx.strokeStyle = accentCol;
         bgCtx.beginPath();
-        const bgSlice = bgW / bufferLength;
         for (let i = 0; i < bufferLength; i++) {
           const v = (timeDataArray[i] - 128) / 128;
-          const y = (bgH / 2) + v * (bgH / 3); 
+          const y = (bgH / 2) + v * (bgH * 0.8); 
           const x = i * bgSlice;
           if (i === 0) bgCtx.moveTo(x, y); else bgCtx.lineTo(x, y);
         }
         bgCtx.stroke();
+        
+        // Secondary massive but inverted/faded background wave
+        bgCtx.globalAlpha = 0.3;
+        bgCtx.lineWidth = 12;
+        bgCtx.beginPath();
+        for (let i = 0; i < bufferLength; i++) {
+          const v = (timeDataArray[i] - 128) / 128;
+          const y = (bgH / 2) - v * (bgH * 0.6); 
+          const x = i * bgSlice;
+          if (i === 0) bgCtx.moveTo(x, y); else bgCtx.lineTo(x, y);
+        }
+        bgCtx.stroke();
+        bgCtx.globalAlpha = 1.0; // Reset alpha
       }
     } else {
       bgCanvas.style.display = 'none';

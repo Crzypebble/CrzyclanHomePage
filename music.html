@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <!-- PLAYLIST SECTION WITH CUSTOM MANAGEMENT UI -->
+      <!-- PLAYLIST SECTION WITH CLEANED UP UI -->
       <div class="music-section playlist-container-block">
         <div style="text-align: center; margin-bottom: 1.5rem;">
           <button onclick="const w = document.getElementById('playlist-dashboard-wrapper'); w.style.display = w.style.display === 'none' ? 'block' : 'none';" class="sleek-btn">
@@ -48,13 +48,14 @@
             <div id="activePlaylistViewer" class="active-playlist-view" style="display: none;">
               <!-- CUSTOMIZABLE PLAYLIST HEADER -->
               <div class="active-pl-header">
-                <div class="editable-cover-wrap" onclick="promptChangeCover()" title="Click to change cover image">
+                <!-- NOW CLICKS TO UPLOAD FROM DEVICE -->
+                <div class="editable-cover-wrap" onclick="triggerCoverUpload()" title="Click to upload cover image">
                   <img id="activePlCover" src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true">
                   <div class="editable-cover-overlay">✏️ Edit</div>
                 </div>
-                <div style="flex:1;">
+                <div class="active-pl-info">
                   <h3 id="activePlaylistTitle" class="editable-title" onclick="promptRenamePlaylist()" title="Click to rename">Playlist Title</h3>
-                  <div style="display:flex; gap:10px;">
+                  <div class="active-pl-actions">
                     <button id="play-all-playlist-btn" class="sleek-btn-red" style="display:none;">▶ Play All</button>
                     <button onclick="deleteActivePlaylist()" class="sleek-btn" style="border-color:#ff0000; color:#ff0000;">🗑 Delete</button>
                   </div>
@@ -69,10 +70,10 @@
         </div>
       </div>
 
-      <!-- TOP 10 LIKED SONGS -->
+      <!-- TOP 10 LIKED SONGS (NOW A GRID) -->
       <div class="music-section">
         <h3 class="section-title">🔥 Top 10 Liked</h3>
-        <ul id="top-10-list" class="track-list">
+        <ul id="top-10-list">
           <li class="empty-notice" style="list-style: none; opacity: 0.5;">Loading top tracks...</li>
         </ul>
       </div>
@@ -367,7 +368,7 @@
         </div>
       </div>
 
-      <!-- GAME SOUNDTRACKS (NOW ALBUM BASED) -->
+      <!-- GAME SOUNDTRACKS -->
       <div class="music-section">
         <h3 class="section-title">Game Soundtracks</h3>
         <div class="albums-grid">
@@ -429,7 +430,7 @@
             </div>
           </div>
 
-          <!-- 2022: THE GAME OST ALBUM (READY FOR YOUR SOUNDTRACK) -->
+          <!-- 2022: THE GAME OST ALBUM -->
           <div class="album-wrapper">
             <div class="album-card" onclick="toggleAlbum('album-2022')">
               <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="2022: The Game OST" class="album-cover">
@@ -491,7 +492,6 @@
       <div class="music-section">
         <h3 class="section-title">AI & User Experiments</h3>
         <div class="track-grid">
-          
           <div class="track-card" data-src="crimsoncode.mp3">
             <div class="track-body" style="padding-left: 8px;">
               <strong>Crimson Code</strong><br>
@@ -513,11 +513,13 @@
               <button class="icon add-playlist" data-src="cartwasfull.mp3" data-title="Cart was full" data-artist="User">＋</button>
             </div>
           </div>
-
         </div>
       </div>
     </section>
   </main>
+
+  <!-- HIDDEN FILE UPLOADER FOR PLAYLIST COVERS -->
+  <input type="file" id="coverUploader" accept="image/*" style="display: none;">
 
   <!-- AUTH MODAL -->
   <div id="authModal" class="modal">

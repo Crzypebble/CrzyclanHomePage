@@ -11,6 +11,9 @@ let userLastPlayed = null;
 let userVotesUnsubscribe = null; 
 let hasLoadedInitialState = false;
 
+// NEW: Tracks which playlist is currently open for editing/playing
+let currentActivePlaylistIndex = null;
+
 function requireAuth() {
   if (loggedInUser) return true;
   const modal = document.getElementById('authModal');
@@ -133,7 +136,6 @@ const masterSongs = [
   { title: "Cart was full", artist: "User", src: "cartwasfull.mp3", source: "Uploads" }
 ];
 
-// Force fallback cover on any song missing one so it NEVER shows a broken image
 masterSongs.forEach(song => {
   if (!song.cover) song.cover = defaultCoverURL;
 });
@@ -191,7 +193,6 @@ window.toggleAlbum = toggleAlbum;
 // ---------------- EVENT DELEGATION ----------------
 document.body.addEventListener("click", (e) => {
   
-  // 1. Queue Button Fix
   const addQueueBtn = e.target.closest('.add-queue');
   if (addQueueBtn) {
     e.stopPropagation();
@@ -205,7 +206,6 @@ document.body.addEventListener("click", (e) => {
     return;
   }
 
-  // 2. Add Playlist Button Fix
   const addPlBtn = e.target.closest('.add-playlist');
   if (addPlBtn) {
     e.stopPropagation();
@@ -218,7 +218,6 @@ document.body.addEventListener("click", (e) => {
     return;
   }
 
-  // 3. Play Album Button Fix
   if (e.target.classList.contains("play-album-btn")) {
     const targetId = e.target.getAttribute("data-target");
     const container = document.getElementById(targetId);
@@ -235,7 +234,6 @@ document.body.addEventListener("click", (e) => {
     return;
   }
 
-  // 4. Play Playlist Button
   if (e.target.id === "play-all-playlist-btn") {
     const list = document.getElementById("playlistTracksList");
     if (list) {
@@ -251,12 +249,10 @@ document.body.addEventListener("click", (e) => {
     return;
   }
 
-  // 5. Like / Dislike
   const likeBtn = e.target.closest('.like-btn, .vote-like');
   const dislikeBtn = e.target.closest('.dislike-btn, .vote-dislike');
   const actionBtn = e.target.closest('button');
   
-  // FIX: Added .track-card so you can click ANYWHERE on the Game OST / Single cards
   const trackEl = e.target.closest('.track-line, .track-card, .search-row');
   
   if (likeBtn || dislikeBtn) {
@@ -266,7 +262,6 @@ document.body.addEventListener("click", (e) => {
     let src = trackEl?.dataset.src || trackEl?.querySelector('[data-src]')?.dataset.src;
     if (src) toggleVote(src, type);
   } 
-  // 6. Track Play
   else if (trackEl && !actionBtn) {
       e.stopPropagation();
       const src = trackEl.getAttribute('data-src') || trackEl.querySelector('[data-src]')?.getAttribute('data-src');
@@ -382,7 +377,6 @@ function playTrackBySrc(src, title, cover) {
   }
 }
 
-// Feeds the album or playlist directly into the player.js queue logic 
 function executeQueueOverwrite(queueArray) {
   if (queueArray.length > 0) {
     queueArray.forEach(item => {
@@ -390,8 +384,6 @@ function executeQueueOverwrite(queueArray) {
     });
     
     const firstSong = queueArray.shift();
-    
-    // Overwrite the local storage directly so player.js picks it up
     localStorage.setItem('crzy_queue', JSON.stringify(queueArray));
     window.dispatchEvent(new Event('storage'));
     
@@ -438,6 +430,7 @@ document.getElementById("siteSearch")?.addEventListener("input", (e) => {
 // ---------------- PLAYLISTS ----------------
 const playlistPicker = document.getElementById("playlistPicker");
 const playlistList = document.getElementById("playlistList");
+
 document.getElementById("createPlaylistBtn")?.addEventListener("click", () => {
   if (!requireAuth()) return; 
   const name = prompt("Playlist name:"); if (!name) return;
@@ -456,29 +449,45 @@ function loadPlaylistsForPicker() {
     playlistList.appendChild(div);
   });
 }
+
 function openAddPicker(song) {
   if (!requireAuth()) return; 
   window.__crzy_pending_add = song; loadPlaylistsForPicker(); playlistPicker.classList.add("show");
 }
+
 function closePicker() { playlistPicker.classList.remove("show"); window.__crzy_pending_add = null; }
 
 function addSongToPlaylist(index, song) {
   if (!requireAuth()) return;
   userPlaylists[index].songs = userPlaylists[index].songs || [];
   if (userPlaylists[index].songs.find(s => s.src === song.src)) return showPopup("Already in playlist", "#b30000");
+  
   userPlaylists[index].songs.push(song);
+  
+  // FIX: Auto-set cover image to the first track added
+  if (userPlaylists[index].songs.length === 1 && (!userPlaylists[index].cover || userPlaylists[index].cover === defaultCoverURL)) {
+      const foundMaster = masterSongs.find(s => s.src === song.src);
+      userPlaylists[index].cover = (foundMaster && foundMaster.cover) ? foundMaster.cover : defaultCoverURL;
+  }
+  
   syncUserData({ playlists: userPlaylists }); 
-  renderPlaylistDashboard(); showPopup("Added to playlist", "#1db954");
+  renderPlaylistDashboard(); 
+  if (currentActivePlaylistIndex === index) loadActivePlaylist(index);
+  showPopup("Added to playlist", "#1db954");
 }
 
 function renderPlaylistDashboard() {
   const container = document.getElementById("playlistContainer"); if (!container) return; 
   container.innerHTML = "";
+  
+  const viewer = document.getElementById("activePlaylistViewer");
   if (userPlaylists.length === 0) {
     container.innerHTML = "<div style='color:#aaa;'>You haven't created any playlists yet. Log in to save them!</div>";
-    document.getElementById("playlistTracksList").innerHTML = "<li class='empty-notice' style='list-style: none; opacity: 0.5;'>No playlist selected.</li>";
-    document.getElementById("play-all-playlist-btn").style.display = "none"; return;
+    if(viewer) viewer.style.display = "none";
+    currentActivePlaylistIndex = null;
+    return;
   }
+  
   userPlaylists.forEach((pl, idx) => {
     const btn = document.createElement("button"); btn.textContent = pl.name; btn.className = "sleek-btn"; btn.style.margin = "0 8px 8px 0";
     btn.onclick = () => loadActivePlaylist(idx); container.appendChild(btn);
@@ -487,12 +496,19 @@ function renderPlaylistDashboard() {
 
 function loadActivePlaylist(plIdx) {
   const pl = userPlaylists[plIdx]; if (!pl) return;
+  currentActivePlaylistIndex = plIdx;
+  
+  document.getElementById("activePlaylistViewer").style.display = "block";
   document.getElementById("activePlaylistTitle").textContent = pl.name;
+  document.getElementById("activePlCover").src = pl.cover || defaultCoverURL;
+  
   const tracksList = document.getElementById("playlistTracksList"); tracksList.innerHTML = "";
   const playAllBtn = document.getElementById("play-all-playlist-btn");
+  
   if (!pl.songs || pl.songs.length === 0) {
     tracksList.innerHTML = "<li style='list-style: none; opacity: 0.5;'>Playlist is empty. Add songs to listen!</li>"; playAllBtn.style.display = "none"; return;
   }
+  
   playAllBtn.style.display = "block";
   pl.songs.forEach((song, songIdx) => {
     const li = document.createElement("li"); li.className = "track-line"; li.dataset.src = song.src;
@@ -509,6 +525,44 @@ function loadActivePlaylist(plIdx) {
   });
   updateVoteUI(); 
 }
+
+// FIX: Playlist Management Functions
+function promptChangeCover() {
+  if (!requireAuth() || currentActivePlaylistIndex === null) return;
+  const newUrl = prompt("Enter the new image URL for your playlist cover:");
+  if (newUrl && newUrl.trim() !== "") {
+      userPlaylists[currentActivePlaylistIndex].cover = newUrl.trim();
+      syncUserData({ playlists: userPlaylists });
+      loadActivePlaylist(currentActivePlaylistIndex);
+      loadPlaylistsForPicker();
+      showPopup("Cover updated", "#1db954");
+  }
+}
+
+function promptRenamePlaylist() {
+  if (!requireAuth() || currentActivePlaylistIndex === null) return;
+  const newName = prompt("Enter new playlist name:", userPlaylists[currentActivePlaylistIndex].name);
+  if (newName && newName.trim() !== "") {
+      userPlaylists[currentActivePlaylistIndex].name = newName.trim();
+      syncUserData({ playlists: userPlaylists });
+      renderPlaylistDashboard();
+      loadActivePlaylist(currentActivePlaylistIndex);
+      showPopup("Playlist renamed", "#1db954");
+  }
+}
+
+function deleteActivePlaylist() {
+  if (!requireAuth() || currentActivePlaylistIndex === null) return;
+  if (confirm("Are you absolutely sure you want to delete this playlist? This cannot be undone.")) {
+      userPlaylists.splice(currentActivePlaylistIndex, 1);
+      currentActivePlaylistIndex = null;
+      syncUserData({ playlists: userPlaylists });
+      document.getElementById("activePlaylistViewer").style.display = "none";
+      renderPlaylistDashboard();
+      showPopup("Playlist deleted", "#ff0000");
+  }
+}
+window.promptChangeCover = promptChangeCover; window.promptRenamePlaylist = promptRenamePlaylist; window.deleteActivePlaylist = deleteActivePlaylist;
 
 // ---------------- INIT ----------------
 document.addEventListener("DOMContentLoaded", () => {

@@ -397,31 +397,60 @@ function executeQueueOverwrite(queueArray) {
 // ---------------- SEARCH ----------------
 function showSearchResults(term) {
   let results = masterSongs.filter(s => (s.title + " " + s.artist + " " + (s.source||"")).toLowerCase().includes(term.toLowerCase()));
+  
   let existing = document.getElementById("searchResultsBox");
   if (existing) existing.remove();
-  const box = document.createElement("div"); box.id = "searchResultsBox"; box.className = "queue-panel show";
-  box.style.bottom = "auto"; box.style.top = "200px";
+  
+  const box = document.createElement("div"); 
+  box.id = "searchResultsBox"; 
+  
   if (!results.length) {
-    box.innerHTML = "<div style='padding:8px;color:#aaa;'>No results</div>";
+    box.innerHTML = "<div style='padding:15px; color:#aaa; text-align:center;'>No songs found</div>";
   } else {
     results.forEach(s => {
-      const row = document.createElement("div"); row.className = "queue-item search-row"; row.dataset.src = s.src;
-      row.innerHTML = `<div style="max-width:70%"><b>${s.title}</b><br><small>${s.artist} · ${s.source||''}</small></div>
-      <div style="display:flex;gap:8px;">
-        <button style="background:transparent;border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:12px;cursor:pointer;padding:4px 8px;" onclick="(e)=>{e.stopPropagation(); playTrackBySrc('${s.src}', '${s.title}', '${s.cover}')}">▶</button>
-        <button style="background:transparent;border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:12px;cursor:pointer;padding:4px 8px;" class="add-queue" data-src="${s.src}" data-title="${s.title}" data-artist="${s.artist}">➜</button>
-      </div>`;
+      const row = document.createElement("div"); 
+      row.className = "search-row track-line"; 
+      row.dataset.src = s.src;
+      row.style.cursor = "pointer";
+      
+      row.innerHTML = `
+        <div style="flex:1; pointer-events:none;">
+          <strong>${s.title}</strong><br>
+          <small style="color:#aaa;">${s.artist} · ${s.source||''}</small>
+        </div>
+        <div class="track-actions-inline" style="z-index: 10;">
+          <button class="add-queue" data-src="${s.src}" data-title="${s.title}" data-artist="${s.artist}" title="Add to Queue">➜</button>
+          <button class="add-playlist" data-src="${s.src}" data-title="${s.title}" data-artist="${s.artist}" title="Add to Playlist">＋</button>
+        </div>`;
+      
+      // Play song if the row (outside the buttons) is clicked
+      row.addEventListener('click', (e) => {
+        if(!e.target.closest('button')) {
+          playTrackBySrc(s.src, s.title, s.cover);
+          box.remove();
+        }
+      });
+      
       box.appendChild(row);
     });
   }
-  document.body.appendChild(box);
+  
+  // Attach it directly to the search container so it drops down correctly
+  const searchContainer = document.querySelector(".music-search");
+  if(searchContainer) searchContainer.appendChild(box);
+  
   setTimeout(() => document.addEventListener("click", closeSearchResultsOnce), 50);
 }
+
 function closeSearchResultsOnce(e) {
   const box = document.getElementById("searchResultsBox");
   if (!box) return;
-  if (!box.contains(e.target) && e.target.id !== "siteSearch") { box.remove(); document.removeEventListener("click", closeSearchResultsOnce); }
+  if (!box.contains(e.target) && e.target.id !== "siteSearch") { 
+    box.remove(); 
+    document.removeEventListener("click", closeSearchResultsOnce); 
+  }
 }
+
 document.getElementById("siteSearch")?.addEventListener("input", (e) => {
   const val = e.target.value.trim();
   if (!val) { document.getElementById("searchResultsBox")?.remove(); return; }

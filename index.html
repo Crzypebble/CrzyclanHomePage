@@ -5,142 +5,208 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crzyclan Home</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- */
+    body {
+      background-color: #0d0d0d;
+      background-size: cover !important;
+      background-position: center center !important;
+      background-attachment: fixed !important;
+      background-repeat: no-repeat !important;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* --- PROFESSIONAL HOME TAB STYLING --- */
+    .tab-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .home-intro {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .skull-logo {
+      max-width: 250px;
+      width: 100%;
+      filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.4));
+      margin: 20px auto;
+      display: block;
+      transition: transform 0.3s;
+    }
+    .skull-logo:hover {
+      transform: scale(1.05);
+    }
+    
+    h2 {
+      border-bottom: 1px solid rgba(255,0,0,0.3);
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+      color: #fff;
+    }
+
+    .member-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-bottom: 50px;
+    }
+    
+    .member-card {
+      background: #151515;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 25px 20px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .member-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(255, 0, 0, 0.2);
+      border-color: rgba(255,0,0,0.5);
+    }
+    .member-card img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ff0000;
+      margin-bottom: 15px;
+    }
+    .member-card h4 {
+      color: #fff;
+      margin: 0 0 5px 0;
+      font-size: 1.2rem;
+    }
+    .member-card .rank {
+      color: #ff0000;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin: 5px 0 15px 0;
+    }
+    .member-card .skills {
+      color: #aaa;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+  </style>
 </head>
+<body>
+  
   <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+      authDomain: "crzyclansite.firebaseapp.com",
+      projectId: "crzyclansite",
+      storageBucket: "crzyclansite.appspot.com",
+      messagingSenderId: "534485925500",
+      appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
-    authDomain: "crzyclansite.firebaseapp.com",
-    projectId: "crzyclansite",
-    storageBucket: "crzyclansite.appspot.com",
-    messagingSenderId: "534485925500",
-    appId: "1:534485925500:web:56c7c798780e477e7e13f9"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
-
-
-  <body>
   <header id="site-header">
     <h1>CRZYCLAN</h1>
     <p>Home of Chaos, Music, and Mayhem</p>
-<nav>
-  <a href="#" onclick="showTab('home')">Home</a>
-  <a href="#" onclick="showTab('membership')">Membership</a>
-  <a href="music.html">Music</a>
-  <a href="#" onclick="showTab('shop')">Shop</a>
-  <a href="#" onclick="showTab('settings')">Settings</a>
-</nav>
- </header>
+    <nav>
+      <a href="#" onclick="showTab('home')">Home</a>
+      <a href="#" onclick="showTab('other')">Other</a>
+      <a href="music.html">Music</a>
+      <a href="#" onclick="showTab('shop')">Shop</a>
+      <a href="settings.html">Settings</a>
+    </nav>
+  </header>
   
   <main>
-  <section id="home" class="tab-section">
-  <h2>Welcome to Crzyclan</h2>
-  <p>We're the CRZYCLAN — Crzyclan is a small but growing clan based on competetive gaming that evolved into music, games of our own, and any other form of art or talent.</p>
-  <div class="skull-image">
-    <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Crzyclan Skull" class="skull-logo">
-  </div>
+    <section id="home" class="tab-section active">
+      <div class="home-intro">
+        <h2>Welcome to Crzyclan</h2>
+        <p style="color: #ccc; max-width: 800px; margin: 0 auto; line-height: 1.6;">We're the CRZYCLAN — a small but growing clan based on competitive gaming that evolved into music, games of our own, and any other form of art or talent.</p>
+        <div class="skull-image">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Crzyclan Skull" class="skull-logo">
+        </div>
+      </div>
 
-  <h2>Crzyclan Leaders</h2>
-<div class="member-container">
-  <div class="member-card">
-    <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
-    <h4>Crzypebble</h4>
-    <p>"#1"</p>
-    <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
-    <h4>CrzySniper</h4>
-    <p>"#3"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
-  </div>
-</div>
+      <h2>Crzyclan Leaders</h2>
+      <div class="member-container">
+        <div class="member-card">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
+          <h4>Crzypebble</h4>
+          <p class="rank">"#1"</p>
+          <p class="skills"><strong>Skills:</strong> RPG, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
+          <h4>CrzySniper</h4>
+          <p class="rank">"#3"</p>
+          <p class="skills"><strong>Skills:</strong> Strategy, RPG, FPS, Future Developer, Bassist</p>
+        </div>
+      </div>
 
-<h2>Crzyclan Members</h2>
-<div class="member-container">
-   <div class="member-card">
-    <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/NoahImage.webp?raw=true" alt="CrzyReaper">
-    <h4>CrzyReaper</h4>
-    <p>"#7"</p>
-    <p><strong>Skills:</strong> Strategy, FPS, Guitarist, Vocalist, Dice Maker</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
-    <h4>CrzyDevotion</h4>
-    <p>"#6"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
-    <h4>CrzyKahoona</h4>
-    <p>"#5"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist, Drummer</p>
-  </div>
-  <div class="member-card">
-    <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
-    <h4>CrzyDemon</h4>
-    <p>"#4"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-  </div>
-  <div class="member-card">
-    <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/TylerImage.webp?raw=true" alt="CrzyWraith">
-    <h4>CrzyWraith</h4>
-    <p>"#2"</p>
-    <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
-  </div>
-</div>
-</section>
-
-
-    <section id="membership" class="tab-section" style="display: none;">
-      <h2>Join the Membership</h2>
-      <p>Get exclusive content, merch drops, early access to releases, and more.</p>
+      <h2>Crzyclan Members</h2>
+      <div class="member-container">
+         <div class="member-card">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/NoahImage.webp?raw=true" alt="CrzyReaper">
+          <h4>CrzyReaper</h4>
+          <p class="rank">"#7"</p>
+          <p class="skills"><strong>Skills:</strong> Strategy, FPS, Guitarist, Vocalist, Dice Maker</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
+          <h4>CrzyDevotion</h4>
+          <p class="rank">"#6"</p>
+          <p class="skills"><strong>Skills:</strong> Strategy, RPG, FPS</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
+          <h4>CrzyKahoona</h4>
+          <p class="rank">"#5"</p>
+          <p class="skills"><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist, Drummer</p>
+        </div>
+        <div class="member-card">
+          <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
+          <h4>CrzyDemon</h4>
+          <p class="rank">"#4"</p>
+          <p class="skills"><strong>Skills:</strong> Strategy, RPG, FPS</p>
+        </div>
+        <div class="member-card">
+          <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/TylerImage.webp?raw=true" alt="CrzyWraith">
+          <h4>CrzyWraith</h4>
+          <p class="rank">"#2"</p>
+          <p class="skills"><strong>Skills:</strong> Strategy, RPG, FPS</p>
+        </div>
+      </div>
     </section>
 
+    <!-- Renamed from Membership to Other -->
+    <section id="other" class="tab-section" style="display: none;">
+      <h2>Other</h2>
+      <p>Get exclusive content, merch drops, early access to releases, and more.</p>
+    </section>
 
     <section id="shop" class="tab-section" style="display: none;">
       <h2>Crzyclan Shop</h2>
       <p>Merch, digital content, collectibles coming soon.</p>
     </section>
-
-    <section id="settings" class="tab-section" style="display: none;">
-      <h2>Settings</h2>
-      <div id="auth-section">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="signUp()">Sign Up</button>
-        <button onclick="login()">Login</button>
-        <button id="logout-btn" onclick="logout()" style="display: none;">Logout</button>
-      </div>
-      <p id="auth-status"></p>
-
-     
-  <h3>Account Settings</h3>
-<input type="file" id="custom-background" accept="image/*">
-<button id="clear-background">Clear Background</button>
-<hr />
-<button id="change-email-button">Change Email</button>
-<button id="change-password-button">Change Password</button>
-<button id="reset-password-button">Send Password Reset Email</button>
-
-    </section>
   </main>
 
   <footer>
-    &copy; 2025 Crzyclan. All rights reserved.
+    &copy; 2026 Crzyclan. All rights reserved.
   </footer>
+
+  <!-- Global Script for applying background site-wide -->
+  <script src="global.js"></script>
 
   <!-- JavaScript -->
   <script src="ui.js"></script>
   <script src="tabs.js"></script>
   <script src="theme.js"></script>
-  <script src="settings.js"></script>
   <script src="effects.js"></script>
-  <script src="auth.js"></script>
   <script src="main.js"></script>
 </body>
 </html>

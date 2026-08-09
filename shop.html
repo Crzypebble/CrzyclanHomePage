@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crzyclan Shop</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- 
+       This stops the custom image from zooming in or glitching */
+    body {
+      background-size: cover !important;
+      background-position: center center !important;
+      background-attachment: fixed !important;
+      background-repeat: no-repeat !important;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -12,7 +22,7 @@
     <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
       <a href="index.html">Home</a>
-      <a href="membership.html">Membership</a>
+      <a href="other.html">Other</a>
       <a href="music.html">Music</a>
       <a href="shop.html" class="active">Shop</a>
       <a href="settings.html">Settings</a>
@@ -27,7 +37,10 @@
   </main>
 
   <footer>
-    &copy; 2025 CRZYCLAN. All rights reserved.
+    &copy; 2026 CRZYCLAN. All rights reserved.
   </footer>
+
+  <!-- Global Script for applying background site-wide -->
+  <script src="global.js"></script>
 </body>
 </html>

@@ -2,12 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logout-btn');
   const authInputs = document.getElementById('auth-inputs');
   const securitySection = document.getElementById('security-section');
+  
+  // Buttons
+  const changeNameBtn = document.getElementById('change-name-button');
   const changeEmailBtn = document.getElementById('change-email-button');
   const changePasswordBtn = document.getElementById('change-password-button');
+  const deleteAccountBtn = document.getElementById('delete-account-button');
+  const clearDataBtn = document.getElementById('clear-data-button');
+  
+  // Background Elements
   const customBgInput = document.getElementById('custom-background');
   const clearBgBtn = document.getElementById('clear-background');
   const bgPreviewBox = document.getElementById('bg-preview');
   const bgUploadText = document.getElementById('bg-upload-text');
+  const displayNameDisplay = document.getElementById('current-display-name');
 
   // Load visual preview in settings if background exists
   const savedBg = localStorage.getItem('customBackground');
@@ -22,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (authInputs) authInputs.style.display = 'none';
       if (logoutBtn) logoutBtn.style.display = 'block';
       if (securitySection) securitySection.style.display = 'block';
+      
+      // Load current Display Name
+      if (displayNameDisplay) {
+        displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
+      }
+
       showStatus(`Logged in securely as ${user.email}`, "#00ff00");
     } else {
       if (authInputs) authInputs.style.display = 'block';
@@ -30,9 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Attach button event listeners
+  // --- ATTACH EVENT LISTENERS ---
+  changeNameBtn?.addEventListener('click', changeName);
   changeEmailBtn?.addEventListener('click', changeEmail);
   changePasswordBtn?.addEventListener('click', changePassword);
+  deleteAccountBtn?.addEventListener('click', deleteAccount);
+  clearDataBtn?.addEventListener('click', clearLocalData);
 
   // Background Image Uploader Logic
   customBgInput?.addEventListener('change', (e) => {
@@ -133,13 +150,12 @@ window.logout = function() {
     });
 };
 
-// --- SECURITY FUNCTIONS ---
+// --- SECURITY & ACCOUNT FUNCTIONS ---
 
 window.resetPassword = function() {
   let targetEmail = "";
   const user = firebase.auth().currentUser;
   
-  // If logged in, use their account email. If logged out, grab it from the text box.
   if (user) {
     targetEmail = user.email;
   } else {
@@ -156,6 +172,19 @@ window.resetPassword = function() {
     .catch(error => showStatus(error.message, "#ff0000"));
 };
 
+function changeName() {
+  const newName = prompt("Enter your new Display Name:");
+  if (!newName || newName.trim() === "") return;
+
+  const user = firebase.auth().currentUser;
+  user.updateProfile({
+    displayName: newName.trim()
+  }).then(() => {
+    document.getElementById('current-display-name').textContent = newName.trim();
+    showStatus("Display name successfully updated.", "#00ff00");
+  }).catch(error => showStatus(error.message, "#ff0000"));
+}
+
 function changeEmail() {
   const newEmail = prompt("Enter your new email:");
   if (!newEmail) return;
@@ -163,7 +192,13 @@ function changeEmail() {
   const user = firebase.auth().currentUser;
   user.updateEmail(newEmail)
     .then(() => showStatus("Email successfully updated.", "#00ff00"))
-    .catch(error => showStatus(error.message, "#ff0000"));
+    .catch(error => {
+      if(error.code === 'auth/requires-recent-login') {
+        showStatus("Security requirement: Please log out and log back in before changing your email.", "#ff0000");
+      } else {
+        showStatus(error.message, "#ff0000");
+      }
+    });
 }
 
 function changePassword() {
@@ -173,5 +208,50 @@ function changePassword() {
   const user = firebase.auth().currentUser;
   user.updatePassword(newPassword)
     .then(() => showStatus("Password successfully updated.", "#00ff00"))
-    .catch(error => showStatus(error.message, "#ff0000"));
+    .catch(error => {
+      if(error.code === 'auth/requires-recent-login') {
+        showStatus("Security requirement: Please log out and log back in before changing your password.", "#ff0000");
+      } else {
+        showStatus(error.message, "#ff0000");
+      }
+    });
+}
+
+function deleteAccount() {
+  if (confirm("Are you absolutely sure you want to delete your account? This cannot be undone and you will lose all saved playlists and likes.")) {
+    const user = firebase.auth().currentUser;
+    user.delete()
+      .then(() => {
+        showStatus("Account deleted successfully.", "#00ff00");
+      })
+      .catch(error => {
+        if(error.code === 'auth/requires-recent-login') {
+          showStatus("Security requirement: Please log out and log back in before deleting your account.", "#ff0000");
+        } else {
+          showStatus(error.message, "#ff0000");
+        }
+      });
+  }
+}
+
+// --- DATA MANAGEMENT FUNCTIONS ---
+
+function clearLocalData() {
+  if(confirm("This will clear your active music queue, custom background image, and site cache. Proceed?")) {
+    localStorage.clear();
+    
+    // Visually reset background elements
+    document.body.style.backgroundImage = "";
+    document.body.style.backgroundSize = "";
+    document.body.style.backgroundRepeat = "";
+    document.body.style.backgroundPosition = "";
+    document.body.style.backgroundAttachment = "";
+    
+    const bgPreviewBox = document.getElementById('bg-preview');
+    const bgUploadText = document.getElementById('bg-upload-text');
+    if(bgPreviewBox) bgPreviewBox.style.backgroundImage = "none";
+    if(bgUploadText) bgUploadText.style.display = 'block';
+
+    showStatus("Local site data cleared.", "#00ff00");
+  }
 }

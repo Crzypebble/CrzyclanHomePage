@@ -6,7 +6,6 @@
   <title>Crzyclan Other</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- */
     body {
       background-size: cover !important;
       background-position: center center !important;
@@ -14,20 +13,8 @@
       background-repeat: no-repeat !important;
     }
 
-    /* --- OTHER TAB LAYOUT --- */
-    .other-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .section-header {
-      border-bottom: 1px solid rgba(255,0,0,0.3);
-      padding-bottom: 10px;
-      margin-top: 40px;
-      margin-bottom: 20px;
-      color: #fff;
-    }
+    .other-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .section-header { border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; color: #fff; }
 
     /* --- SOCIAL & PROFILE SECTION --- */
     .profile-dashboard {
@@ -40,142 +27,46 @@
       padding: 30px;
     }
 
-    .profile-sidebar {
-      text-align: center;
-      border-right: 1px solid rgba(255,255,255,0.1);
-      padding-right: 20px;
-    }
-    .profile-sidebar img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 3px solid #555; /* Changes to Red for actual members */
-      object-fit: cover;
-      margin-bottom: 10px;
-      transition: border-color 0.3s;
-    }
+    .profile-sidebar { text-align: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px; }
+    .profile-sidebar img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #555; object-fit: cover; margin-bottom: 10px; transition: border-color 0.3s; }
     
-    /* Dynamic Role Titles */
-    .role-title {
-      display: inline-block;
-      font-size: 0.85rem;
-      font-weight: bold;
-      padding: 3px 10px;
-      border-radius: 4px;
-      margin-bottom: 15px;
-    }
+    .role-title { display: inline-block; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 4px; margin-bottom: 15px; }
     .role-guest { background: #333; color: #ccc; }
     .role-fan { background: #0055ff; color: #fff; }
     .role-member { background: #ff0000; color: #fff; }
 
-    .status-badge {
-      display: inline-block;
-      background: rgba(255,0,0,0.1);
-      border: 1px solid rgba(255,0,0,0.3);
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-    }
-    
+    /* Profile Song Player */
+    .profile-song-box { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+    .profile-song-box p { margin: 0 0 5px 0; color: #ff0000; font-size: 0.85rem; font-weight: bold; }
+    .profile-song-box audio { width: 100%; height: 30px; }
+
     .profile-main h3 { margin-top: 0; color: #ff0000; display: flex; justify-content: space-between; align-items: center;}
-    
-    /* Positive Like Button */
-    .like-profile-btn {
-      background: rgba(255,0,0,0.1);
-      border: 1px solid #ff0000;
-      color: #ff0000;
-      padding: 5px 15px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
+    .like-profile-btn { background: rgba(255,0,0,0.1); border: 1px solid #ff0000; color: #ff0000; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
     .like-profile-btn:hover { background: #ff0000; color: #fff; }
 
-    .profile-bio {
-      background: #1a1a1a;
-      padding: 15px;
-      border-radius: 8px;
-      color: #ccc;
-      font-size: 0.95rem;
-      margin-bottom: 20px;
-      min-height: 80px;
-      white-space: pre-wrap; /* Keeps line breaks */
-    }
+    .profile-bio { background: #1a1a1a; padding: 15px; border-radius: 8px; color: #ccc; font-size: 0.95rem; margin-bottom: 20px; min-height: 80px; white-space: pre-wrap; }
 
-    .public-playlist-card {
-      background: #1a1a1a;
-      border-left: 4px solid #ff0000;
-      padding: 15px;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .public-playlist-card { background: #1a1a1a; border-left: 4px solid #ff0000; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
     
-    .sleek-btn {
-      background: transparent;
-      color: #fff;
-      border: 1px solid #555;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+    .sleek-btn { background: transparent; color: #fff; border: 1px solid #555; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
     .sleek-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
 
-    /* --- EXPANDING GRID FOR GAMES & ART --- */
-    .content-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
+    /* --- INBOX SECTION --- */
+    .inbox-container { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-top: 20px; display: none; }
+    .message-item { background: #1a1a1a; border-left: 3px solid #ff0000; padding: 15px; margin-bottom: 10px; border-radius: 4px; }
+    .message-item .meta { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
 
-    .content-card {
-      background: #151515;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      padding: 20px;
-      transition: border-color 0.2s;
-      cursor: pointer;
-    }
+    /* --- EXPANDING GRID FOR GAMES & ART --- */
+    .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .content-card { background: #151515; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 20px; cursor: pointer; }
     .content-card:hover { border-color: rgba(255,0,0,0.5); }
-    
-    .content-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 2px solid #333;
-      margin-bottom: 15px;
-    }
+    .content-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; border: 2px solid #333; margin-bottom: 15px; }
     .content-card h3 { margin: 0 0 10px 0; color: #ff0000; }
     .content-card p { color: #aaa; font-size: 0.9rem; line-height: 1.4; margin-bottom: 15px; }
-
-    .game-list-container {
-      display: none; 
-      background: #0a0a0a;
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 15px;
-      border: 1px solid #333;
-    }
-    .game-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #222;
-    }
+    .game-list-container { display: none; background: #0a0a0a; border-radius: 8px; padding: 15px; margin-top: 15px; border: 1px solid #333; }
+    .game-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #222; }
     .game-item:last-child { border-bottom: none; }
-    .game-item strong { color: #fff; }
-    .game-item span { color: #888; font-size: 0.85rem; }
 
-    @media (max-width: 768px) {
-      .profile-dashboard { grid-template-columns: 1fr; }
-      .profile-sidebar { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-right: 0; padding-bottom: 20px; }
-    }
   </style>
 </head>
 <body>
@@ -193,31 +84,31 @@
 
   <main class="other-container">
     
-    <!-- SOCIAL / PROFILE SYSTEM -->
     <h2 class="section-header">Community Hub</h2>
-    
     <div id="logged-out-warning" style="text-align: center; color: #ff0000; margin-bottom: 20px; display: none;">
       You must be logged in to setup your profile and send messages.
     </div>
 
     <div class="profile-dashboard">
-      
       <!-- Left Column: User Info -->
       <div class="profile-sidebar">
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Profile Picture" id="profile-pic">
         <h2 id="profile-name" style="margin: 0 0 5px 0; color: #fff;">Loading...</h2>
-        
-        <!-- Dynamic Role Title -->
         <div id="role-badge" class="role-title role-guest">Community Guest</div>
         
-        <!-- Live Listening Status -->
-        <div id="listening-status" class="status-badge" style="margin-bottom: 15px; display: none;">
-          🎵 Listening to: <strong id="current-song-text">Nothing right now</strong>
+        <!-- Profile Song Player -->
+        <div class="profile-song-box">
+          <p>🎵 Profile Song</p>
+          <audio id="profile-audio" controls>
+            <source id="profile-audio-src" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+          <button id="set-song-btn" class="sleek-btn" style="font-size: 0.75rem; margin-top: 5px; width: 100%; display: none;" onclick="setProfileSong()">Change Song</button>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <button id="add-friend-btn" class="sleek-btn" style="border-color: #ff0000; color: #ff0000;" onclick="alert('Friend system coming soon!')">+ Add Friend</button>
-          <button id="dm-btn" class="sleek-btn" title="Sends a private message to this user." onclick="sendDailyDM()">✉️ Send Daily DM (1/1)</button>
+          <button id="dm-btn" class="sleek-btn" onclick="sendDailyDM()">✉️ Loading DMs...</button>
         </div>
       </div>
 
@@ -229,9 +120,7 @@
             <button class="like-profile-btn" onclick="likeProfile()">👍 Like Profile <span id="like-count" style="font-weight:bold; margin-left:5px;">0</span></button>
           </div>
         </h3>
-        <div id="profile-bio" class="profile-bio">
-          Loading bio...
-        </div>
+        <div id="profile-bio" class="profile-bio">Loading bio...</div>
 
         <h3>Public Playlist</h3>
         <div class="public-playlist-card">
@@ -239,55 +128,47 @@
             <strong id="public-playlist-title" style="color: #fff; font-size: 1.1rem;">No Public Playlist Set</strong>
             <p id="public-playlist-info" style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">0 Tracks</p>
           </div>
-          <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;" onclick="alert('Public playlists coming soon!')">▶ Play</button>
+          <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;" onclick="setupPublicPlaylist()">⚙️ Setup</button>
         </div>
+      </div>
+    </div>
+
+    <!-- INBOX SECTION (Only visible to the logged-in user) -->
+    <div id="inbox-container" class="inbox-container">
+      <h3 style="margin-top: 0; color: #ff0000; border-bottom: 1px solid #333; padding-bottom: 10px;">📬 Your Inbox</h3>
+      <div id="messages-list">
+        <p style="color: #888;">No messages yet.</p>
       </div>
     </div>
 
     <!-- GAMES SECTION -->
     <h2 class="section-header">Games & Projects</h2>
     <div class="content-grid">
-      
-      <!-- ROBLOX GAMES CARD -->
       <div class="content-card" onclick="toggleSection('roblox-games')">
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Roblox Studio">
         <h3>CRZYCLAN ROBLOX GAMES</h3>
         <p>Explore the custom games, mechanics, and worlds built entirely from the ground up by the clan on the Roblox platform. Click to view active projects.</p>
-        
         <div id="roblox-games" class="game-list-container">
           <div class="game-item">
-            <div>
-              <strong>Days Before Death</strong><br>
-              <span>Survival / Horror</span>
-            </div>
+            <div><strong>Days Before Death</strong><br><span>Survival / Horror</span></div>
             <button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View Details</button>
           </div>
           <div class="game-item">
-            <div>
-              <strong>2022: The Game</strong><br>
-              <span>Adventure</span>
-            </div>
+            <div><strong>2022: The Game</strong><br><span>Adventure</span></div>
             <button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View Details</button>
           </div>
           <div class="game-item">
-            <div>
-              <strong>Unnamed Project 3</strong><br>
-              <span>In Development</span>
-            </div>
+            <div><strong>Unnamed Project 3</strong><br><span>In Development</span></div>
             <button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View Details</button>
           </div>
         </div>
       </div>
 
-      <!-- FUTURE EXPANSION CARD -->
       <div class="content-card">
-        <div style="width: 100%; height: 180px; background: #222; border: 2px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: #555;">
-          [ Incoming Projects ]
-        </div>
+        <div style="width: 100%; height: 180px; background: #222; border: 2px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: #555;">[ Incoming Projects ]</div>
         <h3 style="color: #777;">Other Platforms</h3>
         <p style="color: #666;">Future stand-alone releases, indie titles, and cross-platform games outside of Roblox will be listed here.</p>
       </div>
-
     </div>
 
     <!-- ART SECTION -->
@@ -306,15 +187,12 @@
     </div>
   </main>
 
-  <footer>
-    &copy; 2026 CRZYCLAN. All rights reserved.
-  </footer>
+  <footer>&copy; 2026 CRZYCLAN. All rights reserved.</footer>
 
   <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
@@ -325,24 +203,15 @@
       appId: "1:534485925500:web:56c7c798780e477e7e13f9",
       measurementId: "G-1NFCH3JEVW"
     };
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   </script>
 
-  <!-- Global Background Script -->
   <script src="global.js"></script>
-  <!-- New Script specifically for the Other/Profile tab -->
   <script src="other.js"></script>
-  
   <script>
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
-      if (section.style.display === "block") {
-        section.style.display = "none";
-      } else {
-        section.style.display = "block";
-      }
+      section.style.display = section.style.display === "block" ? "none" : "block";
     }
   </script>
 </body>

@@ -6,13 +6,127 @@
   <title>Crzyclan Other</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- 
-       This stops the custom image from zooming in or glitching */
+    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- */
     body {
       background-size: cover !important;
       background-position: center center !important;
       background-attachment: fixed !important;
       background-repeat: no-repeat !important;
+    }
+
+    /* --- OTHER TAB LAYOUT --- */
+    .other-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .section-header {
+      border-bottom: 1px solid rgba(255,0,0,0.3);
+      padding-bottom: 10px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    /* --- GRID FOR GAMES & ART --- */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .content-card {
+      background: #151515;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .content-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,0,0,0.5);
+    }
+    .content-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 2px solid #333;
+      margin-bottom: 15px;
+    }
+    .content-card h3 { margin: 0 0 10px 0; color: #ff0000; }
+    .content-card p { color: #aaa; font-size: 0.9rem; line-height: 1.4; }
+
+    /* --- SOCIAL & PROFILE SECTION --- */
+    .profile-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 30px;
+    }
+
+    .profile-sidebar {
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      padding-right: 20px;
+    }
+    .profile-sidebar img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid #ff0000;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+    .status-badge {
+      display: inline-block;
+      background: rgba(255,0,0,0.1);
+      border: 1px solid rgba(255,0,0,0.3);
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+    
+    .profile-main h3 { margin-top: 0; color: #ff0000; }
+    .profile-bio {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 8px;
+      color: #ccc;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+    }
+
+    .public-playlist-card {
+      background: #1a1a1a;
+      border-left: 4px solid #ff0000;
+      padding: 15px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .sleek-btn {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sleek-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+    @media (max-width: 768px) {
+      .profile-dashboard { grid-template-columns: 1fr; }
+      .profile-sidebar { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-right: 0; padding-bottom: 20px; }
     }
   </style>
 </head>
@@ -29,11 +143,79 @@
     </nav>
   </header>
 
-  <main>
-    <section>
-      <h2>Other</h2>
-      <p>Get exclusive content, merch drops, early access to releases, and more.</p>
-    </section>
+  <main class="other-container">
+    
+    <!-- SOCIAL / PROFILE SYSTEM -->
+    <h2 class="section-header">Community Hub</h2>
+    <div class="profile-dashboard">
+      
+      <!-- Left Column: User Info -->
+      <div class="profile-sidebar">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Profile Picture" id="view-profile-pic">
+        <h2 style="margin: 0; color: #fff;">User Name</h2>
+        <p style="color: #888; font-size: 0.9rem; margin: 5px 0;">Crzyclan Member</p>
+        
+        <!-- Live Listening Status -->
+        <div class="status-badge">
+          🎵 Listening to: <strong>Welcome To Hell</strong>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+          <button class="sleek-btn" style="border-color: #ff0000; color: #ff0000;">+ Add Friend</button>
+          <button class="sleek-btn">✉️ Message</button>
+        </div>
+      </div>
+
+      <!-- Right Column: Details & Playlists -->
+      <div class="profile-main">
+        <h3>About Me</h3>
+        <div class="profile-bio">
+          This is a placeholder for the user's custom bio. They can edit this in their settings to talk about what games they play, what instruments they use, or general clan info.
+        </div>
+
+        <h3>Public Playlist</h3>
+        <div class="public-playlist-card">
+          <div>
+            <strong style="color: #fff; font-size: 1.1rem;">Late Night Gaming Mix</strong>
+            <p style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">12 Tracks • Created by User</p>
+          </div>
+          <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;">▶ Play</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAMES SECTION -->
+    <h2 class="section-header">Games & Projects</h2>
+    <div class="content-grid">
+      <div class="content-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Game Project">
+        <h3>Days Before Death</h3>
+        <p>Explore the mechanics, lore, and updates for our upcoming titles. View patch notes and custom scripting implementations.</p>
+        <button class="sleek-btn">View Project</button>
+      </div>
+      <div class="content-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Custom Scripting">
+        <h3>Custom Frameworks</h3>
+        <p>A showcase of original game mechanics, custom dev scripts, and worlds built entirely from the ground up by the clan.</p>
+        <button class="sleek-btn">View Project</button>
+      </div>
+    </div>
+
+    <!-- ART SECTION -->
+    <h2 class="section-header">Crzyclan Art Gallery</h2>
+    <div class="content-grid">
+      <div class="content-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Art Piece">
+        <h3>Album Covers & Concepts</h3>
+        <p>Behind the scenes look at the artwork for The Pebble, 2022, and other visual media created by the team.</p>
+      </div>
+      <div class="content-card">
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Dice Making">
+        <h3>Physical Crafts</h3>
+        <p>Showcasing custom physical projects like CrzyReaper's handmade dice and other tangible art.</p>
+      </div>
+    </div>
+
   </main>
 
   <footer>

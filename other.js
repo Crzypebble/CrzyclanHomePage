@@ -4,7 +4,6 @@ let userRole = "guest";
 let dmTimerInterval;
 let currentProfileData = null;
 
-// Ensure Firebase is ready before running
 document.addEventListener("DOMContentLoaded", () => {
   db = firebase.firestore();
 
@@ -25,6 +24,26 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       document.getElementById('logged-out-warning').style.display = 'block';
     }
+  });
+
+  // --- BACKGROUND UPLOAD LISTENER ---
+  document.getElementById('bg-uploader').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    alert("Uploading background, please wait...");
+    
+    // Upload image to Firebase Storage
+    const storageRef = firebase.storage().ref();
+    const bgRef = storageRef.child(`profile_bgs/${currentUserId}_${Date.now()}`);
+
+    bgRef.put(file).then((snapshot) => {
+      snapshot.ref.getDownloadURL().then((url) => {
+        // Save the image URL to the user's database profile
+        db.collection('profiles').doc(currentUserId).update({ profileBg: url });
+        alert("Background updated successfully!");
+      });
+    }).catch(err => alert("Upload failed: " + err.message));
   });
 });
 
@@ -92,6 +111,8 @@ function loadProfile(uid) {
       updateRoleUI(userRole);
       setupProfileSong(currentProfileData.profileSongTitle, currentProfileData.profileSongFile);
       checkDMLimit(currentProfileData.dmHistory || []);
+      loadPublicPlaylistInfo(currentProfileData.publicPlaylistId);
+
     } else {
       db.collection('profiles').doc(uid).set({
         bio: "I just joined the Crzyclan Hub!",
@@ -138,16 +159,18 @@ window.toggleLike = function() {
 };
 
 window.setCustomProfileBG = function() {
-  const bgUrl = prompt("Paste an image URL to set as your profile background. Leave blank to clear.");
-  if (bgUrl !== null) {
-    db.collection('profiles').doc(currentUserId).update({ profileBg: bgUrl.trim() });
-  }
+  // Triggers the hidden file input added to the HTML
+  document.getElementById('bg-uploader').click();
 };
 
 function setupProfileSong(title, file) {
   const audioEl = document.getElementById('profile-audio');
   const srcEl = document.getElementById('profile-audio-src');
   const textTitle = document.querySelector('.profile-song-box p');
+  
+  // FIX: Only restart the music if the song file has ACTUALLY changed. 
+  // This prevents likes/bio updates from interrupting the music.
+  if (srcEl.getAttribute('src') === file) return;
   
   if (file) {
     srcEl.src = file;
@@ -205,6 +228,20 @@ window.filterSongs = function() {
   });
 };
 
+// --- PLAYLIST SYNC LOGIC ---
+
+function loadPublicPlaylistInfo(playlistId) {
+  if (!playlistId) return;
+  
+  db.collection('playlists').doc(playlistId).get().then(doc => {
+    if(doc.exists) {
+      const pl = doc.data();
+      document.getElementById('public-playlist-title').textContent = pl.name || "Unnamed Playlist";
+      document.getElementById('public-playlist-info').textContent = `${pl.tracks ? pl.tracks.length : 0} Tracks`;
+    }
+  });
+}
+
 window.openPlaylistModal = function() {
   if (!currentUserId) return;
   document.getElementById('playlist-selector-modal').style.display = 'flex';
@@ -212,7 +249,8 @@ window.openPlaylistModal = function() {
   const dropdown = document.getElementById('playlist-dropdown');
   dropdown.innerHTML = '<option value="">-- Loading your playlists... --</option>';
   
-  db.collection('playlists').where('ownerId', '==', currentUserId).get().then(snapshot => {
+  // FIX: Changed 'ownerId' to 'userId' to properly sync with the Music Tab
+  db.collection('playlists').where('userId', '==', currentUserId).get().then(snapshot => {
     if (snapshot.empty) {
       dropdown.innerHTML = '<option value="">You have no playlists yet.</option>';
     } else {
@@ -238,7 +276,8 @@ window.savePublicPlaylist = function() {
 };
 
 window.createNewPlaylistFromHub = function() {
-  db.collection('playlists').where('ownerId', '==', currentUserId).get().then(snapshot => {
+  // FIX: Changed 'ownerId' to 'userId' here as well
+  db.collection('playlists').where('userId', '==', currentUserId).get().then(snapshot => {
     if (snapshot.size >= 4) {
       alert("You have reached the maximum limit of 4 playlists per user.");
       return;
@@ -248,7 +287,7 @@ window.createNewPlaylistFromHub = function() {
     if (name) {
       db.collection('playlists').add({
         name: name,
-        ownerId: currentUserId,
+        userId: currentUserId, 
         tracks: [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {

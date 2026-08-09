@@ -179,7 +179,7 @@
         <h2 class="section-header">Games & Projects</h2>
         <div class="content-grid">
           
-          <!-- ROBLOX CARD (Clickable) -->
+          <!-- ROBLOX CARD -->
           <div class="content-card" onclick="toggleSection('roblox-games')">
             <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Roblox Studio">
             <h3>CRZYCLAN ROBLOX GAMES</h3>
@@ -286,6 +286,9 @@
     </div>
   </main>
 
+  <!-- HIDDEN UPLOADER FOR BACKGROUND IMAGES -->
+  <input type="file" id="bg-uploader" accept="image/*" style="display: none;">
+
   <!-- MODAL: SONG SELECTOR -->
   <div id="song-selector-modal" class="custom-modal">
     <div class="custom-modal-inner">
@@ -329,7 +332,7 @@
 
   <footer>&copy; 2026 CRZYCLAN. All rights reserved.</footer>
 
-  <!-- Bulletproof UI Toggle Scripts (Loaded immediately before Firebase) -->
+  <!-- Bulletproof UI Toggle Scripts -->
   <script>
     function switchHubView(viewId, btnElement) {
       document.querySelectorAll('.hub-view').forEach(view => view.classList.remove('active'));
@@ -352,10 +355,11 @@
     }
   </script>
 
-  <!-- Firebase Scripts -->
+  <!-- Firebase Scripts (Added Storage) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",

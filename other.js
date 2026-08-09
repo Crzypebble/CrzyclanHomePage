@@ -1,11 +1,33 @@
-const db = firebase.firestore();
+let db;
 let currentUserId = null;
 let userRole = "guest";
 let dmTimerInterval;
-let currentProfileData = null; // Stores data for toggling likes
+let currentProfileData = null;
 
-// --- HARDCODED SONG DATABASE FOR PROFILE SEARCH ---
-// So it can work independently of the music tab
+// Ensure Firebase is ready before running
+document.addEventListener("DOMContentLoaded", () => {
+  db = firebase.firestore();
+
+  // --- AUTHENTICATION LISTENER ---
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      currentUserId = user.uid;
+      document.getElementById('logged-out-warning').style.display = 'none';
+      
+      const displayName = user.displayName || user.email.split('@')[0];
+      document.getElementById('profile-name').textContent = displayName;
+      
+      document.getElementById('edit-bio-btn').style.display = 'inline-block';
+      document.getElementById('set-song-btn').style.display = 'inline-block';
+      
+      loadProfile(currentUserId);
+      loadInbox(currentUserId);
+    } else {
+      document.getElementById('logged-out-warning').style.display = 'block';
+    }
+  });
+});
+
 const allSiteSongs = [
   { title: "Thick And The Bad (Ft.BiggieTrev)", file: "Thick_And_The_Bad.mp3" },
   { title: "i just wanna make good music", file: "i_just_wanna_make_good_music.mp3" },
@@ -40,52 +62,6 @@ const allSiteSongs = [
 ];
 
 
-// --- SIDEBAR NAVIGATION ---
-function switchHubView(viewId, btnElement) {
-  // Hide all views
-  document.querySelectorAll('.hub-view').forEach(view => view.classList.remove('active'));
-  // Remove active state from all buttons
-  document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
-  
-  // Show selected view
-  document.getElementById(viewId).classList.add('active');
-  btnElement.classList.add('active');
-
-  // If opening profile, try playing the song automatically
-  if(viewId === 'hub-profile') {
-    const audio = document.getElementById('profile-audio');
-    if (audio.src && audio.paused) {
-      audio.play().catch(e => console.log("User must click to start audio."));
-    }
-  }
-}
-
-// --- EXPAND GAMES ---
-function toggleSection(sectionId) {
-  const section = document.getElementById(sectionId);
-  section.style.display = section.style.display === "block" ? "none" : "block";
-}
-
-
-// --- AUTHENTICATION LISTENER ---
-firebase.auth().onAuthStateChanged((user) => {
-  if (user) {
-    currentUserId = user.uid;
-    document.getElementById('logged-out-warning').style.display = 'none';
-    
-    const displayName = user.displayName || user.email.split('@')[0];
-    document.getElementById('profile-name').textContent = displayName;
-    
-    document.getElementById('edit-bio-btn').style.display = 'inline-block';
-    document.getElementById('set-song-btn').style.display = 'inline-block';
-    
-    loadProfile(currentUserId);
-    loadInbox(currentUserId);
-  } else {
-    document.getElementById('logged-out-warning').style.display = 'block';
-  }
-});
-
 // --- LOAD PROFILE ---
 function loadProfile(uid) {
   db.collection('profiles').doc(uid).onSnapshot((doc) => {
@@ -95,7 +71,6 @@ function loadProfile(uid) {
       
       document.getElementById('profile-bio').textContent = currentProfileData.bio || "No bio set.";
       
-      // Setup Likes (Array length)
       const likedByArray = currentProfileData.likedBy || [];
       document.getElementById('like-count').textContent = likedByArray.length;
       
@@ -108,7 +83,6 @@ function loadProfile(uid) {
         likeBtn.classList.remove('liked');
       }
 
-      // Setup Background Image
       if (currentProfileData.profileBg) {
         document.getElementById('profile-bg-container').style.backgroundImage = `url('${currentProfileData.profileBg}')`;
       } else {
@@ -119,7 +93,6 @@ function loadProfile(uid) {
       setupProfileSong(currentProfileData.profileSongTitle, currentProfileData.profileSongFile);
       checkDMLimit(currentProfileData.dmHistory || []);
     } else {
-      // First time setup
       db.collection('profiles').doc(uid).set({
         bio: "I just joined the Crzyclan Hub!",
         likedBy: [],
@@ -150,38 +123,27 @@ function updateRoleUI(role) {
   }
 }
 
-// --- TOGGLE LIKE SYSTEM ---
 window.toggleLike = function() {
   if (!currentUserId) return alert("You must be logged in.");
   if (!currentProfileData) return;
 
-  const userRef = db.collection('profiles').doc(currentUserId); // Replace with target UID in future
+  const userRef = db.collection('profiles').doc(currentUserId); 
   const likedByArray = currentProfileData.likedBy || [];
   
   if (likedByArray.includes(currentUserId)) {
-    // Unlike
-    userRef.update({
-      likedBy: firebase.firestore.FieldValue.arrayRemove(currentUserId)
-    });
+    userRef.update({ likedBy: firebase.firestore.FieldValue.arrayRemove(currentUserId) });
   } else {
-    // Like
-    userRef.update({
-      likedBy: firebase.firestore.FieldValue.arrayUnion(currentUserId)
-    });
+    userRef.update({ likedBy: firebase.firestore.FieldValue.arrayUnion(currentUserId) });
   }
 };
 
-// --- CUSTOM PROFILE BACKGROUND ---
 window.setCustomProfileBG = function() {
-  const bgUrl = prompt("Paste an image URL (Imgur, Discord link, etc.) to set as your profile background. Leave blank to clear.");
+  const bgUrl = prompt("Paste an image URL to set as your profile background. Leave blank to clear.");
   if (bgUrl !== null) {
-    db.collection('profiles').doc(currentUserId).update({
-      profileBg: bgUrl.trim()
-    });
+    db.collection('profiles').doc(currentUserId).update({ profileBg: bgUrl.trim() });
   }
 };
 
-// --- PROFILE SONG MODAL & SYSTEM ---
 function setupProfileSong(title, file) {
   const audioEl = document.getElementById('profile-audio');
   const srcEl = document.getElementById('profile-audio-src');
@@ -197,7 +159,7 @@ function setupProfileSong(title, file) {
 window.openSongModal = function() {
   document.getElementById('song-selector-modal').style.display = 'flex';
   document.getElementById('song-search-input').value = "";
-  switchSongTab('all');
+  window.switchSongTab('all');
 };
 
 window.closeModal = function(modalId) {
@@ -210,7 +172,7 @@ window.switchSongTab = function(tab) {
   document.getElementById('tab-all-songs').classList.remove('active');
   document.getElementById('tab-liked-songs').classList.remove('active');
   document.getElementById(`tab-${tab}-songs`).classList.add('active');
-  filterSongs();
+  window.filterSongs();
 };
 
 window.filterSongs = function() {
@@ -218,12 +180,9 @@ window.filterSongs = function() {
   const listEl = document.getElementById('modal-song-list');
   listEl.innerHTML = '';
   
-  // If showing liked songs, we would pull from Firestore user profile likes. 
-  // Since we are keeping reads low, we will mock this or rely on localStorage if implemented on music.js
   let songsToRender = allSiteSongs;
 
   if (currentSongTab === 'liked') {
-    // Simulating liked songs tab for now until we fully sync Music tab likes
     listEl.innerHTML = '<p style="padding: 10px; color: #888;">Liked songs sync coming soon. Please use All Songs.</p>';
     return;
   }
@@ -238,7 +197,7 @@ window.filterSongs = function() {
           profileSongTitle: song.title,
           profileSongFile: song.file
         }).then(() => {
-          closeModal('song-selector-modal');
+          window.closeModal('song-selector-modal');
         });
       };
       listEl.appendChild(div);
@@ -246,19 +205,18 @@ window.filterSongs = function() {
   });
 };
 
-// --- PLAYLIST MODAL ---
 window.openPlaylistModal = function() {
   if (!currentUserId) return;
   document.getElementById('playlist-selector-modal').style.display = 'flex';
   
   const dropdown = document.getElementById('playlist-dropdown');
-  dropdown.innerHTML = '<option value="">-- Select a Playlist --</option>';
+  dropdown.innerHTML = '<option value="">-- Loading your playlists... --</option>';
   
-  // Fetch playlists from Firestore
   db.collection('playlists').where('ownerId', '==', currentUserId).get().then(snapshot => {
     if (snapshot.empty) {
       dropdown.innerHTML = '<option value="">You have no playlists yet.</option>';
     } else {
+      dropdown.innerHTML = '<option value="">-- Select a Playlist --</option>';
       snapshot.forEach(doc => {
         const pl = doc.data();
         dropdown.innerHTML += `<option value="${doc.id}">${pl.name} (${pl.tracks ? pl.tracks.length : 0} tracks)</option>`;
@@ -275,7 +233,7 @@ window.savePublicPlaylist = function() {
     publicPlaylistId: selected
   }).then(() => {
     alert("Public Playlist Updated!");
-    closeModal('playlist-selector-modal');
+    window.closeModal('playlist-selector-modal');
   });
 };
 
@@ -295,13 +253,12 @@ window.createNewPlaylistFromHub = function() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
         alert("Playlist Created! You can add songs to it from the Music tab.");
-        openPlaylistModal(); // Refresh dropdown
+        window.openPlaylistModal(); 
       });
     }
   });
 };
 
-// --- BIO, DM, INBOX & SEARCH LOGIC ---
 window.editBio = function() {
   const newBio = prompt("Enter your new bio:");
   if (newBio !== null) db.collection('profiles').doc(currentUserId).update({ bio: newBio });
@@ -388,8 +345,6 @@ window.searchFriend = function() {
   const input = document.getElementById('friend-search-input').value.trim();
   if(!input) return;
   document.getElementById('friend-search-results').innerHTML = `<p style="color: #aaa;">Searching for ${input}...</p>`;
-  
-  // Real implementation would query users here.
   setTimeout(() => {
     document.getElementById('friend-search-results').innerHTML = `<p style="color: #ff0000;">User not found. (Database index building required for live search).</p>`;
   }, 1000);

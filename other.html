@@ -52,6 +52,7 @@
       border: 3px solid #555; /* Changes to Red for actual members */
       object-fit: cover;
       margin-bottom: 10px;
+      transition: border-color 0.3s;
     }
     
     /* Dynamic Role Titles */
@@ -65,7 +66,7 @@
     }
     .role-guest { background: #333; color: #ccc; }
     .role-fan { background: #0055ff; color: #fff; }
-    .role-member { background: #ff0000; color: #fff; } /* Official Clan Member Badge */
+    .role-member { background: #ff0000; color: #fff; }
 
     .status-badge {
       display: inline-block;
@@ -100,6 +101,7 @@
       font-size: 0.95rem;
       margin-bottom: 20px;
       min-height: 80px;
+      white-space: pre-wrap; /* Keeps line breaks */
     }
 
     .public-playlist-card {
@@ -151,7 +153,6 @@
     .content-card h3 { margin: 0 0 10px 0; color: #ff0000; }
     .content-card p { color: #aaa; font-size: 0.9rem; line-height: 1.4; margin-bottom: 15px; }
 
-    /* Hidden Game List inside the card */
     .game-list-container {
       display: none; 
       background: #0a0a0a;
@@ -194,43 +195,51 @@
     
     <!-- SOCIAL / PROFILE SYSTEM -->
     <h2 class="section-header">Community Hub</h2>
+    
+    <div id="logged-out-warning" style="text-align: center; color: #ff0000; margin-bottom: 20px; display: none;">
+      You must be logged in to setup your profile and send messages.
+    </div>
+
     <div class="profile-dashboard">
       
       <!-- Left Column: User Info -->
       <div class="profile-sidebar">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Profile Picture" id="view-profile-pic">
-        <h2 style="margin: 0 0 5px 0; color: #fff;">User Name</h2>
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Profile Picture" id="profile-pic">
+        <h2 id="profile-name" style="margin: 0 0 5px 0; color: #fff;">Loading...</h2>
         
-        <!-- Dynamic Role Title (Guest by Default) -->
-        <div class="role-title role-guest">Community Guest</div>
+        <!-- Dynamic Role Title -->
+        <div id="role-badge" class="role-title role-guest">Community Guest</div>
         
         <!-- Live Listening Status -->
-        <div class="status-badge" style="margin-bottom: 15px;">
-          🎵 Listening to: <strong>Welcome To Hell</strong>
+        <div id="listening-status" class="status-badge" style="margin-bottom: 15px; display: none;">
+          🎵 Listening to: <strong id="current-song-text">Nothing right now</strong>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button class="sleek-btn" style="border-color: #ff0000; color: #ff0000;">+ Add Friend</button>
-          <button class="sleek-btn" title="Sends a private message to this user.">✉️ Send Daily DM (1/1)</button>
+          <button id="add-friend-btn" class="sleek-btn" style="border-color: #ff0000; color: #ff0000;" onclick="alert('Friend system coming soon!')">+ Add Friend</button>
+          <button id="dm-btn" class="sleek-btn" title="Sends a private message to this user." onclick="sendDailyDM()">✉️ Send Daily DM (1/1)</button>
         </div>
       </div>
 
       <!-- Right Column: Details & Playlists -->
       <div class="profile-main">
         <h3>About Me 
-          <button class="like-profile-btn">👍 Like Profile <span style="font-weight:bold; margin-left:5px;">24</span></button>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="edit-bio-btn" class="sleek-btn" style="font-size: 0.8rem; display: none;" onclick="editBio()">✏️ Edit Bio</button>
+            <button class="like-profile-btn" onclick="likeProfile()">👍 Like Profile <span id="like-count" style="font-weight:bold; margin-left:5px;">0</span></button>
+          </div>
         </h3>
-        <div class="profile-bio">
-          This is a placeholder for the user's custom bio. They can talk about their favorite games, instruments they play, or anything they want to share with the community.
+        <div id="profile-bio" class="profile-bio">
+          Loading bio...
         </div>
 
         <h3>Public Playlist</h3>
         <div class="public-playlist-card">
           <div>
-            <strong style="color: #fff; font-size: 1.1rem;">Late Night Gaming Mix</strong>
-            <p style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">12 Tracks • Created by User</p>
+            <strong id="public-playlist-title" style="color: #fff; font-size: 1.1rem;">No Public Playlist Set</strong>
+            <p id="public-playlist-info" style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">0 Tracks</p>
           </div>
-          <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;">▶ Play</button>
+          <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;" onclick="alert('Public playlists coming soon!')">▶ Play</button>
         </div>
       </div>
     </div>
@@ -239,7 +248,7 @@
     <h2 class="section-header">Games & Projects</h2>
     <div class="content-grid">
       
-      <!-- ROBLOX GAMES CARD (Clickable to Expand) -->
+      <!-- ROBLOX GAMES CARD -->
       <div class="content-card" onclick="toggleSection('roblox-games')">
         <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Roblox Studio">
         <h3>CRZYCLAN ROBLOX GAMES</h3>
@@ -295,18 +304,38 @@
         <p>Showcasing custom physical projects like CrzyReaper's handmade dice and other tangible art.</p>
       </div>
     </div>
-
   </main>
 
   <footer>
     &copy; 2026 CRZYCLAN. All rights reserved.
   </footer>
 
-  <!-- Global Script for applying background site-wide -->
-  <script src="global.js"></script>
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   
   <script>
-    // Simple script to toggle the Roblox Games list open and closed
+    const firebaseConfig = {
+      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+      authDomain: "crzyclansite.firebaseapp.com",
+      projectId: "crzyclansite",
+      storageBucket: "crzyclansite.appspot.com",
+      messagingSenderId: "534485925500",
+      appId: "1:534485925500:web:56c7c798780e477e7e13f9",
+      measurementId: "G-1NFCH3JEVW"
+    };
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <!-- Global Background Script -->
+  <script src="global.js"></script>
+  <!-- New Script specifically for the Other/Profile tab -->
+  <script src="other.js"></script>
+  
+  <script>
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
       if (section.style.display === "block") {

@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crzyclan Other</title>
+  <title>Crzyclan Hub</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- */
     body {
       background-size: cover !important;
       background-position: center center !important;
@@ -13,10 +14,51 @@
       background-repeat: no-repeat !important;
     }
 
-    .other-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .section-header { border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; color: #fff; }
+    /* --- SIDEBAR & MAIN LAYOUT --- */
+    .hub-wrapper {
+      max-width: 1300px;
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 30px;
+      padding: 0 20px;
+    }
 
-    /* --- SOCIAL & PROFILE SECTION --- */
+    .hub-sidebar {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 20px;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .sidebar-btn {
+      background: transparent;
+      color: #aaa;
+      border: 1px solid transparent;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: bold;
+    }
+    .sidebar-btn:hover, .sidebar-btn.active {
+      background: rgba(255,0,0,0.1);
+      color: #fff;
+      border-color: rgba(255,0,0,0.3);
+    }
+
+    /* --- VIEW CONTAINERS --- */
+    .hub-view { display: none; }
+    .hub-view.active { display: block; }
+    .section-header { border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 10px; margin-top: 0; margin-bottom: 20px; color: #fff; }
+
+    /* --- PROFILE SECTION --- */
     .profile-dashboard {
       display: grid;
       grid-template-columns: 1fr 2fr;
@@ -25,38 +67,52 @@
       border: 1px solid #333;
       border-radius: 12px;
       padding: 30px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
     }
+    
+    /* Adds a dark overlay so text remains readable over custom backgrounds */
+    .profile-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      border-radius: 12px;
+      z-index: 1;
+    }
+    
+    .profile-sidebar, .profile-main { position: relative; z-index: 2; }
 
-    .profile-sidebar { text-align: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px; }
-    .profile-sidebar img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #555; object-fit: cover; margin-bottom: 10px; transition: border-color 0.3s; }
+    .profile-sidebar { text-align: center; border-right: 1px solid rgba(255,255,255,0.2); padding-right: 20px; }
+    .profile-sidebar img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #555; object-fit: cover; margin-bottom: 10px; }
     
     .role-title { display: inline-block; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 4px; margin-bottom: 15px; }
     .role-guest { background: #333; color: #ccc; }
     .role-fan { background: #0055ff; color: #fff; }
     .role-member { background: #ff0000; color: #fff; }
 
-    /* Profile Song Player */
-    .profile-song-box { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 10px; margin-bottom: 15px; }
+    .profile-song-box { background: rgba(20,20,20,0.8); border: 1px solid #444; border-radius: 8px; padding: 10px; margin-bottom: 15px; backdrop-filter: blur(5px); }
     .profile-song-box p { margin: 0 0 5px 0; color: #ff0000; font-size: 0.85rem; font-weight: bold; }
     .profile-song-box audio { width: 100%; height: 30px; }
 
     .profile-main h3 { margin-top: 0; color: #ff0000; display: flex; justify-content: space-between; align-items: center;}
     .like-profile-btn { background: rgba(255,0,0,0.1); border: 1px solid #ff0000; color: #ff0000; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
     .like-profile-btn:hover { background: #ff0000; color: #fff; }
+    .like-profile-btn.liked { background: #ff0000; color: #fff; }
 
-    .profile-bio { background: #1a1a1a; padding: 15px; border-radius: 8px; color: #ccc; font-size: 0.95rem; margin-bottom: 20px; min-height: 80px; white-space: pre-wrap; }
-
-    .public-playlist-card { background: #1a1a1a; border-left: 4px solid #ff0000; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+    .profile-bio { background: rgba(20,20,20,0.8); padding: 15px; border-radius: 8px; color: #ccc; font-size: 0.95rem; margin-bottom: 20px; min-height: 80px; white-space: pre-wrap; backdrop-filter: blur(5px); border: 1px solid #333; }
+    .public-playlist-card { background: rgba(20,20,20,0.8); border-left: 4px solid #ff0000; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; border-right: 1px solid #333; border-bottom: 1px solid #333;}
     
-    .sleek-btn { background: transparent; color: #fff; border: 1px solid #555; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .sleek-btn { background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #555; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
     .sleek-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+    .sleek-input { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 6px; box-sizing: border-box; }
 
-    /* --- INBOX SECTION --- */
-    .inbox-container { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-top: 20px; display: none; }
-    .message-item { background: #1a1a1a; border-left: 3px solid #ff0000; padding: 15px; margin-bottom: 10px; border-radius: 4px; }
+    /* --- INBOX & FRIENDS --- */
+    .inbox-container { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-top: 20px; }
+    .message-item, .friend-item { background: #1a1a1a; border-left: 3px solid #ff0000; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;}
     .message-item .meta { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
 
-    /* --- EXPANDING GRID FOR GAMES & ART --- */
+    /* --- GAMES & ART GRIDS --- */
     .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .content-card { background: #151515; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 20px; cursor: pointer; }
     .content-card:hover { border-color: rgba(255,0,0,0.5); }
@@ -67,6 +123,22 @@
     .game-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #222; }
     .game-item:last-child { border-bottom: none; }
 
+    /* --- MODALS --- */
+    .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .custom-modal-inner { background: #151515; border: 1px solid #ff0000; border-radius: 12px; padding: 25px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+    
+    .song-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .song-tab { flex: 1; padding: 10px; background: #222; border: 1px solid #444; color: #aaa; cursor: pointer; text-align: center; border-radius: 6px; }
+    .song-tab.active { background: #ff0000; color: #fff; border-color: #ff0000; }
+    
+    .song-list-item { padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .song-list-item:hover { background: #222; }
+
+    @media (max-width: 900px) {
+      .hub-wrapper { grid-template-columns: 1fr; }
+      .profile-dashboard { grid-template-columns: 1fr; }
+      .profile-sidebar { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.2); padding-right: 0; padding-bottom: 20px; margin-bottom: 20px;}
+    }
   </style>
 </head>
 <body>
@@ -82,110 +154,172 @@
     </nav>
   </header>
 
-  <main class="other-container">
+  <main class="hub-wrapper">
     
-    <h2 class="section-header">Community Hub</h2>
-    <div id="logged-out-warning" style="text-align: center; color: #ff0000; margin-bottom: 20px; display: none;">
-      You must be logged in to setup your profile and send messages.
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="hub-sidebar">
+      <button class="sidebar-btn active" onclick="switchHubView('hub-main', this)">🎮 Community Hub</button>
+      <button class="sidebar-btn" onclick="switchHubView('hub-profile', this)">👤 My Profile</button>
+      <button class="sidebar-btn" onclick="switchHubView('hub-friends', this)">👥 Friends List</button>
+      <button class="sidebar-btn" onclick="switchHubView('hub-add-friend', this)">🔍 Add Friend</button>
     </div>
 
-    <div class="profile-dashboard">
-      <!-- Left Column: User Info -->
-      <div class="profile-sidebar">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Profile Picture" id="profile-pic">
-        <h2 id="profile-name" style="margin: 0 0 5px 0; color: #fff;">Loading...</h2>
-        <div id="role-badge" class="role-title role-guest">Community Guest</div>
+    <!-- MAIN CONTENT AREA -->
+    <div class="hub-content">
+      
+      <div id="logged-out-warning" style="background: rgba(255,0,0,0.1); border: 1px solid #ff0000; padding: 15px; border-radius: 8px; color: #fff; margin-bottom: 20px; display: none;">
+        <strong>Notice:</strong> You must be logged in to view profiles and manage friends.
+      </div>
+
+      <!-- VIEW 1: GAMES & ART (Default) -->
+      <div id="hub-main" class="hub-view active">
+        <h2 class="section-header">Games & Projects</h2>
+        <div class="content-grid">
+          <div class="content-card" onclick="toggleSection('roblox-games')">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Roblox Studio">
+            <h3>CRZYCLAN ROBLOX GAMES</h3>
+            <p>Explore the custom games, mechanics, and worlds built entirely from the ground up by the clan on the Roblox platform. Click to view active projects.</p>
+            <div id="roblox-games" class="game-list-container">
+              <div class="game-item"><div><strong>Days Before Death</strong><br><span>Survival / Horror</span></div><button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View</button></div>
+              <div class="game-item"><div><strong>2022: The Game</strong><br><span>Adventure</span></div><button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View</button></div>
+              <div class="game-item"><div><strong>Unnamed Project 3</strong><br><span>In Development</span></div><button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View</button></div>
+            </div>
+          </div>
+          <div class="content-card">
+            <div style="width: 100%; height: 180px; background: #222; border: 2px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: #555;">[ Incoming Projects ]</div>
+            <h3 style="color: #777;">Other Platforms</h3>
+            <p style="color: #666;">Future stand-alone releases, indie titles, and cross-platform games outside of Roblox will be listed here.</p>
+          </div>
+        </div>
+
+        <h2 class="section-header" style="margin-top: 40px;">Crzyclan Art Gallery</h2>
+        <div class="content-grid">
+          <div class="content-card">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Art Piece">
+            <h3>Album Covers & Concepts</h3>
+            <p>Behind the scenes look at the artwork for The Pebble, 2022, and other visual media created by the team.</p>
+          </div>
+          <div class="content-card">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Dice Making">
+            <h3>Physical Crafts</h3>
+            <p>Showcasing custom physical projects like CrzyReaper's handmade dice and other tangible art.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: PROFILE & INBOX -->
+      <div id="hub-profile" class="hub-view">
+        <h2 class="section-header">My Profile</h2>
         
-        <!-- Profile Song Player -->
-        <div class="profile-song-box">
-          <p>🎵 Profile Song</p>
-          <audio id="profile-audio" controls>
-            <source id="profile-audio-src" src="" type="audio/mpeg">
-            Your browser does not support the audio element.
-          </audio>
-          <button id="set-song-btn" class="sleek-btn" style="font-size: 0.75rem; margin-top: 5px; width: 100%; display: none;" onclick="setProfileSong()">Change Song</button>
+        <div id="profile-bg-container" class="profile-dashboard">
+          <div class="profile-overlay"></div>
+          
+          <div class="profile-sidebar">
+            <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Profile Picture" id="profile-pic">
+            <h2 id="profile-name" style="margin: 0 0 5px 0; color: #fff;">Loading...</h2>
+            <div id="role-badge" class="role-title role-guest">Community Guest</div>
+            
+            <div class="profile-song-box">
+              <p>🎵 Profile Song</p>
+              <audio id="profile-audio" controls>
+                <source id="profile-audio-src" src="" type="audio/mpeg">
+              </audio>
+              <button id="set-song-btn" class="sleek-btn" style="font-size: 0.75rem; margin-top: 5px; width: 100%; display: none;" onclick="openSongModal()">🔍 Change Song</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="sleek-btn" style="font-size: 0.8rem;" onclick="setCustomProfileBG()">🖼️ Set Background</button>
+              <button id="dm-btn" class="sleek-btn" onclick="sendDailyDM()">✉️ Daily DM (1/1)</button>
+            </div>
+          </div>
+
+          <div class="profile-main">
+            <h3>About Me 
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="edit-bio-btn" class="sleek-btn" style="font-size: 0.8rem; display: none;" onclick="editBio()">✏️ Edit Bio</button>
+                <button id="like-btn-element" class="like-profile-btn" onclick="toggleLike()">👍 Like <span id="like-count" style="font-weight:bold; margin-left:5px;">0</span></button>
+              </div>
+            </h3>
+            <div id="profile-bio" class="profile-bio">Loading bio...</div>
+
+            <h3>Public Playlist</h3>
+            <div class="public-playlist-card">
+              <div>
+                <strong id="public-playlist-title" style="color: #fff; font-size: 1.1rem;">No Public Playlist Set</strong>
+                <p id="public-playlist-info" style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">Select one of your existing playlists.</p>
+              </div>
+              <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;" onclick="openPlaylistModal()">⚙️ Setup</button>
+            </div>
+          </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button id="add-friend-btn" class="sleek-btn" style="border-color: #ff0000; color: #ff0000;" onclick="alert('Friend system coming soon!')">+ Add Friend</button>
-          <button id="dm-btn" class="sleek-btn" onclick="sendDailyDM()">✉️ Loading DMs...</button>
-        </div>
-      </div>
-
-      <!-- Right Column: Details & Playlists -->
-      <div class="profile-main">
-        <h3>About Me 
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <button id="edit-bio-btn" class="sleek-btn" style="font-size: 0.8rem; display: none;" onclick="editBio()">✏️ Edit Bio</button>
-            <button class="like-profile-btn" onclick="likeProfile()">👍 Like Profile <span id="like-count" style="font-weight:bold; margin-left:5px;">0</span></button>
-          </div>
-        </h3>
-        <div id="profile-bio" class="profile-bio">Loading bio...</div>
-
-        <h3>Public Playlist</h3>
-        <div class="public-playlist-card">
-          <div>
-            <strong id="public-playlist-title" style="color: #fff; font-size: 1.1rem;">No Public Playlist Set</strong>
-            <p id="public-playlist-info" style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">0 Tracks</p>
-          </div>
-          <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;" onclick="setupPublicPlaylist()">⚙️ Setup</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- INBOX SECTION (Only visible to the logged-in user) -->
-    <div id="inbox-container" class="inbox-container">
-      <h3 style="margin-top: 0; color: #ff0000; border-bottom: 1px solid #333; padding-bottom: 10px;">📬 Your Inbox</h3>
-      <div id="messages-list">
-        <p style="color: #888;">No messages yet.</p>
-      </div>
-    </div>
-
-    <!-- GAMES SECTION -->
-    <h2 class="section-header">Games & Projects</h2>
-    <div class="content-grid">
-      <div class="content-card" onclick="toggleSection('roblox-games')">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Roblox Studio">
-        <h3>CRZYCLAN ROBLOX GAMES</h3>
-        <p>Explore the custom games, mechanics, and worlds built entirely from the ground up by the clan on the Roblox platform. Click to view active projects.</p>
-        <div id="roblox-games" class="game-list-container">
-          <div class="game-item">
-            <div><strong>Days Before Death</strong><br><span>Survival / Horror</span></div>
-            <button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View Details</button>
-          </div>
-          <div class="game-item">
-            <div><strong>2022: The Game</strong><br><span>Adventure</span></div>
-            <button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View Details</button>
-          </div>
-          <div class="game-item">
-            <div><strong>Unnamed Project 3</strong><br><span>In Development</span></div>
-            <button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation()">View Details</button>
-          </div>
+        <div id="inbox-container" class="inbox-container">
+          <h3 style="margin-top: 0; color: #ff0000; border-bottom: 1px solid #333; padding-bottom: 10px;">📬 Your Inbox</h3>
+          <div id="messages-list"><p style="color: #888;">No messages yet.</p></div>
         </div>
       </div>
 
-      <div class="content-card">
-        <div style="width: 100%; height: 180px; background: #222; border: 2px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: #555;">[ Incoming Projects ]</div>
-        <h3 style="color: #777;">Other Platforms</h3>
-        <p style="color: #666;">Future stand-alone releases, indie titles, and cross-platform games outside of Roblox will be listed here.</p>
+      <!-- VIEW 3: FRIENDS LIST -->
+      <div id="hub-friends" class="hub-view">
+        <h2 class="section-header">Friends List</h2>
+        <div class="inbox-container" style="display: block; margin-top: 0;">
+          <p style="color: #888;">Friend display system coming soon.</p>
+        </div>
       </div>
-    </div>
 
-    <!-- ART SECTION -->
-    <h2 class="section-header">Crzyclan Art Gallery</h2>
-    <div class="content-grid">
-      <div class="content-card">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Art Piece">
-        <h3>Album Covers & Concepts</h3>
-        <p>Behind the scenes look at the artwork for The Pebble, 2022, and other visual media created by the team.</p>
+      <!-- VIEW 4: ADD FRIEND -->
+      <div id="hub-add-friend" class="hub-view">
+        <h2 class="section-header">Add a Friend</h2>
+        <div class="inbox-container" style="display: block; margin-top: 0;">
+          <input type="text" id="friend-search-input" class="sleek-input" placeholder="Enter exact username..." style="margin-bottom: 15px;">
+          <button class="sleek-btn" style="background: #ff0000; border: none; width: 100%;" onclick="searchFriend()">Search</button>
+          <div id="friend-search-results" style="margin-top: 20px;"></div>
+        </div>
       </div>
-      <div class="content-card">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Dice Making">
-        <h3>Physical Crafts</h3>
-        <p>Showcasing custom physical projects like CrzyReaper's handmade dice and other tangible art.</p>
-      </div>
+
     </div>
   </main>
+
+  <!-- MODAL: SONG SELECTOR -->
+  <div id="song-selector-modal" class="custom-modal">
+    <div class="custom-modal-inner">
+      <h3 style="margin-top: 0; color: #fff;">Select Profile Song</h3>
+      <input type="text" id="song-search-input" class="sleek-input" placeholder="Search song title..." onkeyup="filterSongs()" style="margin-bottom: 15px;">
+      
+      <div class="song-tabs">
+        <div id="tab-all-songs" class="song-tab active" onclick="switchSongTab('all')">All Songs</div>
+        <div id="tab-liked-songs" class="song-tab" onclick="switchSongTab('liked')">Liked Songs</div>
+      </div>
+      
+      <div id="modal-song-list" style="max-height: 300px; overflow-y: auto; border: 1px solid #333; border-radius: 6px; margin-bottom: 15px;">
+        <!-- Filled by JS -->
+      </div>
+      
+      <button class="sleek-btn" style="width: 100%;" onclick="closeModal('song-selector-modal')">Cancel</button>
+    </div>
+  </div>
+
+  <!-- MODAL: PLAYLIST SELECTOR -->
+  <div id="playlist-selector-modal" class="custom-modal">
+    <div class="custom-modal-inner">
+      <h3 style="margin-top: 0; color: #fff;">Setup Public Playlist</h3>
+      <p style="color: #aaa; font-size: 0.9rem;">Select an existing playlist from your Music tab to display on your profile.</p>
+      
+      <select id="playlist-dropdown" class="sleek-input" style="margin-bottom: 15px;">
+        <option value="">-- Loading your playlists... --</option>
+      </select>
+      
+      <div style="display: flex; gap: 10px;">
+        <button class="sleek-btn" style="background: #ff0000; border: none; flex: 1;" onclick="savePublicPlaylist()">Save</button>
+        <button class="sleek-btn" style="flex: 1;" onclick="closeModal('playlist-selector-modal')">Cancel</button>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+      
+      <p style="color: #aaa; font-size: 0.9rem;">Or create a new one (Requires open slot. Max 4 playlists per user).</p>
+      <button class="sleek-btn" style="width: 100%;" onclick="createNewPlaylistFromHub()">+ Create New Playlist</button>
+    </div>
+  </div>
 
   <footer>&copy; 2026 CRZYCLAN. All rights reserved.</footer>
 
@@ -208,11 +342,5 @@
 
   <script src="global.js"></script>
   <script src="other.js"></script>
-  <script>
-    function toggleSection(sectionId) {
-      const section = document.getElementById(sectionId);
-      section.style.display = section.style.display === "block" ? "none" : "block";
-    }
-  </script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 const db = firebase.firestore();
 let currentUserId = null;
+let userRole = "guest";
+let dmTimerInterval;
 
 // --- AUTHENTICATION LISTENER ---
 firebase.auth().onAuthStateChanged((user) => {
@@ -7,22 +9,23 @@ firebase.auth().onAuthStateChanged((user) => {
     currentUserId = user.uid;
     document.getElementById('logged-out-warning').style.display = 'none';
     
-    // Display their chosen username or fallback to email prefix
     const displayName = user.displayName || user.email.split('@')[0];
     document.getElementById('profile-name').textContent = displayName;
     
-    // Since this acts as "My Profile" right now, show the edit button
+    // Show edit buttons for "My Profile"
     document.getElementById('edit-bio-btn').style.display = 'inline-block';
+    document.getElementById('set-song-btn').style.display = 'inline-block';
+    document.getElementById('inbox-container').style.display = 'block';
     
-    // Fetch or create their database profile
     loadProfile(currentUserId);
+    loadInbox(currentUserId);
   } else {
-    // What shows if they aren't logged in
     document.getElementById('logged-out-warning').style.display = 'block';
     document.getElementById('profile-name').textContent = "Unknown Guest";
     document.getElementById('profile-bio').textContent = "Please log in to view and edit your profile.";
     document.getElementById('role-badge').textContent = "Not Logged In";
     document.getElementById('role-badge').className = "role-title role-guest";
+    document.getElementById('dm-btn').textContent = "✉️ Log in to DM";
   }
 });
 
@@ -33,146 +36,210 @@ function loadProfile(uid) {
   userRef.get().then((doc) => {
     if (doc.exists) {
       const data = doc.data();
+      userRole = data.role || "guest";
       
-      // Load Bio
       document.getElementById('profile-bio').textContent = data.bio || "This user hasn't written a bio yet.";
-      
-      // Load Likes
       document.getElementById('like-count').textContent = data.likes || 0;
       
-      // Load and Style Role Badge
-      updateRoleUI(data.role || "guest");
-      
-      // Check DM status to update button text
-      checkDMLimit(data.lastDMSent);
-
+      updateRoleUI(userRole);
+      setupProfileSong(data.profileSong);
+      checkDMLimit(data.dmHistory || []);
     } else {
-      // Create a fresh profile if this is their first time on the hub
       userRef.set({
         bio: "I just joined the Crzyclan Hub!",
         likes: 0,
         role: "guest",
-        lastDMSent: null
+        dmHistory: [],
+        profileSong: ""
       });
       document.getElementById('profile-bio').textContent = "I just joined the Crzyclan Hub!";
       document.getElementById('like-count').textContent = 0;
       updateRoleUI("guest");
+      checkDMLimit([]);
     }
-  }).catch((error) => {
-    console.error("Error fetching profile:", error);
   });
 }
 
-// --- ROLE STYLING ---
 function updateRoleUI(role) {
   const badge = document.getElementById('role-badge');
   const profilePic = document.getElementById('profile-pic');
-  
-  // Strip previous classes
   badge.className = "role-title"; 
   
   if (role === "member") {
     badge.textContent = "Crzyclan Member";
     badge.classList.add("role-member");
-    profilePic.style.borderColor = "#ff0000"; // Red border for official members
+    profilePic.style.borderColor = "#ff0000";
   } else if (role === "fan") {
     badge.textContent = "Crzyclan Fan";
     badge.classList.add("role-fan");
-    profilePic.style.borderColor = "#0055ff"; // Blue border for fans
+    profilePic.style.borderColor = "#0055ff";
   } else {
     badge.textContent = "Community Guest";
     badge.classList.add("role-guest");
-    profilePic.style.borderColor = "#555"; // Gray border for guests
+    profilePic.style.borderColor = "#555";
   }
 }
 
-// --- UPDATE BIO ---
-window.editBio = function() {
-  if (!currentUserId) return;
+// --- PROFILE SONG LOGIC ---
+function setupProfileSong(songUrl) {
+  const audioEl = document.getElementById('profile-audio');
+  const srcEl = document.getElementById('profile-audio-src');
   
-  const newBio = prompt("Enter your new bio:");
-  if (newBio !== null) {
+  if (songUrl) {
+    srcEl.src = songUrl;
+    audioEl.load();
+    
+    // Attempt auto-play (Browser might block this until user clicks)
+    const playPromise = audioEl.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        console.log("Browser blocked auto-play. User must click play manually.");
+      });
+    }
+  }
+}
+
+window.setProfileSong = function() {
+  const songUrl = prompt("Paste the file name (e.g., fadinglight.mp3) or a direct URL to your profile song:");
+  if (songUrl) {
     db.collection('profiles').doc(currentUserId).update({
-      bio: newBio
+      profileSong: songUrl
     }).then(() => {
-      document.getElementById('profile-bio').textContent = newBio;
-    }).catch(error => {
-      alert("Error updating bio: " + error.message);
+      setupProfileSong(songUrl);
     });
   }
 };
 
-// --- LIKE PROFILE ---
-window.likeProfile = function() {
-  // If we had a friend search, currentUserId here would be the ID of the friend you are viewing.
-  // For now, it just likes the currently loaded profile.
-  if (!currentUserId) {
-    alert("You must be logged in to like a profile.");
-    return;
+window.editBio = function() {
+  const newBio = prompt("Enter your new bio:");
+  if (newBio !== null) {
+    db.collection('profiles').doc(currentUserId).update({ bio: newBio }).then(() => {
+      document.getElementById('profile-bio').textContent = newBio;
+    });
   }
-  
-  const userRef = db.collection('profiles').doc(currentUserId);
-  userRef.update({
+};
+
+window.likeProfile = function() {
+  if (!currentUserId) return alert("You must be logged in.");
+  db.collection('profiles').doc(currentUserId).update({
     likes: firebase.firestore.FieldValue.increment(1)
   }).then(() => {
-    // Manually update the number on screen so we don't have to reload the whole page
     const countSpan = document.getElementById('like-count');
     countSpan.textContent = parseInt(countSpan.textContent) + 1;
   });
 };
 
-// --- DAILY DM SYSTEM ---
-function checkDMLimit(lastSentTimestamp) {
+// --- DAILY DM SYSTEM WITH TIMERS & LIMITS ---
+function getDMLimit() {
+  // Members and Fans get 2 DMs a day. Guests get 1.
+  return (userRole === "member" || userRole === "fan") ? 2 : 1;
+}
+
+function checkDMLimit(dmHistory) {
+  clearInterval(dmTimerInterval);
+  const limit = getDMLimit();
+  const now = Date.now();
+  const twentyFourHours = 86400000;
+  
+  // Filter history to only include messages sent in the last 24 hours
+  const recentDMs = dmHistory.filter(time => (now - time) < twentyFourHours);
+  
   const dmBtn = document.getElementById('dm-btn');
   
-  if (!lastSentTimestamp) {
-    dmBtn.textContent = "✉️ Send Daily DM (1/1)";
+  if (recentDMs.length < limit) {
+    dmBtn.textContent = `✉️ Send Daily DM (${recentDMs.length}/${limit})`;
     dmBtn.style.opacity = "1";
     dmBtn.style.cursor = "pointer";
-    return;
-  }
-  
-  // Check if 24 hours (86400000 ms) have passed
-  const now = Date.now();
-  const timePassed = now - lastSentTimestamp;
-  
-  if (timePassed < 86400000) {
-    // Less than 24 hours
-    dmBtn.textContent = "✉️ Daily DM Used (0/1)";
+    dmBtn.disabled = false;
+  } else {
+    // Limit reached. Find out when the oldest message in the 24h window expires.
+    const oldestDM = Math.min(...recentDMs);
+    const resetTime = oldestDM + twentyFourHours;
+    
     dmBtn.style.opacity = "0.5";
     dmBtn.style.cursor = "not-allowed";
-  } else {
-    // 24 hours have passed, reset button
-    dmBtn.textContent = "✉️ Send Daily DM (1/1)";
-    dmBtn.style.opacity = "1";
-    dmBtn.style.cursor = "pointer";
+    dmBtn.disabled = true;
+
+    // Start live countdown timer
+    dmTimerInterval = setInterval(() => {
+      const timeLeft = resetTime - Date.now();
+      if (timeLeft <= 0) {
+        clearInterval(dmTimerInterval);
+        checkDMLimit(recentDMs); // Re-run check to unlock
+      } else {
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        dmBtn.textContent = `✉️ Available in ${hours}h ${minutes}m`;
+      }
+    }, 1000);
   }
 }
 
 window.sendDailyDM = function() {
-  if (!currentUserId) {
-    alert("You must be logged in to send a message.");
-    return;
-  }
-
-  const dmBtn = document.getElementById('dm-btn');
-  if (dmBtn.textContent.includes("(0/1)")) {
-    alert("You have already sent your daily DM! Check back tomorrow.");
-    return;
-  }
-
-  const messageText = prompt("Type your Daily Message:");
-  if (messageText && messageText.trim() !== "") {
-    
-    // 1. In a real app, you would save the message to a "messages" collection here.
-    
-    // 2. Update the user's profile to lock their DM button for 24 hours
+  if (!currentUserId) return alert("You must be logged in to send a message.");
+  
+  db.collection('profiles').doc(currentUserId).get().then(doc => {
+    const data = doc.data();
     const now = Date.now();
-    db.collection('profiles').doc(currentUserId).update({
-      lastDMSent: now
-    }).then(() => {
-      alert("Message Sent!");
-      checkDMLimit(now); // Instantly update the button to lock it
+    const recentDMs = (data.dmHistory || []).filter(time => (now - time) < 86400000);
+    
+    if (recentDMs.length >= getDMLimit()) {
+      return alert("You have reached your daily message limit.");
+    }
+
+    const messageText = prompt("Type your Daily Message (Sending to Yourself for testing):");
+    if (messageText && messageText.trim() !== "") {
+      
+      recentDMs.push(now);
+      
+      // 1. Update sender's history to trigger timer
+      db.collection('profiles').doc(currentUserId).update({
+        dmHistory: recentDMs
+      });
+
+      // 2. Actually save the message to the database
+      db.collection('messages').add({
+        toUserId: currentUserId, // Currently sends to yourself
+        fromName: firebase.auth().currentUser.displayName || "Unknown",
+        text: messageText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert("Message Sent successfully!");
+        checkDMLimit(recentDMs);
+      });
+    }
+  });
+};
+
+// --- INBOX SYSTEM ---
+function loadInbox(uid) {
+  const inboxList = document.getElementById('messages-list');
+  
+  db.collection('messages')
+    .where('toUserId', '==', uid)
+    .orderBy('timestamp', 'desc')
+    .onSnapshot(snapshot => {
+      inboxList.innerHTML = ''; // Clear loading text
+      
+      if (snapshot.empty) {
+        inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const msg = doc.data();
+        const div = document.createElement('div');
+        div.className = 'message-item';
+        div.innerHTML = `
+          <div class="meta">From: <strong>${msg.fromName}</strong></div>
+          <div>${msg.text}</div>
+        `;
+        inboxList.appendChild(div);
+      });
     });
-  }
+}
+
+// Placeholder for next step
+window.setupPublicPlaylist = function() {
+  alert("To link this to your music tab playlists, we need to decide if they select from a dropdown of their existing playlists, or build a new one here. Which do you prefer?");
 };

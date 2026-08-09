@@ -87,9 +87,17 @@
             <!-- SECURITY OPTIONS (Shows only when logged in) -->
             <div id="security-section" style="display: none;">
               <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
+              
+              <div style="margin-bottom: 15px;">
+                <p style="margin: 0 0 5px 0; color: #aaa; font-size: 0.9rem;">Display Name: <strong id="current-display-name" style="color: #fff; font-size: 1rem;">Not Set</strong></p>
+              </div>
+
+              <button id="change-name-button" class="btn-secondary">Update Display Name</button>
               <button id="change-email-button" class="btn-secondary">Change Registered Email</button>
               <button id="change-password-button" class="btn-secondary">Update Password</button>
-              <button class="btn-secondary" onclick="resetPassword()">Send Password Reset Email</button>
+              
+              <!-- Danger Zone -->
+              <button id="delete-account-button" class="btn-secondary" style="border-color: #ff0000; color: #ff0000; margin-top: 30px;">Delete Account</button>
             </div>
           </div>
         </div>
@@ -106,6 +114,14 @@
             </div>
             <input type="file" id="custom-background" accept="image/*" style="display: none;" />
             <button id="clear-background" class="btn-secondary">Revert to Default Background</button>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;" />
+
+          <div class="input-group">
+            <label>Data Management</label>
+            <p style="font-size: 0.8rem; color: #888; margin-top: 0;">Clear your local music queue, background image, and browser caches.</p>
+            <button id="clear-data-button" class="btn-secondary">Clear Local Data</button>
           </div>
         </div>
 

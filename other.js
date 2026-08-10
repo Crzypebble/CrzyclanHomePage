@@ -24,10 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         searchName: displayName.toLowerCase() 
       }, { merge: true });
 
-      // Listen to the logged in user's profile for friends & requests
       listenToMyData(currentUserId);
-      
-      // By default, view your own profile
       viewProfile(currentUserId);
 
     } else {
@@ -145,6 +142,12 @@ window.viewProfile = function(targetUid) {
       const role = viewedProfileData.role || "guest";
       updateRoleUI(role);
 
+      // Privacy toggle setup
+      if (isOwner) {
+        const priv = viewedProfileData.inboxPrivacy || 'public';
+        document.getElementById('privacy-toggle-btn').textContent = `🔒 Inbox: ${priv === 'private' ? 'Private' : 'Public'}`;
+      }
+
       if (viewedProfileData.profileBg) {
         document.getElementById('profile-bg-container').style.backgroundImage = `url('${viewedProfileData.profileBg}')`;
       } else {
@@ -161,13 +164,11 @@ window.viewProfile = function(targetUid) {
       const file = viewedProfileData.profileSongFile || "";
       let speed = viewedProfileData.profileSongSpeed || 1.0;
       
-      // Ensure speed falls within the new restricted boundaries
       if (speed < 0.7) speed = 0.7;
       if (speed > 1.3) speed = 1.3;
       
       document.getElementById('mini-song-title').textContent = title;
       
-      // Inject the audio URL cleanly 
       if (audioEl.getAttribute('src') !== file && file !== "") {
         audioEl.src = file; 
         audioEl.load();
@@ -206,21 +207,39 @@ window.viewProfile = function(targetUid) {
         }
       }
 
-      // Check DM button for Visitors
       if (!isOwner) {
         checkDMLimit();
       }
     }
   });
 
-  inboxListenerUnsubscribe = db.collection('messages').where('toUserId', '==', targetUid).orderBy('timestamp', 'desc')
-    .onSnapshot(snapshot => {
+  // Fetch messages directly without orderBy to bypass the Firebase Index block
+  inboxListenerUnsubscribe = db.collection('messages').where('toUserId', '==', targetUid).onSnapshot(snapshot => {
       const inboxList = document.getElementById('messages-list');
       inboxList.innerHTML = ''; 
+      
+      // Check Privacy Setting before rendering
+      const priv = viewedProfileData?.inboxPrivacy || 'public';
+      if (!isOwner && priv === 'private') {
+         inboxList.innerHTML = '<p style="color: #888;">🔒 This user has set their inbox to private.</p>';
+         return;
+      }
+
       if (snapshot.empty) return inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
 
+      // Sort messages locally to avoid needing database configurations
+      let messagesArray = [];
       snapshot.forEach(doc => {
-        const msg = doc.data();
+        messagesArray.push(doc.data());
+      });
+      
+      messagesArray.sort((a, b) => {
+        const timeA = a.timestamp ? a.timestamp.toMillis() : Date.now();
+        const timeB = b.timestamp ? b.timestamp.toMillis() : Date.now();
+        return timeB - timeA;
+      });
+
+      messagesArray.forEach(msg => {
         const div = document.createElement('div');
         div.className = 'message-item';
         div.innerHTML = `<div class="meta">From: <strong>${msg.fromName}</strong></div><div>${msg.text}</div>`;
@@ -228,6 +247,20 @@ window.viewProfile = function(targetUid) {
       });
     });
 };
+
+window.toggleInboxPrivacy = function() {
+  if(!currentUserId || !myProfileData) return;
+  const currentPrivacy = myProfileData.inboxPrivacy || 'public';
+  const newPrivacy = currentPrivacy === 'public' ? 'private' : 'public';
+  
+  db.collection('profiles').doc(currentUserId).update({
+    inboxPrivacy: newPrivacy
+  }).then(() => {
+    alert(`Your inbox is now ${newPrivacy}!`);
+    document.getElementById('privacy-toggle-btn').textContent = `🔒 Inbox: ${newPrivacy === 'private' ? 'Private' : 'Public'}`;
+  });
+};
+
 
 function updateRoleUI(role) {
   const badge = document.getElementById('role-badge');
@@ -439,7 +472,6 @@ function checkDMLimit() {
   const dmBtn = document.getElementById('dm-btn');
   if(!dmBtn || !currentUserId) return;
 
-  // Verify the sender's history independently 
   db.collection('profiles').doc(currentUserId).get().then(doc => {
     if(doc.exists) {
       const limit = getDMLimit();
@@ -476,7 +508,6 @@ function checkDMLimit() {
 window.sendDirectMessage = function() {
   if (!currentUserId || !currentViewedProfileId) return;
 
-  // Retrieve a fresh read of the sender's file so limits cannot be bypassed
   db.collection('profiles').doc(currentUserId).get().then(doc => {
     const data = doc.data();
     const limit = getDMLimit();

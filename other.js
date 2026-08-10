@@ -26,24 +26,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- BACKGROUND UPLOAD LISTENER ---
+  // --- INSTANT DEVICE IMAGE CONVERTER (Fixes the Loading Hang) ---
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    alert("Uploading background, please wait...");
-    
-    // Upload image to Firebase Storage
-    const storageRef = firebase.storage().ref();
-    const bgRef = storageRef.child(`profile_bgs/${currentUserId}_${Date.now()}`);
+    // Keep images under 1MB so your database loads instantly
+    if (file.size > 1048576) {
+      alert("Please choose an image smaller than 1MB to keep your profile fast.");
+      return;
+    }
 
-    bgRef.put(file).then((snapshot) => {
-      snapshot.ref.getDownloadURL().then((url) => {
-        // Save the image URL to the user's database profile
-        db.collection('profiles').doc(currentUserId).update({ profileBg: url });
-        alert("Background updated successfully!");
+    const reader = new FileReader();
+    reader.onload = function(uploadEvent) {
+      const base64Image = uploadEvent.target.result;
+      
+      // Saves the image directly as data, bypassing Firebase Storage rules completely
+      db.collection('profiles').doc(currentUserId).update({
+        profileBg: base64Image
+      }).then(() => {
+        alert("Profile background updated successfully!");
+      }).catch(err => {
+        alert("Error saving background: " + err.message);
       });
-    }).catch(err => alert("Upload failed: " + err.message));
+    };
+    reader.readAsDataURL(file);
   });
 });
 
@@ -80,7 +87,6 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-
 // --- LOAD PROFILE ---
 function loadProfile(uid) {
   db.collection('profiles').doc(uid).onSnapshot((doc) => {
@@ -111,7 +117,15 @@ function loadProfile(uid) {
       updateRoleUI(userRole);
       setupProfileSong(currentProfileData.profileSongTitle, currentProfileData.profileSongFile);
       checkDMLimit(currentProfileData.dmHistory || []);
-      loadPublicPlaylistInfo(currentProfileData.publicPlaylistId);
+      
+      // Update Public Playlist UI directly from the profile document
+      if (currentProfileData.publicPlaylistName) {
+        document.getElementById('public-playlist-title').textContent = currentProfileData.publicPlaylistName;
+        document.getElementById('public-playlist-info').textContent = `${currentProfileData.publicPlaylistTrackCount} Tracks`;
+      } else {
+        document.getElementById('public-playlist-title').textContent = "No Public Playlist Set";
+        document.getElementById('public-playlist-info').textContent = "Select one of your existing playlists.";
+      }
 
     } else {
       db.collection('profiles').doc(uid).set({
@@ -159,7 +173,6 @@ window.toggleLike = function() {
 };
 
 window.setCustomProfileBG = function() {
-  // Triggers the hidden file input added to the HTML
   document.getElementById('bg-uploader').click();
 };
 
@@ -168,8 +181,7 @@ function setupProfileSong(title, file) {
   const srcEl = document.getElementById('profile-audio-src');
   const textTitle = document.querySelector('.profile-song-box p');
   
-  // FIX: Only restart the music if the song file has ACTUALLY changed. 
-  // This prevents likes/bio updates from interrupting the music.
+  // FIX: This prevents the music from stopping when you click "Like" or save a bio
   if (srcEl.getAttribute('src') === file) return;
   
   if (file) {
@@ -228,19 +240,7 @@ window.filterSongs = function() {
   });
 };
 
-// --- PLAYLIST SYNC LOGIC ---
-
-function loadPublicPlaylistInfo(playlistId) {
-  if (!playlistId) return;
-  
-  db.collection('playlists').doc(playlistId).get().then(doc => {
-    if(doc.exists) {
-      const pl = doc.data();
-      document.getElementById('public-playlist-title').textContent = pl.name || "Unnamed Playlist";
-      document.getElementById('public-playlist-info').textContent = `${pl.tracks ? pl.tracks.length : 0} Tracks`;
-    }
-  });
-}
+// --- SYNCED PLAYLIST LOGIC (Matches music.js EXACTLY) ---
 
 window.openPlaylistModal = function() {
   if (!currentUserId) return;
@@ -249,53 +249,55 @@ window.openPlaylistModal = function() {
   const dropdown = document.getElementById('playlist-dropdown');
   dropdown.innerHTML = '<option value="">-- Loading your playlists... --</option>';
   
-  // FIX: Changed 'ownerId' to 'userId' to properly sync with the Music Tab
-  db.collection('playlists').where('userId', '==', currentUserId).get().then(snapshot => {
-    if (snapshot.empty) {
+  // FIX: Queries the 'userVotes' collection exactly like music.js does
+  db.collection('userVotes').doc(currentUserId).get().then(doc => {
+    if (!doc.exists || !doc.data().playlists || doc.data().playlists.length === 0) {
       dropdown.innerHTML = '<option value="">You have no playlists yet.</option>';
     } else {
       dropdown.innerHTML = '<option value="">-- Select a Playlist --</option>';
-      snapshot.forEach(doc => {
-        const pl = doc.data();
-        dropdown.innerHTML += `<option value="${doc.id}">${pl.name} (${pl.tracks ? pl.tracks.length : 0} tracks)</option>`;
+      const playlists = doc.data().playlists;
+      
+      playlists.forEach((pl, index) => {
+        dropdown.innerHTML += `<option value="${index}">${pl.name} (${pl.songs ? pl.songs.length : 0} tracks)</option>`;
       });
     }
   });
 };
 
 window.savePublicPlaylist = function() {
-  const selected = document.getElementById('playlist-dropdown').value;
-  if (!selected) return alert("Select a playlist first.");
+  const selectedIndex = document.getElementById('playlist-dropdown').value;
+  if (selectedIndex === "") return alert("Select a playlist first.");
   
-  db.collection('profiles').doc(currentUserId).update({
-    publicPlaylistId: selected
-  }).then(() => {
-    alert("Public Playlist Updated!");
-    window.closeModal('playlist-selector-modal');
+  // Pull the specific playlist info to save it to the public profile
+  db.collection('userVotes').doc(currentUserId).get().then(doc => {
+    const playlists = doc.data().playlists || [];
+    const selectedPl = playlists[selectedIndex];
+    
+    db.collection('profiles').doc(currentUserId).update({
+      publicPlaylistName: selectedPl.name,
+      publicPlaylistTrackCount: selectedPl.songs ? selectedPl.songs.length : 0
+    }).then(() => {
+      alert("Public Playlist Updated!");
+      window.closeModal('playlist-selector-modal');
+    });
   });
 };
 
 window.createNewPlaylistFromHub = function() {
-  // FIX: Changed 'ownerId' to 'userId' here as well
-  db.collection('playlists').where('userId', '==', currentUserId).get().then(snapshot => {
-    if (snapshot.size >= 4) {
-      alert("You have reached the maximum limit of 4 playlists per user.");
-      return;
-    }
+  if (!currentUserId) return;
+  
+  const name = prompt("Enter a name for your new playlist:");
+  if (name) {
+    const newPlaylist = { name: name, cover: null, songs: [] };
     
-    const name = prompt("Enter a name for your new playlist:");
-    if (name) {
-      db.collection('playlists').add({
-        name: name,
-        userId: currentUserId, 
-        tracks: [],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        alert("Playlist Created! You can add songs to it from the Music tab.");
-        window.openPlaylistModal(); 
-      });
-    }
-  });
+    // Add to the music.js array structure seamlessly
+    db.collection('userVotes').doc(currentUserId).set({
+      playlists: firebase.firestore.FieldValue.arrayUnion(newPlaylist)
+    }, { merge: true }).then(() => {
+      alert("Playlist Created! It is now synced with your Music tab.");
+      window.openPlaylistModal(); 
+    }).catch(err => alert("Error: " + err.message));
+  }
 };
 
 window.editBio = function() {

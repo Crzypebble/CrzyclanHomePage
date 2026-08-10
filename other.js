@@ -159,7 +159,11 @@ window.viewProfile = function(targetUid) {
 
       const title = viewedProfileData.profileSongTitle || "No song set";
       const file = viewedProfileData.profileSongFile || "";
-      const speed = viewedProfileData.profileSongSpeed || 1.0;
+      let speed = viewedProfileData.profileSongSpeed || 1.0;
+      
+      // Ensure speed falls within the new restricted boundaries
+      if (speed < 0.7) speed = 0.7;
+      if (speed > 1.3) speed = 1.3;
       
       document.getElementById('mini-song-title').textContent = title;
       
@@ -417,6 +421,18 @@ function getDMLimit() {
   if(myProfileData && myProfileData.role) role = myProfileData.role;
   return (role === "member" || role === "fan") ? 2 : 1; 
 }
+
+// Gives you a way to bypass the 24 hour limit for testing purposes
+window.resetMyDMLimit = function() {
+  if(!currentUserId) return;
+  if(confirm("Dev Action: Reset your daily DM history?")) {
+    db.collection('profiles').doc(currentUserId).update({ dmHistory: [] })
+      .then(() => {
+        alert("DM limit reset! You can send messages again.");
+        checkDMLimit();
+      });
+  }
+};
 
 function checkDMLimit() {
   clearInterval(dmTimerInterval);

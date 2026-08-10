@@ -45,7 +45,7 @@
     .mini-play-btn:hover { background: #cc0000; }
     .mini-song-info { flex: 1; text-align: left; overflow: hidden; }
     .mini-song-info span { display: block; font-size: 0.8rem; color: #ff0000; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .mini-speed-select { background: #111; color: #fff; border: 1px solid #555; padding: 3px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
+    .mini-speed-select { background: #111; color: #fff; border: 1px solid #555; padding: 3px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; outline: none; }
 
     .profile-main h3 { margin-top: 0; color: #ff0000; display: flex; justify-content: space-between; align-items: center;}
     .like-profile-btn { background: rgba(255,0,0,0.1); border: 1px solid #ff0000; color: #ff0000; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
@@ -177,11 +177,11 @@
                 <span id="mini-song-title">No song set</span>
               </div>
               <select id="song-speed-select" class="mini-speed-select" onchange="saveSongSpeed(this.value)" style="display:none;">
-                <option value="0.5">0.5x</option>
-                <option value="0.75">0.75x</option>
-                <option value="1">1x</option>
-                <option value="1.25">1.25x</option>
-                <option value="1.5">1.5x</option>
+                <option value="0.7">0.7x (Slow)</option>
+                <option value="0.85">0.85x</option>
+                <option value="1" selected>1x (Normal)</option>
+                <option value="1.15">1.15x</option>
+                <option value="1.3">1.3x (Fast)</option>
               </select>
             </div>
             <!-- Cleaned up Audio Element for JS -->
@@ -190,6 +190,7 @@
             <div id="owner-controls-sidebar" style="display: flex; flex-direction: column; gap: 10px; display:none;">
               <button class="sleek-btn" style="font-size: 0.8rem;" onclick="openSongModal()">🔍 Change Song</button>
               <button class="sleek-btn" style="font-size: 0.8rem;" onclick="setCustomProfileBG()">🖼️ Set Background</button>
+              <button class="sleek-btn" style="font-size: 0.8rem; background: #550000; border-color: #ff0000; margin-top: 15px;" onclick="resetMyDMLimit()">🛠️ Reset DM Limit (Test)</button>
             </div>
 
             <div id="visitor-controls-sidebar" style="display: flex; flex-direction: column; gap: 10px; display:none;">

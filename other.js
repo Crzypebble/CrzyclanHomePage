@@ -80,7 +80,6 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- CORE DATA LISTENER ---
 function listenToMyData(uid) {
   db.collection('profiles').doc(uid).onSnapshot(doc => {
     if (doc.exists) {
@@ -101,7 +100,6 @@ function listenToMyData(uid) {
   });
 }
 
-// --- DYNAMIC PROFILE VIEWER ---
 window.viewMyProfile = function(btn) {
   if(!currentUserId) return;
   viewProfile(currentUserId);
@@ -142,7 +140,6 @@ window.viewProfile = function(targetUid) {
       const role = viewedProfileData.role || "guest";
       updateRoleUI(role);
 
-      // Privacy toggle setup
       if (isOwner) {
         const priv = viewedProfileData.inboxPrivacy || 'public';
         document.getElementById('privacy-toggle-btn').textContent = `🔒 Inbox: ${priv === 'private' ? 'Private' : 'Public'}`;
@@ -213,12 +210,11 @@ window.viewProfile = function(targetUid) {
     }
   });
 
-  // Fetch messages directly without orderBy to bypass the Firebase Index block
+  // --- MESSAGE LISTENER & EXPIRATION LOGIC ---
   inboxListenerUnsubscribe = db.collection('messages').where('toUserId', '==', targetUid).onSnapshot(snapshot => {
       const inboxList = document.getElementById('messages-list');
       inboxList.innerHTML = ''; 
       
-      // Check Privacy Setting before rendering
       const priv = viewedProfileData?.inboxPrivacy || 'public';
       if (!isOwner && priv === 'private') {
          inboxList.innerHTML = '<p style="color: #888;">🔒 This user has set their inbox to private.</p>';
@@ -227,25 +223,94 @@ window.viewProfile = function(targetUid) {
 
       if (snapshot.empty) return inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
 
-      // Sort messages locally to avoid needing database configurations
       let messagesArray = [];
+      const now = Date.now();
+
       snapshot.forEach(doc => {
-        messagesArray.push(doc.data());
+        let msg = doc.data();
+        msg.id = doc.id;
+
+        // Retroactively fix old messages that were sent before timers existed
+        if (!msg.expiresAt) {
+            msg.expiresAt = (msg.timestamp ? msg.timestamp.toMillis() : now) + 86400000;
+            msg.isPinned = false;
+            db.collection('messages').doc(msg.id).update({ expiresAt: msg.expiresAt, isPinned: false });
+        }
+
+        // Auto-delete if expired AND unpinned
+        if (!msg.isPinned && msg.expiresAt < now) {
+            db.collection('messages').doc(msg.id).delete();
+        } else {
+            messagesArray.push(msg);
+        }
       });
+
+      if (messagesArray.length === 0) return inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
       
+      // Sort logic: Pinned go to the top, then by newest
       messagesArray.sort((a, b) => {
-        const timeA = a.timestamp ? a.timestamp.toMillis() : Date.now();
-        const timeB = b.timestamp ? b.timestamp.toMillis() : Date.now();
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        const timeA = a.timestamp ? a.timestamp.toMillis() : now;
+        const timeB = b.timestamp ? b.timestamp.toMillis() : now;
         return timeB - timeA;
       });
 
       messagesArray.forEach(msg => {
+        let timeText = "";
+        
+        if (msg.isPinned) {
+            timeText = `<span style="color:#ffd700; font-size:0.75rem;">📌 Pinned</span>`;
+        } else {
+            const timeLeft = msg.expiresAt - now;
+            const h = Math.floor(timeLeft / (1000 * 60 * 60));
+            const m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            timeText = `<span style="color:#ffaa00; font-size:0.75rem;">⏳ ${h}h ${m}m left</span>`;
+        }
+
+        let pinBtnHTML = "";
+        if (isOwner) {
+            const pinClass = msg.isPinned ? "pin-btn active" : "pin-btn";
+            const pinText = msg.isPinned ? "Unpin" : "Pin";
+            pinBtnHTML = `<button class="${pinClass}" onclick="togglePinMessage('${msg.id}', ${msg.isPinned})">${pinText}</button>`;
+        }
+
         const div = document.createElement('div');
         div.className = 'message-item';
-        div.innerHTML = `<div class="meta">From: <strong>${msg.fromName}</strong></div><div>${msg.text}</div>`;
+        div.innerHTML = `
+          <div style="width: 100%;">
+            <div class="meta" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>From: <strong>${msg.fromName}</strong> ${pinBtnHTML}</div>
+              ${timeText}
+            </div>
+            <div style="margin-top:5px; color:#ddd;">${msg.text}</div>
+          </div>
+        `;
         inboxList.appendChild(div);
       });
     });
+};
+
+// --- PIN LOGIC ---
+window.togglePinMessage = function(msgId, currentlyPinned) {
+    if (!currentUserId) return;
+    
+    if (currentlyPinned) {
+        // Unpinning. If the timer ran out while pinned, it will vanish immediately due to the cleanup loop above.
+        db.collection('messages').doc(msgId).update({ isPinned: false });
+    } else {
+        // Check limits before pinning
+        db.collection('messages').where('toUserId', '==', currentUserId).where('isPinned', '==', true).get().then(snap => {
+            const role = myProfileData?.role || "guest";
+            const limit = (role === "member" || role === "fan") ? 2 : 1;
+            
+            if (snap.size >= limit) {
+                alert(`You can only pin up to ${limit} message(s). Unpin another message first.`);
+            } else {
+                db.collection('messages').doc(msgId).update({ isPinned: true });
+            }
+        });
+    }
 };
 
 window.toggleInboxPrivacy = function() {
@@ -261,7 +326,6 @@ window.toggleInboxPrivacy = function() {
   });
 };
 
-
 function updateRoleUI(role) {
   const badge = document.getElementById('role-badge');
   const profilePic = document.getElementById('profile-pic');
@@ -271,7 +335,6 @@ function updateRoleUI(role) {
   else { badge.textContent = "Community Guest"; badge.classList.add("role-guest"); profilePic.style.borderColor = "#555"; }
 }
 
-// --- MINI PROFILE AUDIO PLAYER ---
 window.toggleProfileAudio = function() {
   const audio = document.getElementById('profile-audio');
   const btn = document.getElementById('mini-play-btn');
@@ -295,7 +358,9 @@ window.resetMiniPlayer = function() {
 window.saveSongSpeed = function(speedVal) {
   if(currentUserId !== currentViewedProfileId) return; 
   const audio = document.getElementById('profile-audio');
-  const numSpeed = parseFloat(speedVal);
+  let numSpeed = parseFloat(speedVal);
+  if (numSpeed < 0.7) numSpeed = 0.7;
+  if (numSpeed > 1.3) numSpeed = 1.3;
   audio.playbackRate = numSpeed;
   
   db.collection('profiles').doc(currentUserId).update({
@@ -455,7 +520,6 @@ function getDMLimit() {
   return (role === "member" || role === "fan") ? 2 : 1; 
 }
 
-// Gives you a way to bypass the 24 hour limit for testing purposes
 window.resetMyDMLimit = function() {
   if(!currentUserId) return;
   if(confirm("Dev Action: Reset your daily DM history?")) {
@@ -521,11 +585,14 @@ window.sendDirectMessage = function() {
       recentDMs.push(Date.now());
       db.collection('profiles').doc(currentUserId).update({ dmHistory: recentDMs });
 
+      // Attaches an expiration timer of 24 hours to the message
       db.collection('messages').add({
         toUserId: currentViewedProfileId, 
         fromName: firebase.auth().currentUser.displayName || "Unknown",
         text: messageText,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        expiresAt: Date.now() + 86400000, 
+        isPinned: false
       }).then(() => {
         alert("Message Delivered!");
         checkDMLimit(); 
@@ -588,7 +655,6 @@ window.savePublicPlaylist = function() {
   });
 };
 
-// --- PUBLIC PLAYLIST VIEWER ---
 window.openPublicPlaylistViewer = function() {
   if(!viewedProfileData || viewedProfileData.publicPlaylistIndex === undefined) return;
   

@@ -269,7 +269,9 @@
       <div id="hub-friends" class="hub-view">
         <h2 class="section-header">Friends List</h2>
         <div class="inbox-container" style="display: block; margin-top: 0;">
-          <p style="color: #888;">Friend display system coming soon.</p>
+          <div id="friends-list-container">
+            <p style="color: #888;">Loading friends...</p>
+          </div>
         </div>
       </div>
 
@@ -278,7 +280,7 @@
         <h2 class="section-header">Add a Friend</h2>
         <div class="inbox-container" style="display: block; margin-top: 0;">
           <input type="text" id="friend-search-input" class="sleek-input" placeholder="Enter exact username..." style="margin-bottom: 15px;">
-          <button class="sleek-btn" style="background: #ff0000; border: none; width: 100%;" onclick="searchFriend()">Search</button>
+          <button class="sleek-btn" style="background: #ff0000; border: none; width: 100%;" onclick="searchFriend()">Search Users</button>
           <div id="friend-search-results" style="margin-top: 20px;"></div>
         </div>
       </div>
@@ -355,11 +357,10 @@
     }
   </script>
 
-  <!-- Firebase Scripts (Added Storage) -->
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",

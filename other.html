@@ -184,10 +184,8 @@
                 <option value="1.5">1.5x</option>
               </select>
             </div>
-            <!-- Invisible real audio element -->
-            <audio id="profile-audio" style="display:none;" onended="resetMiniPlayer()">
-              <source id="profile-audio-src" src="" type="audio/mpeg">
-            </audio>
+            <!-- Cleaned up Audio Element for JS -->
+            <audio id="profile-audio" style="display:none;" onended="resetMiniPlayer()"></audio>
 
             <div id="owner-controls-sidebar" style="display: flex; flex-direction: column; gap: 10px; display:none;">
               <button class="sleek-btn" style="font-size: 0.8rem;" onclick="openSongModal()">🔍 Change Song</button>

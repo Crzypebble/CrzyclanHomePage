@@ -7,7 +7,8 @@ let viewedProfileData = null;
 let profileListenerUnsubscribe = null;
 let inboxListenerUnsubscribe = null;
 
-const DEFAULT_PFP = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
+// Replaced with a 1x1 black pixel data URI to perfectly create a black circle without broken image icons
+const DEFAULT_PFP = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
 document.addEventListener("DOMContentLoaded", () => {
   db = firebase.firestore();

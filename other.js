@@ -88,11 +88,8 @@ function listenToMyData(uid) {
   db.collection('profiles').doc(uid).onSnapshot(doc => {
     if (doc.exists) {
       myProfileData = doc.data();
-      
-      // Render friends list
       renderFriendsList(myProfileData.friends || []);
       
-      // Render friend requests
       const requests = myProfileData.friendRequests || [];
       renderFriendRequests(requests);
       
@@ -123,7 +120,6 @@ window.viewProfile = function(targetUid) {
   currentViewedProfileId = targetUid;
   const isOwner = (currentUserId === targetUid);
 
-  // Toggle UI Controls based on ownership
   document.getElementById('owner-controls-sidebar').style.display = isOwner ? "flex" : "none";
   document.getElementById('edit-bio-btn').style.display = isOwner ? "inline-block" : "none";
   document.getElementById('setup-playlist-btn').style.display = isOwner ? "inline-block" : "none";
@@ -134,7 +130,6 @@ window.viewProfile = function(targetUid) {
   document.getElementById('profile-view-header').textContent = isOwner ? "My Profile" : "Viewing Profile";
   document.getElementById('inbox-header-title').textContent = isOwner ? "📬 Your Inbox" : "📬 Leave a Message";
   
-  // Stop existing audio
   const audioEl = document.getElementById('profile-audio');
   audioEl.pause();
   document.getElementById('mini-play-btn').textContent = "▶";
@@ -150,36 +145,33 @@ window.viewProfile = function(targetUid) {
       const role = viewedProfileData.role || "guest";
       updateRoleUI(role);
 
-      // Background
       if (viewedProfileData.profileBg) {
         document.getElementById('profile-bg-container').style.backgroundImage = `url('${viewedProfileData.profileBg}')`;
       } else {
         document.getElementById('profile-bg-container').style.backgroundImage = 'none';
       }
 
-      // Likes
       const likedBy = viewedProfileData.likedBy || [];
       const likeBtn = document.getElementById('like-btn-element');
       likeBtn.innerHTML = `👍 ${likedBy.includes(currentUserId) ? 'Unlike' : 'Like'} <span id="like-count" style="font-weight:bold; margin-left:5px;">${likedBy.length}</span>`;
       if(likedBy.includes(currentUserId)) likeBtn.classList.add('liked');
       else likeBtn.classList.remove('liked');
 
-      // Profile Song Setup
       const title = viewedProfileData.profileSongTitle || "No song set";
       const file = viewedProfileData.profileSongFile || "";
       const speed = viewedProfileData.profileSongSpeed || 1.0;
       
       document.getElementById('mini-song-title').textContent = title;
-      const srcEl = document.getElementById('profile-audio-src');
-      if (srcEl.getAttribute('src') !== file && file !== "") {
-        srcEl.src = file;
+      
+      // Inject the audio URL cleanly 
+      if (audioEl.getAttribute('src') !== file && file !== "") {
+        audioEl.src = file; 
         audioEl.load();
       }
-      // Apply speed (visitors can't change this, it's locked to whatever owner saved)
+      
       audioEl.playbackRate = speed;
       if (isOwner) document.getElementById('song-speed-select').value = speed;
 
-      // Public Playlist
       if (viewedProfileData.publicPlaylistName) {
         document.getElementById('public-playlist-title').textContent = viewedProfileData.publicPlaylistName;
         document.getElementById('public-playlist-info').textContent = `${viewedProfileData.publicPlaylistTrackCount} Tracks`;
@@ -190,7 +182,6 @@ window.viewProfile = function(targetUid) {
         document.getElementById('view-playlist-btn').style.display = "none";
       }
 
-      // Setup Friend Action Button for Visitors
       if (!isOwner && myProfileData) {
         const btn = document.getElementById('friend-action-btn');
         const friends = myProfileData.friends || [];
@@ -211,11 +202,13 @@ window.viewProfile = function(targetUid) {
         }
       }
 
-      checkDMLimit(viewedProfileData.dmHistory || []);
+      // Check DM button for Visitors
+      if (!isOwner) {
+        checkDMLimit();
+      }
     }
   });
 
-  // Load Inbox for the profile being viewed
   inboxListenerUnsubscribe = db.collection('messages').where('toUserId', '==', targetUid).orderBy('timestamp', 'desc')
     .onSnapshot(snapshot => {
       const inboxList = document.getElementById('messages-list');
@@ -245,11 +238,13 @@ function updateRoleUI(role) {
 window.toggleProfileAudio = function() {
   const audio = document.getElementById('profile-audio');
   const btn = document.getElementById('mini-play-btn');
-  if(!audio.src || audio.src.endsWith(window.location.pathname)) return; // Empty src fix
+  
+  if(!audio.getAttribute('src') || audio.getAttribute('src') === "") return;
   
   if(audio.paused) {
-    audio.play();
-    btn.textContent = "⏸";
+    audio.play().then(() => {
+      btn.textContent = "⏸";
+    }).catch(e => alert("Please interact with the page before playing audio!"));
   } else {
     audio.pause();
     btn.textContent = "▶";
@@ -261,7 +256,7 @@ window.resetMiniPlayer = function() {
 };
 
 window.saveSongSpeed = function(speedVal) {
-  if(currentUserId !== currentViewedProfileId) return; // Prevent visitors altering
+  if(currentUserId !== currentViewedProfileId) return; 
   const audio = document.getElementById('profile-audio');
   const numSpeed = parseFloat(speedVal);
   audio.playbackRate = numSpeed;
@@ -317,7 +312,6 @@ window.sendFriendRequest = function(targetUid, targetName) {
   if (outgoing.includes(targetUid)) return alert("Request already sent!");
   if (friends.length >= 20) return alert("You have reached the limit of 20 friends.");
 
-  // Send request to target, record in sender's outgoing
   db.collection('profiles').doc(targetUid).update({
     friendRequests: firebase.firestore.FieldValue.arrayUnion(currentUserId)
   });
@@ -358,12 +352,10 @@ function renderFriendRequests(requestUids) {
 window.acceptRequest = function(requesterUid) {
   if((myProfileData.friends || []).length >= 20) return alert("You have reached the 20 friend limit.");
   
-  // Remove from requests, add to friends
   db.collection('profiles').doc(currentUserId).update({
     friendRequests: firebase.firestore.FieldValue.arrayRemove(requesterUid),
     friends: firebase.firestore.FieldValue.arrayUnion(requesterUid)
   });
-  // Add current user to requester's friends, remove from their outgoing
   db.collection('profiles').doc(requesterUid).update({
     outgoingRequests: firebase.firestore.FieldValue.arrayRemove(currentUserId),
     friends: firebase.firestore.FieldValue.arrayUnion(currentUserId)
@@ -420,67 +412,79 @@ window.removeFriend = function(friendUid, friendName) {
 };
 
 // --- DIRECT MESSAGING ---
-function getDMLimit() { return (userRole === "member" || userRole === "fan") ? 2 : 1; }
+function getDMLimit() { 
+  let role = "guest";
+  if(myProfileData && myProfileData.role) role = myProfileData.role;
+  return (role === "member" || role === "fan") ? 2 : 1; 
+}
 
-function checkDMLimit(dmHistory) {
+function checkDMLimit() {
   clearInterval(dmTimerInterval);
-  // We check the limit based on the SENDER'S history (which is saved in their own doc)
-  const limit = getDMLimit();
-  let myHistory = [];
-  if(myProfileData && myProfileData.dmHistory) myHistory = myProfileData.dmHistory;
-  
-  const now = Date.now();
-  const recentDMs = myHistory.filter(time => (now - time) < 86400000);
   const dmBtn = document.getElementById('dm-btn');
-  if(!dmBtn) return;
+  if(!dmBtn || !currentUserId) return;
 
-  if (recentDMs.length < limit) {
-    dmBtn.textContent = `✉️ Send Message (${recentDMs.length}/${limit})`;
-    dmBtn.style.opacity = "1";
-    dmBtn.disabled = false;
-  } else {
-    const oldestDM = Math.min(...recentDMs);
-    const resetTime = oldestDM + 86400000;
-    dmBtn.style.opacity = "0.5";
-    dmBtn.disabled = true;
-
-    dmTimerInterval = setInterval(() => {
-      const timeLeft = resetTime - Date.now();
-      if (timeLeft <= 0) {
-        clearInterval(dmTimerInterval);
-        checkDMLimit(recentDMs);
+  // Verify the sender's history independently 
+  db.collection('profiles').doc(currentUserId).get().then(doc => {
+    if(doc.exists) {
+      const limit = getDMLimit();
+      const history = doc.data().dmHistory || [];
+      const now = Date.now();
+      const recentDMs = history.filter(time => (now - time) < 86400000);
+      
+      if (recentDMs.length < limit) {
+        dmBtn.textContent = `✉️ Send Message (Sent: ${recentDMs.length} / Limit: ${limit})`;
+        dmBtn.style.opacity = "1";
+        dmBtn.disabled = false;
       } else {
-        const h = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        dmBtn.textContent = `✉️ Available in ${h}h ${m}m`;
+        const oldestDM = Math.min(...recentDMs);
+        const resetTime = oldestDM + 86400000;
+        dmBtn.style.opacity = "0.5";
+        dmBtn.disabled = true;
+
+        dmTimerInterval = setInterval(() => {
+          const timeLeft = resetTime - Date.now();
+          if (timeLeft <= 0) {
+            clearInterval(dmTimerInterval);
+            checkDMLimit();
+          } else {
+            const h = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            dmBtn.textContent = `✉️ Available in ${h}h ${m}m`;
+          }
+        }, 1000);
       }
-    }, 1000);
-  }
+    }
+  });
 }
 
 window.sendDirectMessage = function() {
   if (!currentUserId || !currentViewedProfileId) return;
-  const recentDMs = (myProfileData.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
-  if (recentDMs.length >= getDMLimit()) return alert("Daily message limit reached.");
 
-  const messageText = prompt(`Type your message to ${viewedProfileData.displayName}:`);
-  if (messageText && messageText.trim() !== "") {
+  // Retrieve a fresh read of the sender's file so limits cannot be bypassed
+  db.collection('profiles').doc(currentUserId).get().then(doc => {
+    const data = doc.data();
+    const limit = getDMLimit();
+    const recentDMs = (data.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
     
-    // Update sender's history
-    recentDMs.push(Date.now());
-    db.collection('profiles').doc(currentUserId).update({ dmHistory: recentDMs });
+    if (recentDMs.length >= limit) return alert("Daily message limit reached.");
 
-    // Deliver to recipient's inbox
-    db.collection('messages').add({
-      toUserId: currentViewedProfileId, 
-      fromName: firebase.auth().currentUser.displayName || "Unknown",
-      text: messageText,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      alert("Message Delivered!");
-      checkDMLimit(recentDMs);
-    });
-  }
+    const messageText = prompt(`Type your message to ${viewedProfileData.displayName}:`);
+    if (messageText && messageText.trim() !== "") {
+      
+      recentDMs.push(Date.now());
+      db.collection('profiles').doc(currentUserId).update({ dmHistory: recentDMs });
+
+      db.collection('messages').add({
+        toUserId: currentViewedProfileId, 
+        fromName: firebase.auth().currentUser.displayName || "Unknown",
+        text: messageText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert("Message Delivered!");
+        checkDMLimit(); 
+      });
+    }
+  });
 };
 
 // --- MODALS & PLAYLISTS ---
@@ -532,7 +536,7 @@ window.savePublicPlaylist = function() {
     db.collection('profiles').doc(currentUserId).update({
       publicPlaylistName: pl.name,
       publicPlaylistTrackCount: pl.songs ? pl.songs.length : 0,
-      publicPlaylistIndex: sel // Save index so we can retrieve tracks later
+      publicPlaylistIndex: sel 
     }).then(() => { alert("Updated!"); window.closeModal('playlist-selector-modal'); });
   });
 };
@@ -548,7 +552,6 @@ window.openPublicPlaylistViewer = function() {
   const trackList = document.getElementById('viewer-track-list');
   trackList.innerHTML = '<p style="padding:10px; color:#aaa;">Loading tracks...</p>';
 
-  // Fetch target user's tracks from their userVotes document
   db.collection('userVotes').doc(currentViewedProfileId).get().then(doc => {
     if(doc.exists && doc.data().playlists) {
       const pl = doc.data().playlists[viewedProfileData.publicPlaylistIndex];
@@ -561,7 +564,6 @@ window.openPublicPlaylistViewer = function() {
         const div = document.createElement('div');
         div.className = 'song-list-item';
         div.innerHTML = `<span>${song.title} <small style="color:#aaa;">- ${song.artist}</small></span> <button class="sleek-btn" style="padding:4px 8px; font-size:0.8rem;">▶</button>`;
-        // Click to play in mini modal player
         div.onclick = () => playModalAudio(song.src, song.title);
         trackList.appendChild(div);
       });
@@ -573,21 +575,28 @@ window.playModalAudio = function(src, title) {
   const audio = document.getElementById('modal-audio');
   document.getElementById('modal-song-title').textContent = title;
   
-  // Stop profile audio so they don't overlap
   document.getElementById('profile-audio').pause();
   document.getElementById('mini-play-btn').textContent = "▶";
 
   audio.src = src;
-  audio.play();
-  document.getElementById('modal-play-btn').textContent = "⏸";
+  audio.play().then(() => {
+    document.getElementById('modal-play-btn').textContent = "⏸";
+  }).catch(e => alert("Please interact with the page before playing audio!"));
 };
 
 window.toggleModalAudio = function() {
   const audio = document.getElementById('modal-audio');
   const btn = document.getElementById('modal-play-btn');
-  if(!audio.src || audio.src.endsWith(window.location.pathname)) return;
-  if(audio.paused) { audio.play(); btn.textContent = "⏸"; } 
-  else { audio.pause(); btn.textContent = "▶"; }
+  
+  if(!audio.getAttribute('src') || audio.getAttribute('src') === "") return;
+  
+  if(audio.paused) { 
+    audio.play(); 
+    btn.textContent = "⏸"; 
+  } else { 
+    audio.pause(); 
+    btn.textContent = "▶"; 
+  }
 };
 
 window.stopModalAudio = function() {

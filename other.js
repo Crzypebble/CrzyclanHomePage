@@ -1,60 +1,50 @@
 let db;
 let currentUserId = null;
-let userRole = "guest";
+let currentViewedProfileId = null; 
 let dmTimerInterval;
-let currentProfileData = null;
+let myProfileData = null; 
+let viewedProfileData = null;
+let profileListenerUnsubscribe = null;
+let inboxListenerUnsubscribe = null;
 
 const DEFAULT_PFP = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
 
 document.addEventListener("DOMContentLoaded", () => {
   db = firebase.firestore();
 
-  // --- AUTHENTICATION LISTENER ---
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       currentUserId = user.uid;
       document.getElementById('logged-out-warning').style.display = 'none';
       
       const displayName = user.displayName || user.email.split('@')[0];
-      document.getElementById('profile-name').textContent = displayName;
       
-      document.getElementById('edit-bio-btn').style.display = 'inline-block';
-      document.getElementById('set-song-btn').style.display = 'inline-block';
-      
-      // Save display name to database so the user becomes searchable in the Add Friend system
       db.collection('profiles').doc(currentUserId).set({
         displayName: displayName,
-        searchName: displayName.toLowerCase() // Lowercase makes searching easier
+        searchName: displayName.toLowerCase() 
       }, { merge: true });
 
-      loadProfile(currentUserId);
-      loadInbox(currentUserId);
+      // Listen to the logged in user's profile for friends & requests
+      listenToMyData(currentUserId);
+      
+      // By default, view your own profile
+      viewProfile(currentUserId);
+
     } else {
       document.getElementById('logged-out-warning').style.display = 'block';
     }
   });
 
-  // --- INSTANT DEVICE IMAGE CONVERTER ---
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (file.size > 1048576) {
-      alert("Please choose an image smaller than 1MB to keep your profile fast.");
-      return;
-    }
+    if (file.size > 1048576) return alert("Please choose an image smaller than 1MB.");
 
     const reader = new FileReader();
     reader.onload = function(uploadEvent) {
-      const base64Image = uploadEvent.target.result;
-      
-      db.collection('profiles').doc(currentUserId).update({
-        profileBg: base64Image
-      }).then(() => {
-        alert("Profile background updated successfully!");
-      }).catch(err => {
-        alert("Error saving background: " + err.message);
-      });
+      db.collection('profiles').doc(currentUserId).update({ profileBg: uploadEvent.target.result })
+        .then(() => alert("Background updated!"))
+        .catch(err => alert("Error: " + err.message));
     };
     reader.readAsDataURL(file);
   });
@@ -70,7 +60,7 @@ const allSiteSongs = [
   { title: "Lost In Time", file: "Lost_In_Time.mp3" },
   { title: "Welcome To Hell", file: "welcometohellprodblksaturn.mp3" },
   { title: "Smoke Bitches", file: "smokebitchesprodsmxkypete.mp3" },
-  { title: "THE BOULDER: Rocks And Pebbles", file: "theboulderrocksandpebblesprodfuckserbab.mp3" },
+  { title: "THE BOULDER", file: "theboulderrocksandpebblesprodfuckserbab.mp3" },
   { title: "Gas", file: "gas.mp3" },
   { title: "Collide", file: "collideprodmyss.mp3" },
   { title: "Hurt Pebble", file: "hurtpebbleproddimebaggiefeaturingrockandjamma.mp3" },
@@ -93,187 +83,323 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- LOAD PROFILE ---
-function loadProfile(uid) {
-  db.collection('profiles').doc(uid).onSnapshot((doc) => {
+// --- CORE DATA LISTENER ---
+function listenToMyData(uid) {
+  db.collection('profiles').doc(uid).onSnapshot(doc => {
     if (doc.exists) {
-      currentProfileData = doc.data();
-      userRole = currentProfileData.role || "guest";
+      myProfileData = doc.data();
       
-      document.getElementById('profile-bio').textContent = currentProfileData.bio || "No bio set.";
+      // Render friends list
+      renderFriendsList(myProfileData.friends || []);
       
-      // Load custom profile picture (Settings integration prep)
-      const pfp = currentProfileData.profilePic || DEFAULT_PFP;
-      document.getElementById('profile-pic').src = pfp;
-
-      const likedByArray = currentProfileData.likedBy || [];
-      document.getElementById('like-count').textContent = likedByArray.length;
+      // Render friend requests
+      const requests = myProfileData.friendRequests || [];
+      renderFriendRequests(requests);
       
-      const likeBtn = document.getElementById('like-btn-element');
-      if (currentUserId && likedByArray.includes(currentUserId)) {
-        likeBtn.innerHTML = `👍 Unlike <span id="like-count" style="font-weight:bold; margin-left:5px;">${likedByArray.length}</span>`;
-        likeBtn.classList.add('liked');
+      const badge = document.getElementById('request-badge');
+      if (requests.length > 0) {
+        badge.style.display = 'inline-block';
+        badge.textContent = requests.length;
       } else {
-        likeBtn.innerHTML = `👍 Like <span id="like-count" style="font-weight:bold; margin-left:5px;">${likedByArray.length}</span>`;
-        likeBtn.classList.remove('liked');
+        badge.style.display = 'none';
       }
-
-      if (currentProfileData.profileBg) {
-        document.getElementById('profile-bg-container').style.backgroundImage = `url('${currentProfileData.profileBg}')`;
-      } else {
-        document.getElementById('profile-bg-container').style.backgroundImage = 'none';
-      }
-      
-      updateRoleUI(userRole);
-      setupProfileSong(currentProfileData.profileSongTitle, currentProfileData.profileSongFile);
-      checkDMLimit(currentProfileData.dmHistory || []);
-      
-      if (currentProfileData.publicPlaylistName) {
-        document.getElementById('public-playlist-title').textContent = currentProfileData.publicPlaylistName;
-        document.getElementById('public-playlist-info').textContent = `${currentProfileData.publicPlaylistTrackCount} Tracks`;
-      } else {
-        document.getElementById('public-playlist-title').textContent = "No Public Playlist Set";
-        document.getElementById('public-playlist-info').textContent = "Select one of your existing playlists.";
-      }
-
-      // Load friends dynamically whenever the profile document changes
-      renderFriendsList(currentProfileData.friends || []);
-
-    } else {
-      db.collection('profiles').doc(uid).set({
-        bio: "I just joined the Crzyclan Hub!",
-        likedBy: [],
-        role: "guest",
-        dmHistory: [],
-        friends: []
-      });
     }
   });
 }
+
+// --- DYNAMIC PROFILE VIEWER ---
+window.viewMyProfile = function(btn) {
+  if(!currentUserId) return;
+  viewProfile(currentUserId);
+  switchHubView('hub-profile', btn);
+};
+
+window.viewProfile = function(targetUid) {
+  if(!currentUserId) return;
+  
+  if(profileListenerUnsubscribe) profileListenerUnsubscribe();
+  if(inboxListenerUnsubscribe) inboxListenerUnsubscribe();
+
+  currentViewedProfileId = targetUid;
+  const isOwner = (currentUserId === targetUid);
+
+  // Toggle UI Controls based on ownership
+  document.getElementById('owner-controls-sidebar').style.display = isOwner ? "flex" : "none";
+  document.getElementById('edit-bio-btn').style.display = isOwner ? "inline-block" : "none";
+  document.getElementById('setup-playlist-btn').style.display = isOwner ? "inline-block" : "none";
+  document.getElementById('song-speed-select').style.display = isOwner ? "inline-block" : "none";
+  
+  document.getElementById('visitor-controls-sidebar').style.display = isOwner ? "none" : "flex";
+  
+  document.getElementById('profile-view-header').textContent = isOwner ? "My Profile" : "Viewing Profile";
+  document.getElementById('inbox-header-title').textContent = isOwner ? "📬 Your Inbox" : "📬 Leave a Message";
+  
+  // Stop existing audio
+  const audioEl = document.getElementById('profile-audio');
+  audioEl.pause();
+  document.getElementById('mini-play-btn').textContent = "▶";
+
+  profileListenerUnsubscribe = db.collection('profiles').doc(targetUid).onSnapshot((doc) => {
+    if (doc.exists) {
+      viewedProfileData = doc.data();
+      
+      document.getElementById('profile-name').textContent = viewedProfileData.displayName || "Unknown User";
+      document.getElementById('profile-pic').src = viewedProfileData.profilePic || DEFAULT_PFP;
+      document.getElementById('profile-bio').textContent = viewedProfileData.bio || "No bio set.";
+      
+      const role = viewedProfileData.role || "guest";
+      updateRoleUI(role);
+
+      // Background
+      if (viewedProfileData.profileBg) {
+        document.getElementById('profile-bg-container').style.backgroundImage = `url('${viewedProfileData.profileBg}')`;
+      } else {
+        document.getElementById('profile-bg-container').style.backgroundImage = 'none';
+      }
+
+      // Likes
+      const likedBy = viewedProfileData.likedBy || [];
+      const likeBtn = document.getElementById('like-btn-element');
+      likeBtn.innerHTML = `👍 ${likedBy.includes(currentUserId) ? 'Unlike' : 'Like'} <span id="like-count" style="font-weight:bold; margin-left:5px;">${likedBy.length}</span>`;
+      if(likedBy.includes(currentUserId)) likeBtn.classList.add('liked');
+      else likeBtn.classList.remove('liked');
+
+      // Profile Song Setup
+      const title = viewedProfileData.profileSongTitle || "No song set";
+      const file = viewedProfileData.profileSongFile || "";
+      const speed = viewedProfileData.profileSongSpeed || 1.0;
+      
+      document.getElementById('mini-song-title').textContent = title;
+      const srcEl = document.getElementById('profile-audio-src');
+      if (srcEl.getAttribute('src') !== file && file !== "") {
+        srcEl.src = file;
+        audioEl.load();
+      }
+      // Apply speed (visitors can't change this, it's locked to whatever owner saved)
+      audioEl.playbackRate = speed;
+      if (isOwner) document.getElementById('song-speed-select').value = speed;
+
+      // Public Playlist
+      if (viewedProfileData.publicPlaylistName) {
+        document.getElementById('public-playlist-title').textContent = viewedProfileData.publicPlaylistName;
+        document.getElementById('public-playlist-info').textContent = `${viewedProfileData.publicPlaylistTrackCount} Tracks`;
+        document.getElementById('view-playlist-btn').style.display = "inline-block";
+      } else {
+        document.getElementById('public-playlist-title').textContent = "No Public Playlist Set";
+        document.getElementById('public-playlist-info').textContent = "Empty";
+        document.getElementById('view-playlist-btn').style.display = "none";
+      }
+
+      // Setup Friend Action Button for Visitors
+      if (!isOwner && myProfileData) {
+        const btn = document.getElementById('friend-action-btn');
+        const friends = myProfileData.friends || [];
+        const outgoing = myProfileData.outgoingRequests || [];
+        
+        if (friends.includes(targetUid)) {
+          btn.textContent = "Remove Friend";
+          btn.style.background = "#333";
+          btn.onclick = () => removeFriend(targetUid, viewedProfileData.displayName);
+        } else if (outgoing.includes(targetUid)) {
+          btn.textContent = "Request Sent";
+          btn.style.background = "#555";
+          btn.onclick = null; 
+        } else {
+          btn.textContent = "Add Friend";
+          btn.style.background = "#ff0000";
+          btn.onclick = () => sendFriendRequest(targetUid, viewedProfileData.displayName);
+        }
+      }
+
+      checkDMLimit(viewedProfileData.dmHistory || []);
+    }
+  });
+
+  // Load Inbox for the profile being viewed
+  inboxListenerUnsubscribe = db.collection('messages').where('toUserId', '==', targetUid).orderBy('timestamp', 'desc')
+    .onSnapshot(snapshot => {
+      const inboxList = document.getElementById('messages-list');
+      inboxList.innerHTML = ''; 
+      if (snapshot.empty) return inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
+
+      snapshot.forEach(doc => {
+        const msg = doc.data();
+        const div = document.createElement('div');
+        div.className = 'message-item';
+        div.innerHTML = `<div class="meta">From: <strong>${msg.fromName}</strong></div><div>${msg.text}</div>`;
+        inboxList.appendChild(div);
+      });
+    });
+};
 
 function updateRoleUI(role) {
   const badge = document.getElementById('role-badge');
   const profilePic = document.getElementById('profile-pic');
   badge.className = "role-title"; 
-  
-  if (role === "member") {
-    badge.textContent = "Crzyclan Member";
-    badge.classList.add("role-member");
-    profilePic.style.borderColor = "#ff0000";
-  } else if (role === "fan") {
-    badge.textContent = "Crzyclan Fan";
-    badge.classList.add("role-fan");
-    profilePic.style.borderColor = "#0055ff";
-  } else {
-    badge.textContent = "Community Guest";
-    badge.classList.add("role-guest");
-    profilePic.style.borderColor = "#555";
-  }
+  if (role === "member") { badge.textContent = "Crzyclan Member"; badge.classList.add("role-member"); profilePic.style.borderColor = "#ff0000"; } 
+  else if (role === "fan") { badge.textContent = "Crzyclan Fan"; badge.classList.add("role-fan"); profilePic.style.borderColor = "#0055ff"; } 
+  else { badge.textContent = "Community Guest"; badge.classList.add("role-guest"); profilePic.style.borderColor = "#555"; }
 }
 
-// --- FRIENDS LIST SYSTEM ---
+// --- MINI PROFILE AUDIO PLAYER ---
+window.toggleProfileAudio = function() {
+  const audio = document.getElementById('profile-audio');
+  const btn = document.getElementById('mini-play-btn');
+  if(!audio.src || audio.src.endsWith(window.location.pathname)) return; // Empty src fix
+  
+  if(audio.paused) {
+    audio.play();
+    btn.textContent = "⏸";
+  } else {
+    audio.pause();
+    btn.textContent = "▶";
+  }
+};
 
+window.resetMiniPlayer = function() {
+  document.getElementById('mini-play-btn').textContent = "▶";
+};
+
+window.saveSongSpeed = function(speedVal) {
+  if(currentUserId !== currentViewedProfileId) return; // Prevent visitors altering
+  const audio = document.getElementById('profile-audio');
+  const numSpeed = parseFloat(speedVal);
+  audio.playbackRate = numSpeed;
+  
+  db.collection('profiles').doc(currentUserId).update({
+    profileSongSpeed: numSpeed
+  }).then(() => console.log("Speed saved"));
+};
+
+
+// --- FRIEND REQUEST SYSTEM ---
 window.searchFriend = function() {
   const input = document.getElementById('friend-search-input').value.trim();
   if(!input) return;
-  
   const resultsContainer = document.getElementById('friend-search-results');
-  resultsContainer.innerHTML = `<p style="color: #aaa;">Searching for exact match: ${input}...</p>`;
+  resultsContainer.innerHTML = `<p style="color: #aaa;">Searching...</p>`;
 
-  // Searches database for exact display name (ignoring caps)
   db.collection('profiles').where('searchName', '==', input.toLowerCase()).get()
     .then(snapshot => {
       resultsContainer.innerHTML = '';
-      
-      if (snapshot.empty) {
-        resultsContainer.innerHTML = `<p style="color: #ff0000;">User not found. Check spelling!</p>`;
-        return;
-      }
+      if (snapshot.empty) return resultsContainer.innerHTML = `<p style="color: #ff0000;">User not found.</p>`;
 
       snapshot.forEach(doc => {
-        if (doc.id === currentUserId) return; // Hide current user from search
-        
+        if (doc.id === currentUserId) return; 
         const userData = doc.data();
-        const pfp = userData.profilePic || DEFAULT_PFP;
         
         const div = document.createElement('div');
         div.className = 'friend-item';
         div.innerHTML = `
-          <div style="display:flex; align-items:center; gap:15px;">
-            <img src="${pfp}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #555;">
+          <div style="display:flex; align-items:center; gap:15px;" onclick="viewProfileFromSearch('${doc.id}')">
+            <img src="${userData.profilePic || DEFAULT_PFP}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #555;">
             <strong style="color:#fff;">${userData.displayName || "Unknown User"}</strong>
           </div>
-          <button class="sleek-btn" style="background:#ff0000; color:#fff; border:none;" onclick="addFriend('${doc.id}', '${userData.displayName || 'Unknown'}')">Add Friend</button>
+          <button class="sleek-btn" style="background:#ff0000; border:none;" onclick="sendFriendRequest('${doc.id}', '${userData.displayName}')">Send Request</button>
         `;
         resultsContainer.appendChild(div);
       });
-
-      if (resultsContainer.innerHTML === '') {
-         resultsContainer.innerHTML = `<p style="color: #ff0000;">User not found.</p>`;
-      }
-    }).catch(err => {
-      resultsContainer.innerHTML = `<p style="color: #ff0000;">Error searching: ${err.message}</p>`;
+      if (resultsContainer.innerHTML === '') resultsContainer.innerHTML = `<p style="color: #ff0000;">User not found.</p>`;
     });
 };
 
-window.addFriend = function(friendUid, friendName) {
-  if (!currentUserId) return;
-  const friendsArray = currentProfileData.friends || [];
+window.viewProfileFromSearch = function(uid) {
+  viewProfile(uid);
+  switchHubView('hub-profile');
+};
 
-  if (friendsArray.includes(friendUid)) {
-    return alert(`${friendName} is already in your friends list!`);
-  }
+window.sendFriendRequest = function(targetUid, targetName) {
+  if (!currentUserId || !myProfileData) return;
+  const friends = myProfileData.friends || [];
+  const outgoing = myProfileData.outgoingRequests || [];
 
-  // Hard cap of 20 friends
-  if (friendsArray.length >= 20) {
-    return alert("You have reached the maximum limit of 20 friends.");
-  }
+  if (friends.includes(targetUid)) return alert("Already friends!");
+  if (outgoing.includes(targetUid)) return alert("Request already sent!");
+  if (friends.length >= 20) return alert("You have reached the limit of 20 friends.");
 
+  // Send request to target, record in sender's outgoing
+  db.collection('profiles').doc(targetUid).update({
+    friendRequests: firebase.firestore.FieldValue.arrayUnion(currentUserId)
+  });
   db.collection('profiles').doc(currentUserId).update({
-    friends: firebase.firestore.FieldValue.arrayUnion(friendUid)
-  }).then(() => {
-    alert(`${friendName} added to your friends list!`);
-    document.getElementById('friend-search-results').innerHTML = '';
-    document.getElementById('friend-search-input').value = '';
+    outgoingRequests: firebase.firestore.FieldValue.arrayUnion(targetUid)
+  }).then(() => alert(`Request sent to ${targetName}!`));
+};
+
+function renderFriendRequests(requestUids) {
+  const container = document.getElementById('friend-requests-container');
+  if (requestUids.length === 0) {
+    container.innerHTML = '<p style="color: #888;">No pending requests.</p>';
+    return;
+  }
+  container.innerHTML = '';
+  requestUids.forEach(uid => {
+    db.collection('profiles').doc(uid).get().then(doc => {
+      if(doc.exists) {
+        const d = doc.data();
+        const div = document.createElement('div');
+        div.className = 'friend-item';
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:15px;" onclick="viewProfileFromSearch('${doc.id}')">
+            <img src="${d.profilePic || DEFAULT_PFP}" style="width:40px; height:40px; border-radius:50%;">
+            <strong style="color:#fff;">${d.displayName || "Unknown"}</strong>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="sleek-btn" style="background:#00b300; border:none;" onclick="acceptRequest('${doc.id}')">Accept</button>
+            <button class="sleek-btn" style="background:#cc0000; border:none;" onclick="declineRequest('${doc.id}')">Decline</button>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    });
+  });
+}
+
+window.acceptRequest = function(requesterUid) {
+  if((myProfileData.friends || []).length >= 20) return alert("You have reached the 20 friend limit.");
+  
+  // Remove from requests, add to friends
+  db.collection('profiles').doc(currentUserId).update({
+    friendRequests: firebase.firestore.FieldValue.arrayRemove(requesterUid),
+    friends: firebase.firestore.FieldValue.arrayUnion(requesterUid)
+  });
+  // Add current user to requester's friends, remove from their outgoing
+  db.collection('profiles').doc(requesterUid).update({
+    outgoingRequests: firebase.firestore.FieldValue.arrayRemove(currentUserId),
+    friends: firebase.firestore.FieldValue.arrayUnion(currentUserId)
+  });
+};
+
+window.declineRequest = function(requesterUid) {
+  db.collection('profiles').doc(currentUserId).update({
+    friendRequests: firebase.firestore.FieldValue.arrayRemove(requesterUid)
+  });
+  db.collection('profiles').doc(requesterUid).update({
+    outgoingRequests: firebase.firestore.FieldValue.arrayRemove(currentUserId)
   });
 };
 
 function renderFriendsList(friendsArray) {
   const container = document.getElementById('friends-list-container');
-  if (!container) return;
+  if (friendsArray.length === 0) return container.innerHTML = '<p style="color: #888;">Your friends list is empty.</p>';
 
-  if (friendsArray.length === 0) {
-    container.innerHTML = '<p style="color: #888;">Your friends list is empty. Go add some friends!</p>';
-    return;
-  }
-
-  container.innerHTML = '<p style="color: #aaa;">Loading friends...</p>';
-
-  // Fetch all friend profiles dynamically
-  const fetchPromises = friendsArray.map(uid => db.collection('profiles').doc(uid).get());
-
-  Promise.all(fetchPromises).then(snapshots => {
-    container.innerHTML = `<p style="color: #aaa; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">You have ${friendsArray.length}/20 friends.</p>`;
-    
-    snapshots.forEach(doc => {
+  container.innerHTML = `<p style="color: #aaa; border-bottom: 1px solid #333; padding-bottom: 10px;">You have ${friendsArray.length}/20 friends.</p>`;
+  
+  friendsArray.forEach(uid => {
+    db.collection('profiles').doc(uid).get().then(doc => {
       if (doc.exists) {
-        const friendData = doc.data();
-        const pfp = friendData.profilePic || DEFAULT_PFP;
-        let roleText = 'Community Guest';
-        if (friendData.role === 'member') roleText = 'Crzyclan Member';
-        if (friendData.role === 'fan') roleText = 'Crzyclan Fan';
-
+        const fd = doc.data();
         const div = document.createElement('div');
         div.className = 'friend-item';
+        div.onclick = () => viewProfileFromSearch(doc.id);
         div.innerHTML = `
           <div style="display:flex; align-items:center; gap:15px;">
-            <img src="${pfp}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #555;">
+            <img src="${fd.profilePic || DEFAULT_PFP}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #555;">
             <div>
-              <strong style="color:#fff; font-size:1.1rem;">${friendData.displayName || "Unknown User"}</strong>
-              <div style="font-size:0.8rem; color:#888;">${roleText}</div>
+              <strong style="color:#fff; font-size:1.1rem;">${fd.displayName || "Unknown User"}</strong>
             </div>
           </div>
-          <button class="sleek-btn" style="border-color:#ff0000; color:#ff0000;" onclick="removeFriend('${doc.id}', '${friendData.displayName || 'Unknown'}')">Remove</button>
+          <button class="sleek-btn" style="border-color:#ff0000; color:#ff0000;" onclick="event.stopPropagation(); removeFriend('${doc.id}', '${fd.displayName || 'Unknown'}')">Remove</button>
         `;
         container.appendChild(div);
       }
@@ -282,168 +408,34 @@ function renderFriendsList(friendsArray) {
 }
 
 window.removeFriend = function(friendUid, friendName) {
-  if (!confirm(`Are you sure you want to remove ${friendName} from your friends list?`)) return;
-
-  db.collection('profiles').doc(currentUserId).update({
-    friends: firebase.firestore.FieldValue.arrayRemove(friendUid)
-  }).then(() => {
-     // UI automatically refreshes due to the realtime onSnapshot in loadProfile
-     console.log("Friend removed");
-  });
-}
-
-window.toggleLike = function() {
-  if (!currentUserId) return alert("You must be logged in.");
-  if (!currentProfileData) return;
-
-  const userRef = db.collection('profiles').doc(currentUserId); 
-  const likedByArray = currentProfileData.likedBy || [];
+  if (!confirm(`Remove ${friendName}?`)) return;
+  db.collection('profiles').doc(currentUserId).update({ friends: firebase.firestore.FieldValue.arrayRemove(friendUid) });
+  db.collection('profiles').doc(friendUid).update({ friends: firebase.firestore.FieldValue.arrayRemove(currentUserId) });
   
-  if (likedByArray.includes(currentUserId)) {
-    userRef.update({ likedBy: firebase.firestore.FieldValue.arrayRemove(currentUserId) });
-  } else {
-    userRef.update({ likedBy: firebase.firestore.FieldValue.arrayUnion(currentUserId) });
+  if (currentViewedProfileId === friendUid) {
+     document.getElementById('friend-action-btn').textContent = "Add Friend";
+     document.getElementById('friend-action-btn').style.background = "#ff0000";
+     document.getElementById('friend-action-btn').onclick = () => sendFriendRequest(friendUid, friendName);
   }
 };
 
-window.setCustomProfileBG = function() {
-  document.getElementById('bg-uploader').click();
-};
-
-function setupProfileSong(title, file) {
-  const audioEl = document.getElementById('profile-audio');
-  const srcEl = document.getElementById('profile-audio-src');
-  const textTitle = document.querySelector('.profile-song-box p');
-  
-  if (srcEl.getAttribute('src') === file) return;
-  
-  if (file) {
-    srcEl.src = file;
-    textTitle.textContent = `🎵 Profile Song: ${title}`;
-    audioEl.load();
-  }
-}
-
-window.openSongModal = function() {
-  document.getElementById('song-selector-modal').style.display = 'flex';
-  document.getElementById('song-search-input').value = "";
-  window.switchSongTab('all');
-};
-
-window.closeModal = function(modalId) {
-  document.getElementById(modalId).style.display = 'none';
-};
-
-let currentSongTab = 'all';
-window.switchSongTab = function(tab) {
-  currentSongTab = tab;
-  document.getElementById('tab-all-songs').classList.remove('active');
-  document.getElementById('tab-liked-songs').classList.remove('active');
-  document.getElementById(`tab-${tab}-songs`).classList.add('active');
-  window.filterSongs();
-};
-
-window.filterSongs = function() {
-  const search = document.getElementById('song-search-input').value.toLowerCase();
-  const listEl = document.getElementById('modal-song-list');
-  listEl.innerHTML = '';
-  
-  let songsToRender = allSiteSongs;
-
-  if (currentSongTab === 'liked') {
-    listEl.innerHTML = '<p style="padding: 10px; color: #888;">Liked songs sync coming soon. Please use All Songs.</p>';
-    return;
-  }
-
-  songsToRender.forEach(song => {
-    if (song.title.toLowerCase().includes(search)) {
-      const div = document.createElement('div');
-      div.className = 'song-list-item';
-      div.innerHTML = `<span>${song.title}</span> <button class="sleek-btn" style="padding: 4px 8px; font-size: 0.8rem;">Select</button>`;
-      div.onclick = () => {
-        db.collection('profiles').doc(currentUserId).update({
-          profileSongTitle: song.title,
-          profileSongFile: song.file
-        }).then(() => {
-          window.closeModal('song-selector-modal');
-        });
-      };
-      listEl.appendChild(div);
-    }
-  });
-};
-
-window.openPlaylistModal = function() {
-  if (!currentUserId) return;
-  document.getElementById('playlist-selector-modal').style.display = 'flex';
-  
-  const dropdown = document.getElementById('playlist-dropdown');
-  dropdown.innerHTML = '<option value="">-- Loading your playlists... --</option>';
-  
-  db.collection('userVotes').doc(currentUserId).get().then(doc => {
-    if (!doc.exists || !doc.data().playlists || doc.data().playlists.length === 0) {
-      dropdown.innerHTML = '<option value="">You have no playlists yet.</option>';
-    } else {
-      dropdown.innerHTML = '<option value="">-- Select a Playlist --</option>';
-      const playlists = doc.data().playlists;
-      
-      playlists.forEach((pl, index) => {
-        dropdown.innerHTML += `<option value="${index}">${pl.name} (${pl.songs ? pl.songs.length : 0} tracks)</option>`;
-      });
-    }
-  });
-};
-
-window.savePublicPlaylist = function() {
-  const selectedIndex = document.getElementById('playlist-dropdown').value;
-  if (selectedIndex === "") return alert("Select a playlist first.");
-  
-  db.collection('userVotes').doc(currentUserId).get().then(doc => {
-    const playlists = doc.data().playlists || [];
-    const selectedPl = playlists[selectedIndex];
-    
-    db.collection('profiles').doc(currentUserId).update({
-      publicPlaylistName: selectedPl.name,
-      publicPlaylistTrackCount: selectedPl.songs ? selectedPl.songs.length : 0
-    }).then(() => {
-      alert("Public Playlist Updated!");
-      window.closeModal('playlist-selector-modal');
-    });
-  });
-};
-
-window.createNewPlaylistFromHub = function() {
-  if (!currentUserId) return;
-  
-  const name = prompt("Enter a name for your new playlist:");
-  if (name) {
-    const newPlaylist = { name: name, cover: null, songs: [] };
-    
-    db.collection('userVotes').doc(currentUserId).set({
-      playlists: firebase.firestore.FieldValue.arrayUnion(newPlaylist)
-    }, { merge: true }).then(() => {
-      alert("Playlist Created! It is now synced with your Music tab.");
-      window.openPlaylistModal(); 
-    }).catch(err => alert("Error: " + err.message));
-  }
-};
-
-window.editBio = function() {
-  const newBio = prompt("Enter your new bio:");
-  if (newBio !== null) db.collection('profiles').doc(currentUserId).update({ bio: newBio });
-};
-
+// --- DIRECT MESSAGING ---
 function getDMLimit() { return (userRole === "member" || userRole === "fan") ? 2 : 1; }
 
 function checkDMLimit(dmHistory) {
   clearInterval(dmTimerInterval);
+  // We check the limit based on the SENDER'S history (which is saved in their own doc)
   const limit = getDMLimit();
-  const now = Date.now();
-  const recentDMs = dmHistory.filter(time => (now - time) < 86400000);
-  const dmBtn = document.getElementById('dm-btn');
+  let myHistory = [];
+  if(myProfileData && myProfileData.dmHistory) myHistory = myProfileData.dmHistory;
   
+  const now = Date.now();
+  const recentDMs = myHistory.filter(time => (now - time) < 86400000);
+  const dmBtn = document.getElementById('dm-btn');
+  if(!dmBtn) return;
+
   if (recentDMs.length < limit) {
-    dmBtn.textContent = `✉️ Daily DM (${recentDMs.length}/${limit})`;
+    dmBtn.textContent = `✉️ Send Message (${recentDMs.length}/${limit})`;
     dmBtn.style.opacity = "1";
     dmBtn.disabled = false;
   } else {
@@ -466,46 +458,151 @@ function checkDMLimit(dmHistory) {
   }
 }
 
-window.sendDailyDM = function() {
-  if (!currentUserId) return alert("Log in to send messages.");
-  
-  db.collection('profiles').doc(currentUserId).get().then(doc => {
-    const data = doc.data();
-    const recentDMs = (data.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
+window.sendDirectMessage = function() {
+  if (!currentUserId || !currentViewedProfileId) return;
+  const recentDMs = (myProfileData.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
+  if (recentDMs.length >= getDMLimit()) return alert("Daily message limit reached.");
+
+  const messageText = prompt(`Type your message to ${viewedProfileData.displayName}:`);
+  if (messageText && messageText.trim() !== "") {
     
-    if (recentDMs.length >= getDMLimit()) return alert("Daily message limit reached.");
+    // Update sender's history
+    recentDMs.push(Date.now());
+    db.collection('profiles').doc(currentUserId).update({ dmHistory: recentDMs });
 
-    const messageText = prompt("Type your Daily Message (Currently sends to your own inbox for testing):");
-    if (messageText && messageText.trim() !== "") {
-      recentDMs.push(Date.now());
-      db.collection('profiles').doc(currentUserId).update({ dmHistory: recentDMs });
+    // Deliver to recipient's inbox
+    db.collection('messages').add({
+      toUserId: currentViewedProfileId, 
+      fromName: firebase.auth().currentUser.displayName || "Unknown",
+      text: messageText,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+      alert("Message Delivered!");
+      checkDMLimit(recentDMs);
+    });
+  }
+};
 
-      db.collection('messages').add({
-        toUserId: currentUserId,
-        fromName: firebase.auth().currentUser.displayName || "Unknown",
-        text: messageText,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        alert("Message Sent!");
-        checkDMLimit(recentDMs);
+// --- MODALS & PLAYLISTS ---
+window.toggleLike = function() {
+  if (!currentUserId || !currentViewedProfileId) return;
+  const ref = db.collection('profiles').doc(currentViewedProfileId); 
+  const likedByArray = viewedProfileData.likedBy || [];
+  if (likedByArray.includes(currentUserId)) ref.update({ likedBy: firebase.firestore.FieldValue.arrayRemove(currentUserId) });
+  else ref.update({ likedBy: firebase.firestore.FieldValue.arrayUnion(currentUserId) });
+};
+
+window.openSongModal = function() { document.getElementById('song-selector-modal').style.display = 'flex'; window.switchSongTab('all'); };
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+
+window.switchSongTab = function() {
+  const listEl = document.getElementById('modal-song-list');
+  listEl.innerHTML = '';
+  allSiteSongs.forEach(song => {
+    const div = document.createElement('div');
+    div.className = 'song-list-item';
+    div.innerHTML = `<span>${song.title}</span> <button class="sleek-btn" style="padding: 4px 8px; font-size: 0.8rem;">Select</button>`;
+    div.onclick = () => {
+      db.collection('profiles').doc(currentUserId).update({ profileSongTitle: song.title, profileSongFile: song.file })
+        .then(() => window.closeModal('song-selector-modal'));
+    };
+    listEl.appendChild(div);
+  });
+};
+
+window.openPlaylistModal = function() {
+  document.getElementById('playlist-selector-modal').style.display = 'flex';
+  const dropdown = document.getElementById('playlist-dropdown');
+  dropdown.innerHTML = '<option value="">-- Loading --</option>';
+  
+  db.collection('userVotes').doc(currentUserId).get().then(doc => {
+    if (!doc.exists || !doc.data().playlists) { dropdown.innerHTML = '<option value="">No playlists yet.</option>'; return;}
+    dropdown.innerHTML = '<option value="">-- Select Playlist --</option>';
+    doc.data().playlists.forEach((pl, idx) => {
+      dropdown.innerHTML += `<option value="${idx}">${pl.name} (${pl.songs ? pl.songs.length : 0} tracks)</option>`;
+    });
+  });
+};
+
+window.savePublicPlaylist = function() {
+  const sel = document.getElementById('playlist-dropdown').value;
+  if(sel === "") return;
+  db.collection('userVotes').doc(currentUserId).get().then(doc => {
+    const pl = doc.data().playlists[sel];
+    db.collection('profiles').doc(currentUserId).update({
+      publicPlaylistName: pl.name,
+      publicPlaylistTrackCount: pl.songs ? pl.songs.length : 0,
+      publicPlaylistIndex: sel // Save index so we can retrieve tracks later
+    }).then(() => { alert("Updated!"); window.closeModal('playlist-selector-modal'); });
+  });
+};
+
+// --- PUBLIC PLAYLIST VIEWER ---
+window.openPublicPlaylistViewer = function() {
+  if(!viewedProfileData || viewedProfileData.publicPlaylistIndex === undefined) return;
+  
+  const modal = document.getElementById('public-playlist-viewer-modal');
+  modal.style.display = 'flex';
+  document.getElementById('viewer-playlist-title').textContent = viewedProfileData.publicPlaylistName;
+  
+  const trackList = document.getElementById('viewer-track-list');
+  trackList.innerHTML = '<p style="padding:10px; color:#aaa;">Loading tracks...</p>';
+
+  // Fetch target user's tracks from their userVotes document
+  db.collection('userVotes').doc(currentViewedProfileId).get().then(doc => {
+    if(doc.exists && doc.data().playlists) {
+      const pl = doc.data().playlists[viewedProfileData.publicPlaylistIndex];
+      trackList.innerHTML = '';
+      if(!pl.songs || pl.songs.length === 0) {
+         trackList.innerHTML = '<p style="padding:10px; color:#888;">Playlist is empty.</p>';
+         return;
+      }
+      pl.songs.forEach(song => {
+        const div = document.createElement('div');
+        div.className = 'song-list-item';
+        div.innerHTML = `<span>${song.title} <small style="color:#aaa;">- ${song.artist}</small></span> <button class="sleek-btn" style="padding:4px 8px; font-size:0.8rem;">▶</button>`;
+        // Click to play in mini modal player
+        div.onclick = () => playModalAudio(song.src, song.title);
+        trackList.appendChild(div);
       });
     }
   });
 };
 
-function loadInbox(uid) {
-  const inboxList = document.getElementById('messages-list');
-  db.collection('messages').where('toUserId', '==', uid).orderBy('timestamp', 'desc')
-    .onSnapshot(snapshot => {
-      inboxList.innerHTML = ''; 
-      if (snapshot.empty) return inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
+window.playModalAudio = function(src, title) {
+  const audio = document.getElementById('modal-audio');
+  document.getElementById('modal-song-title').textContent = title;
+  
+  // Stop profile audio so they don't overlap
+  document.getElementById('profile-audio').pause();
+  document.getElementById('mini-play-btn').textContent = "▶";
 
-      snapshot.forEach(doc => {
-        const msg = doc.data();
-        const div = document.createElement('div');
-        div.className = 'message-item';
-        div.innerHTML = `<div class="meta">From: <strong>${msg.fromName}</strong></div><div>${msg.text}</div>`;
-        inboxList.appendChild(div);
-      });
-    });
-}
+  audio.src = src;
+  audio.play();
+  document.getElementById('modal-play-btn').textContent = "⏸";
+};
+
+window.toggleModalAudio = function() {
+  const audio = document.getElementById('modal-audio');
+  const btn = document.getElementById('modal-play-btn');
+  if(!audio.src || audio.src.endsWith(window.location.pathname)) return;
+  if(audio.paused) { audio.play(); btn.textContent = "⏸"; } 
+  else { audio.pause(); btn.textContent = "▶"; }
+};
+
+window.stopModalAudio = function() {
+  const audio = document.getElementById('modal-audio');
+  audio.pause();
+  audio.src = "";
+  document.getElementById('modal-song-title').textContent = "Select a track below to play";
+  document.getElementById('modal-play-btn').textContent = "▶";
+};
+
+window.resetModalPlayer = function() {
+  document.getElementById('modal-play-btn').textContent = "▶";
+};
+
+window.editBio = function() {
+  const newBio = prompt("Enter your new bio:");
+  if (newBio !== null) db.collection('profiles').doc(currentUserId).update({ bio: newBio });
+};

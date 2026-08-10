@@ -15,49 +15,12 @@
     }
 
     /* --- SIDEBAR & MAIN LAYOUT --- */
-    .hub-wrapper {
-      max-width: 1300px;
-      margin: 20px auto;
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 30px;
-      padding: 0 20px;
-      position: relative;
-      z-index: 5;
-    }
-
-    .hub-sidebar {
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 20px;
-      height: fit-content;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: relative;
-      z-index: 10;
-    }
+    .hub-wrapper { max-width: 1300px; margin: 20px auto; display: grid; grid-template-columns: 250px 1fr; gap: 30px; padding: 0 20px; position: relative; z-index: 5; }
+    .hub-sidebar { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; height: fit-content; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 10; }
     
-    .sidebar-btn {
-      background: transparent;
-      color: #aaa;
-      border: 1px solid transparent;
-      padding: 12px;
-      border-radius: 8px;
-      text-align: left;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: bold;
-      position: relative;
-      z-index: 15;
-    }
-    .sidebar-btn:hover, .sidebar-btn.active {
-      background: rgba(255,0,0,0.1);
-      color: #fff;
-      border-color: rgba(255,0,0,0.3);
-    }
+    .sidebar-btn { background: transparent; color: #aaa; border: 1px solid transparent; padding: 12px; border-radius: 8px; text-align: left; font-size: 1rem; cursor: pointer; transition: all 0.2s; font-weight: bold; position: relative; z-index: 15; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-btn:hover, .sidebar-btn.active { background: rgba(255,0,0,0.1); color: #fff; border-color: rgba(255,0,0,0.3); }
+    .badge { background: #ff0000; color: #fff; font-size: 0.75rem; padding: 2px 6px; border-radius: 10px; display: none; }
 
     /* --- VIEW CONTAINERS --- */
     .hub-view { display: none; }
@@ -65,29 +28,9 @@
     .section-header { border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 10px; margin-top: 0; margin-bottom: 20px; color: #fff; }
 
     /* --- PROFILE SECTION --- */
-    .profile-dashboard {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 30px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 30px;
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-    
-    .profile-overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      border-radius: 12px;
-      z-index: 1;
-    }
-    
+    .profile-dashboard { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; background: #111; border: 1px solid #333; border-radius: 12px; padding: 30px; background-size: cover; background-position: center; position: relative; }
+    .profile-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); border-radius: 12px; z-index: 1; }
     .profile-sidebar, .profile-main { position: relative; z-index: 10; }
-
     .profile-sidebar { text-align: center; border-right: 1px solid rgba(255,255,255,0.2); padding-right: 20px; }
     .profile-sidebar img { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #555; object-fit: cover; margin-bottom: 10px; }
     
@@ -96,14 +39,17 @@
     .role-fan { background: #0055ff; color: #fff; }
     .role-member { background: #ff0000; color: #fff; }
 
-    .profile-song-box { background: rgba(20,20,20,0.8); border: 1px solid #444; border-radius: 8px; padding: 10px; margin-bottom: 15px; backdrop-filter: blur(5px); }
-    .profile-song-box p { margin: 0 0 5px 0; color: #ff0000; font-size: 0.85rem; font-weight: bold; }
-    .profile-song-box audio { width: 100%; height: 30px; }
+    /* Custom Miniature Player */
+    .mini-player-box { background: rgba(20,20,20,0.9); border: 1px solid #444; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); }
+    .mini-play-btn { background: #ff0000; color: #fff; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+    .mini-play-btn:hover { background: #cc0000; }
+    .mini-song-info { flex: 1; text-align: left; overflow: hidden; }
+    .mini-song-info span { display: block; font-size: 0.8rem; color: #ff0000; font-weight: bold; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .mini-speed-select { background: #111; color: #fff; border: 1px solid #555; padding: 3px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
 
     .profile-main h3 { margin-top: 0; color: #ff0000; display: flex; justify-content: space-between; align-items: center;}
     .like-profile-btn { background: rgba(255,0,0,0.1); border: 1px solid #ff0000; color: #ff0000; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-    .like-profile-btn:hover { background: #ff0000; color: #fff; }
-    .like-profile-btn.liked { background: #ff0000; color: #fff; }
+    .like-profile-btn:hover, .like-profile-btn.liked { background: #ff0000; color: #fff; }
 
     .profile-bio { background: rgba(20,20,20,0.8); padding: 15px; border-radius: 8px; color: #ccc; font-size: 0.95rem; margin-bottom: 20px; min-height: 80px; white-space: pre-wrap; backdrop-filter: blur(5px); border: 1px solid #333; }
     .public-playlist-card { background: rgba(20,20,20,0.8); border-left: 4px solid #ff0000; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #333; border-right: 1px solid #333; border-bottom: 1px solid #333;}
@@ -115,6 +61,7 @@
     /* --- INBOX & FRIENDS --- */
     .inbox-container { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; margin-top: 20px; position: relative; z-index: 5; }
     .message-item, .friend-item { background: #1a1a1a; border-left: 3px solid #ff0000; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;}
+    .friend-item:hover { background: #222; cursor: pointer; }
     .message-item .meta { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
 
     /* --- GAMES & ART GRIDS --- */
@@ -129,12 +76,12 @@
     .game-item:last-child { border-bottom: none; }
 
     /* --- MODALS --- */
-    .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
     .custom-modal-inner { background: #151515; border: 1px solid #ff0000; border-radius: 12px; padding: 25px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
     .song-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
     .song-tab { flex: 1; padding: 10px; background: #222; border: 1px solid #444; color: #aaa; cursor: pointer; text-align: center; border-radius: 6px; }
     .song-tab.active { background: #ff0000; color: #fff; border-color: #ff0000; }
-    .song-list-item { padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .song-list-item { padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: #fff; }
     .song-list-item:hover { background: #222; }
 
     @media (max-width: 900px) {
@@ -162,8 +109,9 @@
     <!-- SIDEBAR NAVIGATION -->
     <div class="hub-sidebar">
       <button class="sidebar-btn active" onclick="switchHubView('hub-main', this)">🎮 Community Hub</button>
-      <button class="sidebar-btn" onclick="switchHubView('hub-profile', this)">👤 My Profile</button>
+      <button class="sidebar-btn" id="my-profile-btn" onclick="viewMyProfile(this)">👤 My Profile</button>
       <button class="sidebar-btn" onclick="switchHubView('hub-friends', this)">👥 Friends List</button>
+      <button class="sidebar-btn" onclick="switchHubView('hub-requests', this)">📩 Friend Requests <span id="request-badge" class="badge">0</span></button>
       <button class="sidebar-btn" onclick="switchHubView('hub-add-friend', this)">🔍 Add Friend</button>
     </div>
 
@@ -178,8 +126,6 @@
       <div id="hub-main" class="hub-view active">
         <h2 class="section-header">Games & Projects</h2>
         <div class="content-grid">
-          
-          <!-- ROBLOX CARD -->
           <div class="content-card" onclick="toggleSection('roblox-games')">
             <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true" alt="Roblox Studio">
             <h3>CRZYCLAN ROBLOX GAMES</h3>
@@ -190,7 +136,6 @@
               <div class="game-item"><div><strong>Unnamed Project 3</strong><br><span>In Development</span></div><button class="sleek-btn" style="font-size: 0.8rem;" onclick="event.stopPropagation(); alert('Game link coming soon!')">View</button></div>
             </div>
           </div>
-          
           <div class="content-card">
             <div style="width: 100%; height: 180px; background: #222; border: 2px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; color: #555;">[ Incoming Projects ]</div>
             <h3 style="color: #777;">Other Platforms</h3>
@@ -215,7 +160,7 @@
 
       <!-- VIEW 2: PROFILE & INBOX -->
       <div id="hub-profile" class="hub-view">
-        <h2 class="section-header">My Profile</h2>
+        <h2 id="profile-view-header" class="section-header">My Profile</h2>
         
         <div id="profile-bg-container" class="profile-dashboard">
           <div class="profile-overlay"></div>
@@ -225,22 +170,38 @@
             <h2 id="profile-name" style="margin: 0 0 5px 0; color: #fff;">Loading...</h2>
             <div id="role-badge" class="role-title role-guest">Community Guest</div>
             
-            <div class="profile-song-box">
-              <p>🎵 Profile Song</p>
-              <audio id="profile-audio" controls>
-                <source id="profile-audio-src" src="" type="audio/mpeg">
-              </audio>
-              <button id="set-song-btn" class="sleek-btn" style="font-size: 0.75rem; margin-top: 5px; width: 100%; display: none;" onclick="openSongModal()">🔍 Change Song</button>
+            <!-- Custom Miniature Player -->
+            <div class="mini-player-box">
+              <button id="mini-play-btn" class="mini-play-btn" onclick="toggleProfileAudio()">▶</button>
+              <div class="mini-song-info">
+                <span id="mini-song-title">No song set</span>
+              </div>
+              <select id="song-speed-select" class="mini-speed-select" onchange="saveSongSpeed(this.value)" style="display:none;">
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1">1x</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+              </select>
+            </div>
+            <!-- Invisible real audio element -->
+            <audio id="profile-audio" style="display:none;" onended="resetMiniPlayer()">
+              <source id="profile-audio-src" src="" type="audio/mpeg">
+            </audio>
+
+            <div id="owner-controls-sidebar" style="display: flex; flex-direction: column; gap: 10px; display:none;">
+              <button class="sleek-btn" style="font-size: 0.8rem;" onclick="openSongModal()">🔍 Change Song</button>
+              <button class="sleek-btn" style="font-size: 0.8rem;" onclick="setCustomProfileBG()">🖼️ Set Background</button>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <button class="sleek-btn" style="font-size: 0.8rem;" onclick="setCustomProfileBG()">🖼️ Set Background</button>
-              <button id="dm-btn" class="sleek-btn" onclick="sendDailyDM()">✉️ Daily DM (1/1)</button>
+            <div id="visitor-controls-sidebar" style="display: flex; flex-direction: column; gap: 10px; display:none;">
+              <button id="dm-btn" class="sleek-btn" onclick="sendDirectMessage()">✉️ Send Message</button>
+              <button id="friend-action-btn" class="sleek-btn" style="background:#ff0000; border:none;" onclick="handleFriendAction()">Add Friend</button>
             </div>
           </div>
 
           <div class="profile-main">
-            <h3>About Me 
+            <h3>About 
               <div style="display: flex; gap: 10px; align-items: center;">
                 <button id="edit-bio-btn" class="sleek-btn" style="font-size: 0.8rem; display: none;" onclick="editBio()">✏️ Edit Bio</button>
                 <button id="like-btn-element" class="like-profile-btn" onclick="toggleLike()">👍 Like <span id="like-count" style="font-weight:bold; margin-left:5px;">0</span></button>
@@ -254,13 +215,16 @@
                 <strong id="public-playlist-title" style="color: #fff; font-size: 1.1rem;">No Public Playlist Set</strong>
                 <p id="public-playlist-info" style="margin: 5px 0 0 0; color: #888; font-size: 0.85rem;">Select one of your existing playlists.</p>
               </div>
-              <button class="sleek-btn" style="background: #ff0000; color: #fff; border: none;" onclick="openPlaylistModal()">⚙️ Setup</button>
+              <div style="display: flex; gap: 10px;">
+                <button id="view-playlist-btn" class="sleek-btn" style="display:none;" onclick="openPublicPlaylistViewer()">▶ Listen</button>
+                <button id="setup-playlist-btn" class="sleek-btn" style="background: #ff0000; color: #fff; border: none; display:none;" onclick="openPlaylistModal()">⚙️ Setup</button>
+              </div>
             </div>
           </div>
         </div>
 
         <div id="inbox-container" class="inbox-container">
-          <h3 style="margin-top: 0; color: #ff0000; border-bottom: 1px solid #333; padding-bottom: 10px;">📬 Your Inbox</h3>
+          <h3 id="inbox-header-title" style="margin-top: 0; color: #ff0000; border-bottom: 1px solid #333; padding-bottom: 10px;">📬 Inbox</h3>
           <div id="messages-list"><p style="color: #888;">No messages yet.</p></div>
         </div>
       </div>
@@ -275,7 +239,17 @@
         </div>
       </div>
 
-      <!-- VIEW 4: ADD FRIEND -->
+      <!-- VIEW 4: FRIEND REQUESTS -->
+      <div id="hub-requests" class="hub-view">
+        <h2 class="section-header">Friend Requests</h2>
+        <div class="inbox-container" style="display: block; margin-top: 0;">
+          <div id="friend-requests-container">
+            <p style="color: #888;">No pending requests.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: ADD FRIEND -->
       <div id="hub-add-friend" class="hub-view">
         <h2 class="section-header">Add a Friend</h2>
         <div class="inbox-container" style="display: block; margin-top: 0;">
@@ -288,7 +262,6 @@
     </div>
   </main>
 
-  <!-- HIDDEN UPLOADER FOR BACKGROUND IMAGES -->
   <input type="file" id="bg-uploader" accept="image/*" style="display: none;">
 
   <!-- MODAL: SONG SELECTOR -->
@@ -296,16 +269,10 @@
     <div class="custom-modal-inner">
       <h3 style="margin-top: 0; color: #fff;">Select Profile Song</h3>
       <input type="text" id="song-search-input" class="sleek-input" placeholder="Search song title..." onkeyup="filterSongs()" style="margin-bottom: 15px;">
-      
       <div class="song-tabs">
         <div id="tab-all-songs" class="song-tab active" onclick="switchSongTab('all')">All Songs</div>
-        <div id="tab-liked-songs" class="song-tab" onclick="switchSongTab('liked')">Liked Songs</div>
       </div>
-      
-      <div id="modal-song-list" style="max-height: 300px; overflow-y: auto; border: 1px solid #333; border-radius: 6px; margin-bottom: 15px;">
-        <!-- Filled by JS -->
-      </div>
-      
+      <div id="modal-song-list" style="max-height: 300px; overflow-y: auto; border: 1px solid #333; border-radius: 6px; margin-bottom: 15px;"></div>
       <button class="sleek-btn" style="width: 100%;" onclick="closeModal('song-selector-modal')">Cancel</button>
     </div>
   </div>
@@ -314,50 +281,56 @@
   <div id="playlist-selector-modal" class="custom-modal">
     <div class="custom-modal-inner">
       <h3 style="margin-top: 0; color: #fff;">Setup Public Playlist</h3>
-      <p style="color: #aaa; font-size: 0.9rem;">Select an existing playlist from your Music tab to display on your profile.</p>
-      
-      <select id="playlist-dropdown" class="sleek-input" style="margin-bottom: 15px;">
-        <option value="">-- Loading your playlists... --</option>
-      </select>
-      
+      <select id="playlist-dropdown" class="sleek-input" style="margin-bottom: 15px;"><option value="">-- Loading --</option></select>
       <div style="display: flex; gap: 10px;">
         <button class="sleek-btn" style="background: #ff0000; border: none; flex: 1;" onclick="savePublicPlaylist()">Save</button>
         <button class="sleek-btn" style="flex: 1;" onclick="closeModal('playlist-selector-modal')">Cancel</button>
       </div>
+    </div>
+  </div>
 
-      <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+  <!-- MODAL: PUBLIC PLAYLIST VIEWER & PLAYER -->
+  <div id="public-playlist-viewer-modal" class="custom-modal">
+    <div class="custom-modal-inner">
+      <h3 id="viewer-playlist-title" style="margin-top: 0; color: #fff;">Playlist Name</h3>
       
-      <p style="color: #aaa; font-size: 0.9rem;">Or create a new one (Requires open slot. Max 4 playlists per user).</p>
-      <button class="sleek-btn" style="width: 100%;" onclick="createNewPlaylistFromHub()">+ Create New Playlist</button>
+      <!-- Mini modal player to listen to tracks -->
+      <div class="mini-player-box" style="background: #000; margin-bottom: 15px;">
+        <button id="modal-play-btn" class="mini-play-btn" onclick="toggleModalAudio()">▶</button>
+        <div class="mini-song-info">
+          <span id="modal-song-title" style="color: #fff;">Select a track below to play</span>
+        </div>
+      </div>
+      <audio id="modal-audio" style="display:none;" onended="resetModalPlayer()"></audio>
+
+      <div id="viewer-track-list" style="max-height: 300px; overflow-y: auto; border: 1px solid #333; border-radius: 6px; margin-bottom: 15px;">
+         <!-- Tracks populated here -->
+      </div>
+      <button class="sleek-btn" style="width: 100%;" onclick="closeModal('public-playlist-viewer-modal'); stopModalAudio();">Close</button>
     </div>
   </div>
 
   <footer>&copy; 2026 CRZYCLAN. All rights reserved.</footer>
 
-  <!-- Bulletproof UI Toggle Scripts -->
   <script>
     function switchHubView(viewId, btnElement) {
       document.querySelectorAll('.hub-view').forEach(view => view.classList.remove('active'));
       document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
-      
       document.getElementById(viewId).classList.add('active');
-      btnElement.classList.add('active');
-
-      if(viewId === 'hub-profile') {
+      if(btnElement) btnElement.classList.add('active');
+      
+      // Stop audio if navigating away from profile
+      if(viewId !== 'hub-profile') {
         const audio = document.getElementById('profile-audio');
-        if (audio && audio.src && audio.paused) {
-          audio.play().catch(e => console.log("User must click to start audio."));
-        }
+        if(audio) { audio.pause(); document.getElementById('mini-play-btn').textContent = "▶"; }
       }
     }
-
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
       section.style.display = section.style.display === "block" ? "none" : "block";
     }
   </script>
 
-  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -373,7 +346,6 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   </script>
-
   <script src="global.js"></script>
   <script src="other.js"></script>
 </body>

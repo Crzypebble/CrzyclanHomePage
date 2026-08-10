@@ -1,4 +1,8 @@
+let db; // Added global variable for Firestore
+
 document.addEventListener('DOMContentLoaded', () => {
+  db = firebase.firestore(); // Initialize Firestore
+
   const logoutBtn = document.getElementById('logout-btn');
   const authInputs = document.getElementById('auth-inputs');
   const securitySection = document.getElementById('security-section');
@@ -15,7 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearBgBtn = document.getElementById('clear-background');
   const bgPreviewBox = document.getElementById('bg-preview');
   const bgUploadText = document.getElementById('bg-upload-text');
+  
+  // Profile Elements
   const displayNameDisplay = document.getElementById('current-display-name');
+  const pfpUpload = document.getElementById('pfp-upload');
+  const pfpPreview = document.getElementById('pfp-preview');
 
   // Load visual preview in settings if background exists
   const savedBg = localStorage.getItem('customBackground');
@@ -36,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
         displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
       }
 
+      // Fetch Profile Picture from Firestore
+      db.collection('profiles').doc(user.uid).get().then(doc => {
+        if (doc.exists && doc.data().profilePic) {
+          pfpPreview.style.backgroundImage = `url('${doc.data().profilePic}')`;
+        } else {
+          pfpPreview.style.backgroundImage = "none"; // Defaults to solid black
+        }
+      });
+
       showStatus(`Logged in securely as ${user.email}`, "#00ff00");
     } else {
       if (authInputs) authInputs.style.display = 'block';
@@ -51,7 +68,30 @@ document.addEventListener('DOMContentLoaded', () => {
   deleteAccountBtn?.addEventListener('click', deleteAccount);
   clearDataBtn?.addEventListener('click', clearLocalData);
 
-  // Background Image Uploader Logic
+  // --- PROFILE PICTURE UPLOADER ---
+  pfpUpload?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 1048576) return alert("Please choose an image smaller than 1MB.");
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const imageUrl = event.target.result;
+      const user = firebase.auth().currentUser;
+      
+      if (user) {
+        db.collection('profiles').doc(user.uid).set({ profilePic: imageUrl }, { merge: true })
+          .then(() => {
+            if (pfpPreview) pfpPreview.style.backgroundImage = `url('${imageUrl}')`;
+            showStatus("Profile picture updated!", "#00ff00");
+          })
+          .catch(err => showStatus("Error saving picture: " + err.message, "#ff0000"));
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // --- BACKGROUND IMAGE UPLOADER ---
   customBgInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {

@@ -4,6 +4,8 @@ let userRole = "guest";
 let dmTimerInterval;
 let currentProfileData = null;
 
+const DEFAULT_PFP = "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true";
+
 document.addEventListener("DOMContentLoaded", () => {
   db = firebase.firestore();
 
@@ -19,6 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('edit-bio-btn').style.display = 'inline-block';
       document.getElementById('set-song-btn').style.display = 'inline-block';
       
+      // Save display name to database so the user becomes searchable in the Add Friend system
+      db.collection('profiles').doc(currentUserId).set({
+        displayName: displayName,
+        searchName: displayName.toLowerCase() // Lowercase makes searching easier
+      }, { merge: true });
+
       loadProfile(currentUserId);
       loadInbox(currentUserId);
     } else {
@@ -26,12 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- INSTANT DEVICE IMAGE CONVERTER (Fixes the Loading Hang) ---
+  // --- INSTANT DEVICE IMAGE CONVERTER ---
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Keep images under 1MB so your database loads instantly
     if (file.size > 1048576) {
       alert("Please choose an image smaller than 1MB to keep your profile fast.");
       return;
@@ -41,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.onload = function(uploadEvent) {
       const base64Image = uploadEvent.target.result;
       
-      // Saves the image directly as data, bypassing Firebase Storage rules completely
       db.collection('profiles').doc(currentUserId).update({
         profileBg: base64Image
       }).then(() => {
@@ -96,6 +102,10 @@ function loadProfile(uid) {
       
       document.getElementById('profile-bio').textContent = currentProfileData.bio || "No bio set.";
       
+      // Load custom profile picture (Settings integration prep)
+      const pfp = currentProfileData.profilePic || DEFAULT_PFP;
+      document.getElementById('profile-pic').src = pfp;
+
       const likedByArray = currentProfileData.likedBy || [];
       document.getElementById('like-count').textContent = likedByArray.length;
       
@@ -118,7 +128,6 @@ function loadProfile(uid) {
       setupProfileSong(currentProfileData.profileSongTitle, currentProfileData.profileSongFile);
       checkDMLimit(currentProfileData.dmHistory || []);
       
-      // Update Public Playlist UI directly from the profile document
       if (currentProfileData.publicPlaylistName) {
         document.getElementById('public-playlist-title').textContent = currentProfileData.publicPlaylistName;
         document.getElementById('public-playlist-info').textContent = `${currentProfileData.publicPlaylistTrackCount} Tracks`;
@@ -127,12 +136,16 @@ function loadProfile(uid) {
         document.getElementById('public-playlist-info').textContent = "Select one of your existing playlists.";
       }
 
+      // Load friends dynamically whenever the profile document changes
+      renderFriendsList(currentProfileData.friends || []);
+
     } else {
       db.collection('profiles').doc(uid).set({
         bio: "I just joined the Crzyclan Hub!",
         likedBy: [],
         role: "guest",
-        dmHistory: []
+        dmHistory: [],
+        friends: []
       });
     }
   });
@@ -158,6 +171,127 @@ function updateRoleUI(role) {
   }
 }
 
+// --- FRIENDS LIST SYSTEM ---
+
+window.searchFriend = function() {
+  const input = document.getElementById('friend-search-input').value.trim();
+  if(!input) return;
+  
+  const resultsContainer = document.getElementById('friend-search-results');
+  resultsContainer.innerHTML = `<p style="color: #aaa;">Searching for exact match: ${input}...</p>`;
+
+  // Searches database for exact display name (ignoring caps)
+  db.collection('profiles').where('searchName', '==', input.toLowerCase()).get()
+    .then(snapshot => {
+      resultsContainer.innerHTML = '';
+      
+      if (snapshot.empty) {
+        resultsContainer.innerHTML = `<p style="color: #ff0000;">User not found. Check spelling!</p>`;
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        if (doc.id === currentUserId) return; // Hide current user from search
+        
+        const userData = doc.data();
+        const pfp = userData.profilePic || DEFAULT_PFP;
+        
+        const div = document.createElement('div');
+        div.className = 'friend-item';
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:15px;">
+            <img src="${pfp}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #555;">
+            <strong style="color:#fff;">${userData.displayName || "Unknown User"}</strong>
+          </div>
+          <button class="sleek-btn" style="background:#ff0000; color:#fff; border:none;" onclick="addFriend('${doc.id}', '${userData.displayName || 'Unknown'}')">Add Friend</button>
+        `;
+        resultsContainer.appendChild(div);
+      });
+
+      if (resultsContainer.innerHTML === '') {
+         resultsContainer.innerHTML = `<p style="color: #ff0000;">User not found.</p>`;
+      }
+    }).catch(err => {
+      resultsContainer.innerHTML = `<p style="color: #ff0000;">Error searching: ${err.message}</p>`;
+    });
+};
+
+window.addFriend = function(friendUid, friendName) {
+  if (!currentUserId) return;
+  const friendsArray = currentProfileData.friends || [];
+
+  if (friendsArray.includes(friendUid)) {
+    return alert(`${friendName} is already in your friends list!`);
+  }
+
+  // Hard cap of 20 friends
+  if (friendsArray.length >= 20) {
+    return alert("You have reached the maximum limit of 20 friends.");
+  }
+
+  db.collection('profiles').doc(currentUserId).update({
+    friends: firebase.firestore.FieldValue.arrayUnion(friendUid)
+  }).then(() => {
+    alert(`${friendName} added to your friends list!`);
+    document.getElementById('friend-search-results').innerHTML = '';
+    document.getElementById('friend-search-input').value = '';
+  });
+};
+
+function renderFriendsList(friendsArray) {
+  const container = document.getElementById('friends-list-container');
+  if (!container) return;
+
+  if (friendsArray.length === 0) {
+    container.innerHTML = '<p style="color: #888;">Your friends list is empty. Go add some friends!</p>';
+    return;
+  }
+
+  container.innerHTML = '<p style="color: #aaa;">Loading friends...</p>';
+
+  // Fetch all friend profiles dynamically
+  const fetchPromises = friendsArray.map(uid => db.collection('profiles').doc(uid).get());
+
+  Promise.all(fetchPromises).then(snapshots => {
+    container.innerHTML = `<p style="color: #aaa; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">You have ${friendsArray.length}/20 friends.</p>`;
+    
+    snapshots.forEach(doc => {
+      if (doc.exists) {
+        const friendData = doc.data();
+        const pfp = friendData.profilePic || DEFAULT_PFP;
+        let roleText = 'Community Guest';
+        if (friendData.role === 'member') roleText = 'Crzyclan Member';
+        if (friendData.role === 'fan') roleText = 'Crzyclan Fan';
+
+        const div = document.createElement('div');
+        div.className = 'friend-item';
+        div.innerHTML = `
+          <div style="display:flex; align-items:center; gap:15px;">
+            <img src="${pfp}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid #555;">
+            <div>
+              <strong style="color:#fff; font-size:1.1rem;">${friendData.displayName || "Unknown User"}</strong>
+              <div style="font-size:0.8rem; color:#888;">${roleText}</div>
+            </div>
+          </div>
+          <button class="sleek-btn" style="border-color:#ff0000; color:#ff0000;" onclick="removeFriend('${doc.id}', '${friendData.displayName || 'Unknown'}')">Remove</button>
+        `;
+        container.appendChild(div);
+      }
+    });
+  });
+}
+
+window.removeFriend = function(friendUid, friendName) {
+  if (!confirm(`Are you sure you want to remove ${friendName} from your friends list?`)) return;
+
+  db.collection('profiles').doc(currentUserId).update({
+    friends: firebase.firestore.FieldValue.arrayRemove(friendUid)
+  }).then(() => {
+     // UI automatically refreshes due to the realtime onSnapshot in loadProfile
+     console.log("Friend removed");
+  });
+}
+
 window.toggleLike = function() {
   if (!currentUserId) return alert("You must be logged in.");
   if (!currentProfileData) return;
@@ -181,7 +315,6 @@ function setupProfileSong(title, file) {
   const srcEl = document.getElementById('profile-audio-src');
   const textTitle = document.querySelector('.profile-song-box p');
   
-  // FIX: This prevents the music from stopping when you click "Like" or save a bio
   if (srcEl.getAttribute('src') === file) return;
   
   if (file) {
@@ -240,8 +373,6 @@ window.filterSongs = function() {
   });
 };
 
-// --- SYNCED PLAYLIST LOGIC (Matches music.js EXACTLY) ---
-
 window.openPlaylistModal = function() {
   if (!currentUserId) return;
   document.getElementById('playlist-selector-modal').style.display = 'flex';
@@ -249,7 +380,6 @@ window.openPlaylistModal = function() {
   const dropdown = document.getElementById('playlist-dropdown');
   dropdown.innerHTML = '<option value="">-- Loading your playlists... --</option>';
   
-  // FIX: Queries the 'userVotes' collection exactly like music.js does
   db.collection('userVotes').doc(currentUserId).get().then(doc => {
     if (!doc.exists || !doc.data().playlists || doc.data().playlists.length === 0) {
       dropdown.innerHTML = '<option value="">You have no playlists yet.</option>';
@@ -268,7 +398,6 @@ window.savePublicPlaylist = function() {
   const selectedIndex = document.getElementById('playlist-dropdown').value;
   if (selectedIndex === "") return alert("Select a playlist first.");
   
-  // Pull the specific playlist info to save it to the public profile
   db.collection('userVotes').doc(currentUserId).get().then(doc => {
     const playlists = doc.data().playlists || [];
     const selectedPl = playlists[selectedIndex];
@@ -290,7 +419,6 @@ window.createNewPlaylistFromHub = function() {
   if (name) {
     const newPlaylist = { name: name, cover: null, songs: [] };
     
-    // Add to the music.js array structure seamlessly
     db.collection('userVotes').doc(currentUserId).set({
       playlists: firebase.firestore.FieldValue.arrayUnion(newPlaylist)
     }, { merge: true }).then(() => {
@@ -381,12 +509,3 @@ function loadInbox(uid) {
       });
     });
 }
-
-window.searchFriend = function() {
-  const input = document.getElementById('friend-search-input').value.trim();
-  if(!input) return;
-  document.getElementById('friend-search-results').innerHTML = `<p style="color: #aaa;">Searching for ${input}...</p>`;
-  setTimeout(() => {
-    document.getElementById('friend-search-results').innerHTML = `<p style="color: #ff0000;">User not found. (Database index building required for live search).</p>`;
-  }, 1000);
-};

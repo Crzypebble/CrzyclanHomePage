@@ -738,7 +738,6 @@ const siteProjects = {
     title: "Days Before Death",
     genre: "Survival / Horror",
     desc: "A gritty survival horror experience. Fight to stay alive, manage your resources, and uncover what lies in the darkness.",
-    // You can now just drop the exact filename right here:
     images: [
       "dbd1.jpg", 
       "dbd2.jpg"
@@ -750,7 +749,6 @@ const siteProjects = {
     title: "2022: The Game",
     genre: "Adventure",
     desc: "Step into the chaos of 2022. An adventure filled with custom Luau scripting, custom physical models, unique gameplay loops, and clan history.",
-    // You can now just drop the exact filename right here:
     images: [
       "2022_pic1.png",
       "2022_pic2.png"
@@ -772,7 +770,6 @@ const siteProjects = {
     title: "Album Covers & Concepts",
     genre: "Digital Art",
     desc: "Behind the scenes look at the artwork for The Pebble, 2022, and other visual media created by the team.",
-    // I noticed these in your root folder screenshot - they will work instantly now!
     images: [
       "The Pebble Cover.jpg",
       "Skull 2022.png",
@@ -806,12 +803,11 @@ window.openProjectDetails = function(projectId) {
   document.getElementById('project-modal-desc').textContent = proj.desc;
   
   const galleryEl = document.getElementById('project-modal-gallery');
-  galleryEl.innerHTML = ''; // Clear out the old images
+  galleryEl.innerHTML = ''; 
   
   if (proj.images && proj.images.length > 0) {
     proj.images.forEach(imgUrl => {
       const img = document.createElement('img');
-      // The browser will automatically resolve these relative filenames to your root directory
       img.src = imgUrl;
       img.className = 'project-gallery-img';
       galleryEl.appendChild(img);
@@ -827,7 +823,7 @@ window.openProjectDetails = function(projectId) {
     linkEl.textContent = proj.linkText || "View Project";
     linkEl.style.display = "flex";
   } else {
-    linkEl.style.display = "none"; // Hide the button if there is no valid link
+    linkEl.style.display = "none"; 
   }
   
   document.getElementById('project-details-modal').style.display = 'flex';

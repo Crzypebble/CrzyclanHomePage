@@ -1,4 +1,4 @@
-Let db; // Added global variable for Firestore
+let db; // Changed capital 'L' to lowercase 'l'
 
 document.addEventListener('DOMContentLoaded', () => {
   db = firebase.firestore(); // Initialize Firestore

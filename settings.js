@@ -1,4 +1,4 @@
-Let db; // Added global variable for Firestore
+let db; // Added global variable for Firestore
 
 document.addEventListener('DOMContentLoaded', () => {
   db = firebase.firestore(); // Initialize Firestore

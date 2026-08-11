@@ -1,36 +1,47 @@
-let db; // Changed capital 'L' to lowercase 'l'
+let db; 
 
 document.addEventListener('DOMContentLoaded', () => {
-  db = firebase.firestore(); // Initialize Firestore
+  
+  // --- 1. VISUALS & LOCAL STORAGE ---
+  const customBgInput = document.getElementById('custom-background');
+  const clearBgBtn = document.getElementById('clear-background');
+  const bgPreviewBox = document.getElementById('bg-preview');
+  const bgUploadText = document.getElementById('bg-upload-text');
 
+  const savedBg = localStorage.getItem('customBackground');
+  if (savedBg) {
+    if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${savedBg}')`;
+    if(bgUploadText) bgUploadText.style.display = 'none';
+  }
+
+  // --- 2. FIREBASE SAFETY CHECKS ---
+  if (typeof firebase === 'undefined') {
+    showStatus("CRITICAL ERROR: Firebase scripts are missing from settings.html!", "#ff0000");
+    return; 
+  }
+
+  try {
+    db = firebase.firestore();
+  } catch (err) {
+    showStatus("CRITICAL ERROR: Firestore script is missing from settings.html!", "#ff0000");
+    return; 
+  }
+
+  // --- 3. LOAD THE REST OF THE PAGE ---
   const logoutBtn = document.getElementById('logout-btn');
   const authInputs = document.getElementById('auth-inputs');
   const securitySection = document.getElementById('security-section');
 
-  // Buttons
   const changeNameBtn = document.getElementById('change-name-button');
   const changeEmailBtn = document.getElementById('change-email-button');
   const changePasswordBtn = document.getElementById('change-password-button');
   const deleteAccountBtn = document.getElementById('delete-account-button');
   const clearDataBtn = document.getElementById('clear-data-button');
 
-  // Background Elements
-  const customBgInput = document.getElementById('custom-background');
-  const clearBgBtn = document.getElementById('clear-background');
-  const bgPreviewBox = document.getElementById('bg-preview');
-  const bgUploadText = document.getElementById('bg-upload-text');
-
-  // Profile Elements
   const displayNameDisplay = document.getElementById('current-display-name');
   const pfpUpload = document.getElementById('pfp-upload');
   const pfpPreview = document.getElementById('pfp-preview');
-
-  // Load visual preview in settings if background exists
-  const savedBg = localStorage.getItem('customBackground');
-  if (savedBg) {
-    if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${savedBg}')`;
-    if(bgUploadText) bgUploadText.style.display = 'none';
-  }
+  const robloxUsernameInput = document.getElementById('roblox-username-input');
 
   // --- AUTHENTICATION STATE LISTENER ---
   firebase.auth().onAuthStateChanged((user) => {
@@ -39,17 +50,24 @@ document.addEventListener('DOMContentLoaded', () => {
       if (logoutBtn) logoutBtn.style.display = 'block';
       if (securitySection) securitySection.style.display = 'block';
 
-      // Load current Display Name
       if (displayNameDisplay) {
         displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
       }
 
-      // Fetch Profile Picture from Firestore
+      // Fetch Profile Data (Picture & Roblox Username)
       db.collection('profiles').doc(user.uid).get().then(doc => {
-        if (doc.exists && doc.data().profilePic) {
-          pfpPreview.style.backgroundImage = `url('${doc.data().profilePic}')`;
-        } else {
-          pfpPreview.style.backgroundImage = "none"; // Defaults to solid black
+        if (doc.exists) {
+          const data = doc.data();
+          
+          if (data.profilePic) {
+            if(pfpPreview) pfpPreview.style.backgroundImage = `url('${data.profilePic}')`;
+          } else {
+            if(pfpPreview) pfpPreview.style.backgroundImage = "none"; 
+          }
+
+          if (data.robloxUsername && robloxUsernameInput) {
+            robloxUsernameInput.value = data.robloxUsername;
+          }
         }
       });
 
@@ -72,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
   pfpUpload?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
     if (file.size > 1048576) return alert("Please choose an image smaller than 1MB.");
 
     const reader = new FileReader();
@@ -141,6 +160,8 @@ function showStatus(msg, color) {
     statusEl.textContent = msg;
     statusEl.style.color = color;
     setTimeout(() => statusEl.textContent = "", 4000);
+  } else {
+    alert(msg);
   }
 }
 
@@ -191,6 +212,21 @@ window.logout = function() {
 };
 
 // --- SECURITY & ACCOUNT FUNCTIONS ---
+
+// New Roblox Linker Function
+window.updateRobloxUsername = function() {
+  const robloxUser = document.getElementById('roblox-username-input').value.trim();
+  const user = firebase.auth().currentUser;
+  
+  if (!user) return showStatus("You must be logged in.", "#ff0000");
+  if (!robloxUser) return showStatus("Please enter a valid Roblox Username.", "#ff0000");
+
+  db.collection('profiles').doc(user.uid).set({
+    robloxUsername: robloxUser
+  }, { merge: true }).then(() => {
+    showStatus("Roblox account linked successfully!", "#00ff00");
+  }).catch(err => showStatus("Error: " + err.message, "#ff0000"));
+};
 
 window.resetPassword = function() {
   let targetEmail = "";
@@ -280,7 +316,6 @@ function clearLocalData() {
   if(confirm("This will clear your active music queue, custom background image, and site cache. Proceed?")) {
     localStorage.clear();
 
-    // Visually reset background elements
     document.body.style.backgroundImage = "";
     document.body.style.backgroundSize = "";
     document.body.style.backgroundRepeat = "";

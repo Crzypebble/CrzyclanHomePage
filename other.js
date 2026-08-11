@@ -33,18 +33,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // --- COMPRESSOR FOR PROFILE BACKGROUND UPLOADER ---
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 1048576) return alert("Please choose an image smaller than 1MB.");
 
     const reader = new FileReader();
-    reader.onload = function(uploadEvent) {
-      db.collection('profiles').doc(currentUserId).update({ profileBg: uploadEvent.target.result })
-        .then(() => alert("Background updated!"))
-        .catch(err => alert("Error: " + err.message));
-    };
     reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        let maxWidth = 1920;
+        let maxHeight = 1080;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height *= maxWidth / width));
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width *= maxHeight / height));
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+        db.collection('profiles').doc(currentUserId).update({ profileBg: compressedDataUrl })
+          .then(() => alert("Background updated and compressed successfully!"))
+          .catch(err => alert("Error: " + err.message));
+      };
+    };
   });
 });
 
@@ -533,7 +562,7 @@ function getDMLimit() {
   let role = "guest";
   if(myProfileData && myProfileData.role) role = myProfileData.role;
   
-  if (role === "member") return 999; // Unlimited for real clan members
+  if (role === "member") return 999; 
   if (role === "vip") return 15;
   if (role === "fan") return 5;
   return 1; 

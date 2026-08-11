@@ -231,14 +231,12 @@ window.viewProfile = function(targetUid) {
         let msg = doc.data();
         msg.id = doc.id;
 
-        // Retroactively fix old messages that were sent before timers existed
         if (!msg.expiresAt) {
             msg.expiresAt = (msg.timestamp ? msg.timestamp.toMillis() : now) + 86400000;
             msg.isPinned = false;
             db.collection('messages').doc(msg.id).update({ expiresAt: msg.expiresAt, isPinned: false });
         }
 
-        // Auto-delete if expired AND unpinned
         if (!msg.isPinned && msg.expiresAt < now) {
             db.collection('messages').doc(msg.id).delete();
         } else {
@@ -248,7 +246,6 @@ window.viewProfile = function(targetUid) {
 
       if (messagesArray.length === 0) return inboxList.innerHTML = '<p style="color: #888;">No messages yet.</p>';
       
-      // Sort logic: Pinned go to the top, then by newest
       messagesArray.sort((a, b) => {
         if (a.isPinned && !b.isPinned) return -1;
         if (!a.isPinned && b.isPinned) return 1;
@@ -297,13 +294,14 @@ window.togglePinMessage = function(msgId, currentlyPinned) {
     if (!currentUserId) return;
     
     if (currentlyPinned) {
-        // Unpinning. If the timer ran out while pinned, it will vanish immediately due to the cleanup loop above.
         db.collection('messages').doc(msgId).update({ isPinned: false });
     } else {
-        // Check limits before pinning
         db.collection('messages').where('toUserId', '==', currentUserId).where('isPinned', '==', true).get().then(snap => {
             const role = myProfileData?.role || "guest";
-            const limit = (role === "member" || role === "fan") ? 2 : 1;
+            let limit = 1;
+            if (role === "fan") limit = 2;
+            if (role === "vip") limit = 5;
+            if (role === "member") limit = 10;
             
             if (snap.size >= limit) {
                 alert(`You can only pin up to ${limit} message(s). Unpin another message first.`);
@@ -330,10 +328,26 @@ window.toggleInboxPrivacy = function() {
 function updateRoleUI(role) {
   const badge = document.getElementById('role-badge');
   const profilePic = document.getElementById('profile-pic');
+  
   badge.className = "role-title"; 
-  if (role === "member") { badge.textContent = "Crzyclan Member"; badge.classList.add("role-member"); profilePic.style.borderColor = "#ff0000"; } 
-  else if (role === "fan") { badge.textContent = "Crzyclan Fan"; badge.classList.add("role-fan"); profilePic.style.borderColor = "#0055ff"; } 
-  else { badge.textContent = "Community Guest"; badge.classList.add("role-guest"); profilePic.style.borderColor = "#555"; }
+  
+  if (role === "member") { 
+    badge.textContent = "Crzyclan Member"; 
+    badge.classList.add("role-member"); 
+    profilePic.style.borderColor = "#ff0000"; 
+  } else if (role === "vip") { 
+    badge.textContent = "VIP Supporter"; 
+    badge.classList.add("role-vip"); 
+    profilePic.style.borderColor = "#ffaa00"; 
+  } else if (role === "fan") { 
+    badge.textContent = "Crzyclan Fan"; 
+    badge.classList.add("role-fan"); 
+    profilePic.style.borderColor = "#0055ff"; 
+  } else { 
+    badge.textContent = "Community Guest"; 
+    badge.classList.add("role-guest"); 
+    profilePic.style.borderColor = "#555"; 
+  }
 }
 
 window.toggleProfileAudio = function() {
@@ -518,19 +532,12 @@ window.removeFriend = function(friendUid, friendName) {
 function getDMLimit() { 
   let role = "guest";
   if(myProfileData && myProfileData.role) role = myProfileData.role;
-  return (role === "member" || role === "fan") ? 2 : 1; 
+  
+  if (role === "member") return 999; // Unlimited for real clan members
+  if (role === "vip") return 15;
+  if (role === "fan") return 5;
+  return 1; 
 }
-
-window.resetMyDMLimit = function() {
-  if(!currentUserId) return;
-  if(confirm("Dev Action: Reset your daily DM history?")) {
-    db.collection('profiles').doc(currentUserId).update({ dmHistory: [] })
-      .then(() => {
-        alert("DM limit reset! You can send messages again.");
-        checkDMLimit();
-      });
-  }
-};
 
 function checkDMLimit() {
   clearInterval(dmTimerInterval);
@@ -544,7 +551,11 @@ function checkDMLimit() {
       const now = Date.now();
       const recentDMs = history.filter(time => (now - time) < 86400000);
       
-      if (recentDMs.length < limit) {
+      if (limit === 999) {
+        dmBtn.textContent = `✉️ Send Message (Unlimited)`;
+        dmBtn.style.opacity = "1";
+        dmBtn.disabled = false;
+      } else if (recentDMs.length < limit) {
         dmBtn.textContent = `✉️ Send Message (Sent: ${recentDMs.length} / Limit: ${limit})`;
         dmBtn.style.opacity = "1";
         dmBtn.disabled = false;
@@ -578,7 +589,7 @@ window.sendDirectMessage = function() {
     const limit = getDMLimit();
     const recentDMs = (data.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
     
-    if (recentDMs.length >= limit) return alert("Daily message limit reached.");
+    if (recentDMs.length >= limit && limit !== 999) return alert("Daily message limit reached.");
 
     const messageText = prompt(`Type your message to ${viewedProfileData.displayName}:`);
     if (messageText && messageText.trim() !== "") {
@@ -586,7 +597,6 @@ window.sendDirectMessage = function() {
       recentDMs.push(Date.now());
       db.collection('profiles').doc(currentUserId).update({ dmHistory: recentDMs });
 
-      // Attaches an expiration timer of 24 hours to the message
       db.collection('messages').add({
         toUserId: currentViewedProfileId, 
         fromName: firebase.auth().currentUser.displayName || "Unknown",
@@ -730,9 +740,7 @@ window.editBio = function() {
   if (newBio !== null) db.collection('profiles').doc(currentUserId).update({ bio: newBio });
 };
 
-
 // --- PROJECT / GAME DETAILS / ART GALLERY SYSTEM ---
-
 const siteProjects = {
   'dbd': {
     title: "Days Before Death",

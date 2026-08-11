@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
       }
 
-      // Fetch Profile Data (Picture & Roblox Username)
+      // Fetch Profile Data
       db.collection('profiles').doc(user.uid).get().then(doc => {
         if (doc.exists) {
           const data = doc.data();
@@ -86,56 +86,103 @@ document.addEventListener('DOMContentLoaded', () => {
   deleteAccountBtn?.addEventListener('click', deleteAccount);
   clearDataBtn?.addEventListener('click', clearLocalData);
 
-  // --- PROFILE PICTURE UPLOADER ---
+  // --- NEW: IMAGE COMPRESSOR FUNCTION ---
+  // Shrinks images via an invisible HTML canvas before saving them
+  function compressImage(file, maxWidth, maxHeight, quality, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions keeping aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height *= maxWidth / width));
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width *= maxHeight / height));
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Export as JPEG with chosen quality (e.g. 0.8 = 80% quality)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        callback(compressedDataUrl);
+      };
+    };
+  }
+
+  // --- PROFILE PICTURE UPLOADER (NOW WITH COMPRESSION) ---
   pfpUpload?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     
-    if (file.size > 1048576) return alert("Please choose an image smaller than 1MB.");
+    showStatus("Compressing profile picture...", "#ffaa00");
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const imageUrl = event.target.result;
+    // Compress to max 400x400 pixels at 80% quality
+    compressImage(file, 400, 400, 0.8, (compressedImageUrl) => {
+      
+      // Safety check just in case the compressed file is still somehow over 1MB
+      // (Length of base64 * 0.75 gives rough byte size)
+      if ((compressedImageUrl.length * 0.75) > 1048576) {
+        return showStatus("Image is still too large after compression. Try a different image.", "#ff0000");
+      }
+
       const user = firebase.auth().currentUser;
-
       if (user) {
-        db.collection('profiles').doc(user.uid).set({ profilePic: imageUrl }, { merge: true })
+        db.collection('profiles').doc(user.uid).set({ profilePic: compressedImageUrl }, { merge: true })
           .then(() => {
-            if (pfpPreview) pfpPreview.style.backgroundImage = `url('${imageUrl}')`;
-            showStatus("Profile picture updated!", "#00ff00");
+            if (pfpPreview) pfpPreview.style.backgroundImage = `url('${compressedImageUrl}')`;
+            showStatus("Profile picture updated and compressed successfully!", "#00ff00");
           })
           .catch(err => showStatus("Error saving picture: " + err.message, "#ff0000"));
       }
-    };
-    reader.readAsDataURL(file);
+    });
   });
 
-  // --- BACKGROUND IMAGE UPLOADER ---
+  // --- BACKGROUND IMAGE UPLOADER (NOW WITH COMPRESSION) ---
   customBgInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageUrl = event.target.result;
+    if (!file) return;
 
-        localStorage.setItem('customBackground', imageUrl);
+    showStatus("Compressing background image...", "#ffaa00");
 
-        if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${imageUrl}')`;
+    // Compress to max 1920x1080 pixels (Standard HD) at 70% quality
+    compressImage(file, 1920, 1080, 0.7, (compressedImageUrl) => {
+      
+      try {
+        localStorage.setItem('customBackground', compressedImageUrl);
+
+        if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${compressedImageUrl}')`;
         if(bgUploadText) bgUploadText.style.display = 'none';
 
         if (typeof applyBackground === 'function') {
-           applyBackground(imageUrl);
+           applyBackground(compressedImageUrl);
         } else {
-           document.body.style.backgroundImage = `url('${imageUrl}')`;
+           document.body.style.backgroundImage = `url('${compressedImageUrl}')`;
            document.body.style.backgroundSize = "cover";
            document.body.style.backgroundRepeat = "no-repeat";
            document.body.style.backgroundPosition = "center center";
            document.body.style.backgroundAttachment = "fixed"; 
         }
-        showStatus("Custom background applied site-wide!", "#00ff00");
-      };
-      reader.readAsDataURL(file);
-    }
+        showStatus("Custom background compressed and applied!", "#00ff00");
+      } catch (err) {
+        // This catches the error if they somehow exceed localStorage limits even after compression
+        showStatus("Error: Image is still too large for local storage.", "#ff0000");
+      }
+    });
   });
 
   clearBgBtn?.addEventListener('click', () => {
@@ -213,7 +260,6 @@ window.logout = function() {
 
 // --- SECURITY & ACCOUNT FUNCTIONS ---
 
-// New Roblox Linker Function
 window.updateRobloxUsername = function() {
   const robloxUser = document.getElementById('roblox-username-input').value.trim();
   const user = firebase.auth().currentUser;

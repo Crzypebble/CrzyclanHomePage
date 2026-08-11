@@ -731,28 +731,63 @@ window.editBio = function() {
 };
 
 
-// --- PROJECT / GAME DETAILS SYSTEM ---
+// --- PROJECT / GAME DETAILS / ART GALLERY SYSTEM ---
 
 const siteProjects = {
   'dbd': {
     title: "Days Before Death",
     genre: "Survival / Horror",
     desc: "A gritty survival horror experience. Fight to stay alive, manage your resources, and uncover what lies in the darkness.",
-    img: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true", // Swap with a real image link
-    link: "https://www.roblox.com/" // Swap with real Roblox game link
+    images: [
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+    ],
+    linkText: "Play on Roblox",
+    link: "https://www.roblox.com/"
   },
   '2022': {
     title: "2022: The Game",
     genre: "Adventure",
     desc: "Step into the chaos of 2022. An adventure filled with custom Luau scripting, custom physical models, unique gameplay loops, and clan history.",
-    img: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+    images: [
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+    ],
+    linkText: "Play on Roblox",
     link: "https://www.roblox.com/"
   },
   'up3': {
     title: "Unnamed Project 3",
     genre: "In Development",
     desc: "A highly classified upcoming project currently in the works. Stay tuned for advanced scripting mechanics and brand new environments.",
-    img: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+    images: [
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+    ],
+    linkText: "",
+    link: "#"
+  },
+  'art_music': {
+    title: "Album Covers & Concepts",
+    genre: "Digital Art",
+    desc: "Behind the scenes look at the artwork for The Pebble, 2022, and other visual media created by the team.",
+    images: [
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+    ],
+    linkText: "",
+    link: "#" // Leave as "#" to hide the button
+  },
+  'art_dice': {
+    title: "CrzyReaper's Dice Sets",
+    genre: "Physical Craft",
+    desc: "Custom handmade dice and other physical art pieces created by CrzyReaper.",
+    images: [
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+    ],
+    linkText: "View on Instagram", // Example if you want to link out to social media
     link: "#"
   }
 };
@@ -765,20 +800,28 @@ window.openProjectDetails = function(projectId) {
   document.getElementById('project-modal-genre').textContent = proj.genre;
   document.getElementById('project-modal-desc').textContent = proj.desc;
   
-  const imgEl = document.getElementById('project-modal-img');
-  if (proj.img) {
-    imgEl.src = proj.img;
-    imgEl.style.display = "block";
+  const galleryEl = document.getElementById('project-modal-gallery');
+  galleryEl.innerHTML = ''; // Clear out the old images
+  
+  if (proj.images && proj.images.length > 0) {
+    proj.images.forEach(imgUrl => {
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.className = 'project-gallery-img';
+      galleryEl.appendChild(img);
+    });
+    galleryEl.style.display = "flex";
   } else {
-    imgEl.style.display = "none";
+    galleryEl.style.display = "none";
   }
   
   const linkEl = document.getElementById('project-modal-link');
   if (proj.link && proj.link !== "#") {
     linkEl.href = proj.link;
+    linkEl.textContent = proj.linkText || "View Project";
     linkEl.style.display = "flex";
   } else {
-    linkEl.style.display = "none"; // Hide the button if the game isn't released yet
+    linkEl.style.display = "none"; // Hide the button if there is no valid link
   }
   
   document.getElementById('project-details-modal').style.display = 'flex';

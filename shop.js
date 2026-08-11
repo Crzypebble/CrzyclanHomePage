@@ -3,7 +3,7 @@ let currentUserId = null;
 // Replaced with a 1x1 black pixel data URI to prevent broken image icons
 const DEFAULT_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
-// The database of your digital products (Optional/Placeholder for Developer Assets)
+// The database of your digital products
 const digitalProducts = [
   {
     id: "sys_swimming",
@@ -34,7 +34,6 @@ const digitalProducts = [
 let currentlySelectedProduct = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Check if user is logged in
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       currentUserId = user.uid;
@@ -50,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function renderDigitalProducts() {
   const grid = document.getElementById('digital-products-grid');
-  grid.innerHTML = ''; // Clear loading state
+  grid.innerHTML = ''; 
 
   digitalProducts.forEach(product => {
     const card = document.createElement('div');
@@ -107,7 +106,6 @@ window.initiatePurchase = function() {
   }
 };
 
-// --- MEMBERSHIP CHECKOUT ROUTING ---
 window.checkoutMembership = function(stripeLink) {
   if (!currentUserId) {
     alert("You must be logged in to purchase a membership. Please head to settings to log in.");
@@ -119,8 +117,6 @@ window.checkoutMembership = function(stripeLink) {
     return;
   }
   
-  // This passes their Firebase User ID to Stripe, so when you look at your Stripe dashboard, 
-  // you know exactly which user account bought the membership!
   const finalLink = `${stripeLink}?client_reference_id=${currentUserId}`;
   window.location.href = finalLink;
 };

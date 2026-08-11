@@ -788,8 +788,8 @@ const siteProjects = {
     images: [
       "dice1.webp",
       "dice2.webp",
-      "dice3.webp"
-      "dice4.webp"
+      "dice3.webp",
+      "dice4.webp",
       "dice5.webp"
     ],
     linkText: "View on Instagram", 

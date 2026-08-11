@@ -3,7 +3,7 @@ let currentUserId = null;
 // Replaced with a 1x1 black pixel data URI to prevent broken image icons
 const DEFAULT_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
-// The database of your digital products
+// The database of your digital products (Optional/Placeholder for Developer Assets)
 const digitalProducts = [
   {
     id: "sys_swimming",
@@ -11,7 +11,7 @@ const digitalProducts = [
     type: "Luau Script / Module",
     price: "$4.99",
     desc: "A fully custom physics-based swimming controller for Roblox. Replaces the default swimming animations and physics with smooth, stamina-draining mechanics. Perfect for survival or adventure games.\n\nIncludes:\n- Core Luau Module\n- Stamina UI setup\n- Installation guide",
-    image: "swimming_script.jpg" // Just put the image name here once you have it in your root folder
+    image: "swimming_script.jpg" 
   },
   {
     id: "sys_input",
@@ -103,7 +103,24 @@ window.initiatePurchase = function() {
   }
   
   if (currentlySelectedProduct) {
-    // This is where you would eventually hook into Stripe or a Roblox payment API
     alert(`Purchase system in development! You tried to buy: ${currentlySelectedProduct.title} for ${currentlySelectedProduct.price}`);
   }
+};
+
+// --- MEMBERSHIP CHECKOUT ROUTING ---
+window.checkoutMembership = function(stripeLink) {
+  if (!currentUserId) {
+    alert("You must be logged in to purchase a membership. Please head to settings to log in.");
+    return;
+  }
+  
+  if (stripeLink.includes('YOUR_')) {
+    alert("Stripe Links not configured yet! Go to Stripe.com, create a Payment Link, and paste it into the HTML button's onclick attribute.");
+    return;
+  }
+  
+  // This passes their Firebase User ID to Stripe, so when you look at your Stripe dashboard, 
+  // you know exactly which user account bought the membership!
+  const finalLink = `${stripeLink}?client_reference_id=${currentUserId}`;
+  window.location.href = finalLink;
 };

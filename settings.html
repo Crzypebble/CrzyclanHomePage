@@ -99,9 +99,18 @@
               <!-- PFP Upload Section -->
               <div style="text-align: center; margin-bottom: 25px;">
                 <p style="margin: 0 0 10px 0; color: #aaa; font-size: 0.95rem;">Profile Picture</p>
-                <!-- This div defaults to solid black due to background-color: #000 in CSS -->
                 <div class="pfp-box" id="pfp-preview" onclick="document.getElementById('pfp-upload').click()"></div>
                 <input type="file" id="pfp-upload" accept="image/*" style="display: none;" />
+              </div>
+
+              <!-- ROBLOX LINKER (New Feature) -->
+              <div class="input-group" style="background: rgba(0, 85, 255, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #0055ff;">
+                <label style="color: #fff;">🎮 Roblox Username</label>
+                <p style="font-size: 0.8rem; color: #aaa; margin: 0 0 10px 0;">Required to receive your in-game Crzyclan Pass rewards.</p>
+                <div style="display: flex; gap: 10px;">
+                  <input type="text" id="roblox-username-input" class="settings-input" placeholder="Enter Username" style="flex: 2; padding: 10px;" />
+                  <button class="btn-primary" style="flex: 1; background: #0055ff; padding: 10px;" onclick="updateRobloxUsername()">Link</button>
+                </div>
               </div>
 
               <div style="margin-bottom: 15px;">
@@ -149,10 +158,9 @@
     &copy; 2026 CRZYCLAN. All rights reserved.
   </footer>
 
-  <script src="global.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script> <!-- ADDED FIRESTORE -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script> 
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
@@ -160,10 +168,15 @@
       projectId: "crzyclansite",
       storageBucket: "crzyclansite.appspot.com",
       messagingSenderId: "534485925500",
-      appId: "1:534485925500:web:56c7c798780e477e7e13f9"
+      appId: "1:534485925500:web:56c7c798780e477e7e13f9",
+      measurementId: "G-1NFCH3JEVW"
     };
-    firebase.initializeApp(firebaseConfig);
+    // FIX: Added the safety check to stop the duplicate crash!
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
   </script>
+  <script src="global.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>

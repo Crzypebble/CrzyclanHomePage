@@ -39,19 +39,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (logoutBtn) logoutBtn.style.display = 'block';
       if (securitySection) securitySection.style.display = 'block';
 
-      // Load current Display Name
+      // Load current Display Name safely
       if (displayNameDisplay) {
         displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
       }
 
-      // Fetch Profile Picture from Firestore
+      // Fetch Profile Picture from Firestore safely
       db.collection('profiles').doc(user.uid).get().then(doc => {
-        if (doc.exists && doc.data().profilePic) {
-          pfpPreview.style.backgroundImage = `url('${doc.data().profilePic}')`;
-        } else {
-          pfpPreview.style.backgroundImage = "none"; // Defaults to solid black
+        // THIS CHECK PREVENTS THE CRASH ON OTHER PAGES
+        if (pfpPreview) { 
+          if (doc.exists && doc.data().profilePic) {
+            pfpPreview.style.backgroundImage = `url('${doc.data().profilePic}')`;
+          } else {
+            pfpPreview.style.backgroundImage = "none"; // Defaults to solid black
+          }
         }
-      });
+      }).catch(err => console.log("Profile pic fetch error:", err));
 
       showStatus(`Logged in securely as ${user.email}`, "#00ff00");
     } else {
@@ -73,22 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const file = e.target.files[0];
     if (!file) return;
     
-    // Optional: Prevent absolutely massive files from crashing the mobile browser (e.g., > 15MB)
-    // But easily allows standard 3-8MB phone camera photos
     if (file.size > 15 * 1024 * 1024) return alert("File is too large! Please choose an image under 15MB.");
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      // Create an image object to get the original dimensions
       const img = new Image();
       img.onload = () => {
-        // Set maximum dimensions for the profile picture (400x400 is plenty for a PFP)
         const MAX_WIDTH = 400;
         const MAX_HEIGHT = 400;
         let width = img.width;
         let height = img.height;
 
-        // Calculate new dimensions while maintaining aspect ratio
         if (width > height) {
           if (width > MAX_WIDTH) {
             height *= MAX_WIDTH / width;
@@ -101,22 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        // Create a canvas to resize the image
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
 
-        // Draw the resized image onto the canvas
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Compress to JPEG with 70% quality to save database space
-        // This takes a 4MB phone pic and turns it into a ~30KB string
         const compressedImageUrl = canvas.toDataURL('image/jpeg', 0.7);
         const user = firebase.auth().currentUser;
 
         if (user) {
-          // Save the much smaller compressed image to Firestore
           db.collection('profiles').doc(user.uid).set({ profilePic: compressedImageUrl }, { merge: true })
             .then(() => {
               if (pfpPreview) pfpPreview.style.backgroundImage = `url('${compressedImageUrl}')`;
@@ -126,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       
-      // Load the original image file into the Image object
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
@@ -182,14 +174,23 @@ function showStatus(msg, color) {
     statusEl.textContent = msg;
     statusEl.style.color = color;
     setTimeout(() => statusEl.textContent = "", 4000);
+  } else {
+    // If the status box doesn't exist on this page, log it safely
+    console.log("Status:", msg); 
   }
 }
 
 // --- AUTHENTICATION FUNCTIONS ---
 
 window.login = function() {
-  const emailInput = document.getElementById('email').value.trim();
-  const passwordInput = document.getElementById('password').value;
+  const emailEl = document.getElementById('email');
+  const passEl = document.getElementById('password');
+  
+  if (!emailEl || !passEl) return console.error("Login fields missing from this page.");
+
+  const emailInput = emailEl.value.trim();
+  const passwordInput = passEl.value;
+
   if (!emailInput || !passwordInput) {
     return showStatus("Please enter both email and password.", "#ff0000");
   }
@@ -204,8 +205,14 @@ window.login = function() {
 };
 
 window.signUp = function() {
-  const emailInput = document.getElementById('email').value.trim();
-  const passwordInput = document.getElementById('password').value;
+  const emailEl = document.getElementById('email');
+  const passEl = document.getElementById('password');
+  
+  if (!emailEl || !passEl) return console.error("Signup fields missing from this page.");
+
+  const emailInput = emailEl.value.trim();
+  const passwordInput = passEl.value;
+
   if (!emailInput || !passwordInput) {
     return showStatus("Please enter both email and password.", "#ff0000");
   }
@@ -223,8 +230,11 @@ window.logout = function() {
   firebase.auth().signOut()
     .then(() => {
       showStatus("Logged out.", "#00ff00");
-      document.getElementById('email').value = "";
-      document.getElementById('password').value = "";
+      const emailEl = document.getElementById('email');
+      const passEl = document.getElementById('password');
+      // Safely clear fields if they exist
+      if (emailEl) emailEl.value = "";
+      if (passEl) passEl.value = "";
     })
     .catch((error) => {
       showStatus(error.message, "#ff0000");
@@ -240,7 +250,8 @@ window.resetPassword = function() {
   if (user) {
     targetEmail = user.email;
   } else {
-    targetEmail = document.getElementById('email').value.trim();
+    const emailEl = document.getElementById('email');
+    if (emailEl) targetEmail = emailEl.value.trim();
   }
 
   if (!targetEmail) {
@@ -261,7 +272,8 @@ function changeName() {
   user.updateProfile({
     displayName: newName.trim()
   }).then(() => {
-    document.getElementById('current-display-name').textContent = newName.trim();
+    const displayEl = document.getElementById('current-display-name');
+    if (displayEl) displayEl.textContent = newName.trim();
     showStatus("Display name successfully updated.", "#00ff00");
   }).catch(error => showStatus(error.message, "#ff0000"));
 }
@@ -321,7 +333,7 @@ function clearLocalData() {
   if(confirm("This will clear your active music queue, custom background image, and site cache. Proceed?")) {
     localStorage.clear();
 
-    // Visually reset background elements
+    // Visually reset background elements safely
     document.body.style.backgroundImage = "";
     document.body.style.backgroundSize = "";
     document.body.style.backgroundRepeat = "";

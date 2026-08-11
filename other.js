@@ -729,3 +729,57 @@ window.editBio = function() {
   const newBio = prompt("Enter your new bio:");
   if (newBio !== null) db.collection('profiles').doc(currentUserId).update({ bio: newBio });
 };
+
+
+// --- PROJECT / GAME DETAILS SYSTEM ---
+
+const siteProjects = {
+  'dbd': {
+    title: "Days Before Death",
+    genre: "Survival / Horror",
+    desc: "A gritty survival horror experience. Fight to stay alive, manage your resources, and uncover what lies in the darkness.",
+    img: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true", // Swap with a real image link
+    link: "https://www.roblox.com/" // Swap with real Roblox game link
+  },
+  '2022': {
+    title: "2022: The Game",
+    genre: "Adventure",
+    desc: "Step into the chaos of 2022. An adventure filled with custom Luau scripting, custom physical models, unique gameplay loops, and clan history.",
+    img: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+    link: "https://www.roblox.com/"
+  },
+  'up3': {
+    title: "Unnamed Project 3",
+    genre: "In Development",
+    desc: "A highly classified upcoming project currently in the works. Stay tuned for advanced scripting mechanics and brand new environments.",
+    img: "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
+    link: "#"
+  }
+};
+
+window.openProjectDetails = function(projectId) {
+  const proj = siteProjects[projectId];
+  if(!proj) return;
+  
+  document.getElementById('project-modal-title').textContent = proj.title;
+  document.getElementById('project-modal-genre').textContent = proj.genre;
+  document.getElementById('project-modal-desc').textContent = proj.desc;
+  
+  const imgEl = document.getElementById('project-modal-img');
+  if (proj.img) {
+    imgEl.src = proj.img;
+    imgEl.style.display = "block";
+  } else {
+    imgEl.style.display = "none";
+  }
+  
+  const linkEl = document.getElementById('project-modal-link');
+  if (proj.link && proj.link !== "#") {
+    linkEl.href = proj.link;
+    linkEl.style.display = "flex";
+  } else {
+    linkEl.style.display = "none"; // Hide the button if the game isn't released yet
+  }
+  
+  document.getElementById('project-details-modal').style.display = 'flex';
+};

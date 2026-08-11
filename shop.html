@@ -6,14 +6,54 @@
   <title>Crzyclan Shop</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- 
-       This stops the custom image from zooming in or glitching */
+    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- */
     body {
       background-size: cover !important;
       background-position: center center !important;
       background-attachment: fixed !important;
       background-repeat: no-repeat !important;
     }
+
+    /* --- SHOP LAYOUT & CONTAINERS --- */
+    .shop-wrapper { max-width: 1200px; margin: 30px auto; padding: 0 20px; position: relative; z-index: 5; }
+    .section-header { border-bottom: 1px solid rgba(255,0,0,0.3); padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; color: #fff; font-size: 1.8rem; }
+    .section-header:first-child { margin-top: 0; }
+
+    /* --- SHOPIFY BANNER --- */
+    .merch-banner { background: linear-gradient(135deg, #1a0000 0%, #111 100%); border: 2px solid #ff0000; border-radius: 12px; padding: 40px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(255,0,0,0.1); }
+    .merch-banner h2 { margin: 0 0 10px 0; color: #fff; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; }
+    .merch-banner p { color: #aaa; font-size: 1.1rem; margin-bottom: 25px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .merch-btn { background: #ff0000; color: #fff; font-size: 1.2rem; font-weight: bold; padding: 15px 40px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
+    .merch-btn:hover { background: #cc0000; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,0,0,0.3); }
+
+    /* --- PRODUCT GRIDS --- */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+    .product-card { background: #111; border: 1px solid #333; border-radius: 10px; overflow: hidden; transition: all 0.2s; display: flex; flex-direction: column; position: relative; }
+    .product-card:hover { border-color: rgba(255,0,0,0.5); transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+    
+    .product-image-container { height: 180px; width: 100%; background: #0a0a0a; border-bottom: 1px solid #222; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    .product-image-container img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .product-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+    .product-title { color: #fff; margin: 0 0 5px 0; font-size: 1.2rem; }
+    .product-type { color: #ff0000; font-size: 0.8rem; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; }
+    .product-desc { color: #888; font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; flex-grow: 1; }
+    
+    .product-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; padding-top: 15px; }
+    .product-price { color: #fff; font-weight: bold; font-size: 1.1rem; }
+    
+    .sleek-btn { background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #555; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .sleek-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+    .buy-btn { background: #ff0000; border-color: #ff0000; font-weight: bold; }
+    .buy-btn:hover { background: #cc0000; border-color: #cc0000; }
+
+    /* --- MODALS --- */
+    .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+    .custom-modal-inner { background: #151515; border: 1px solid #ff0000; border-radius: 12px; padding: 25px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+    .modal-hero-img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; border: 2px solid #333; margin-bottom: 20px; }
+    
+    /* Utility */
+    .warning-box { background: rgba(255,0,0,0.1); border: 1px solid #ff0000; padding: 15px; border-radius: 8px; color: #fff; margin-bottom: 20px; display: none; text-align: center; }
   </style>
 </head>
 <body>
@@ -29,18 +69,102 @@
     </nav>
   </header>
 
-  <main>
+  <main class="shop-wrapper">
+    <div id="logged-out-warning" class="warning-box">
+      <strong>Notice:</strong> You must be logged in to purchase digital items and memberships.
+    </div>
+
+    <!-- MERCHANDISE SECTION (SHOPIFY) -->
     <section>
-      <h2>Crzyclan Shop</h2>
-      <p>Merch, digital content, and collectibles coming soon. Stay tuned.</p>
+      <div class="merch-banner">
+        <h2>Official Apparel</h2>
+        <p>Grab the latest limited-edition Crzyclan drops, hoodies, tees, and physical collectibles. Secure checkout powered by Shopify.</p>
+        <!-- When your Shopify is ready, just change the href="#" to your Shopify store link -->
+        <a href="#" target="_blank" class="merch-btn" onclick="alert('Shopify store is currently being set up. Check back soon!')">Shop Merchandise</a>
+      </div>
+    </section>
+
+    <!-- DIGITAL ROBLOX SYSTEMS SECTION -->
+    <section>
+      <h2 class="section-header">Developer Scripts & Systems</h2>
+      <p style="color: #aaa; margin-bottom: 20px;">Premium Luau scripts and custom systems built for Roblox Studio. Purchase grants you full access to the source code and installation instructions.</p>
+      
+      <div id="digital-products-grid" class="product-grid">
+        <!-- Products injected here by shop.js -->
+      </div>
+    </section>
+
+    <!-- MEMBERSHIP SECTION -->
+    <section>
+      <h2 class="section-header">Crzyclan Memberships</h2>
+      <div class="product-grid">
+        <!-- Fan Tier -->
+        <div class="product-card">
+          <div class="product-info" style="text-align: center; padding-top: 30px;">
+            <h3 class="product-title" style="font-size: 1.5rem; color: #0055ff;">Fan Tier</h3>
+            <p class="product-desc" style="margin-top: 15px;">Get the blue Fan badge on your profile, increased direct messaging limits, and access to exclusive community events.</p>
+            <div class="product-price" style="font-size: 2rem; margin: 20px 0;">$2.99 <span style="font-size: 0.9rem; color:#888;">/mo</span></div>
+            <button class="sleek-btn" style="width: 100%; border-color: #0055ff; color: #0055ff;" onclick="alert('Membership system in development!')">Subscribe</button>
+          </div>
+        </div>
+        
+        <!-- Member Tier -->
+        <div class="product-card">
+          <div class="product-info" style="text-align: center; padding-top: 30px;">
+            <h3 class="product-title" style="font-size: 1.5rem; color: #ff0000;">Member Tier</h3>
+            <p class="product-desc" style="margin-top: 15px;">Get the red Member badge, red profile border, maximum DM limits, and early access to all Roblox scripts and game tests.</p>
+            <div class="product-price" style="font-size: 2rem; margin: 20px 0;">$5.99 <span style="font-size: 0.9rem; color:#888;">/mo</span></div>
+            <button class="sleek-btn buy-btn" style="width: 100%;" onclick="alert('Membership system in development!')">Subscribe</button>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <!-- MODAL: PRODUCT DETAILS -->
+  <div id="product-modal" class="custom-modal">
+    <div class="custom-modal-inner">
+      <img id="modal-product-img" src="" class="modal-hero-img" alt="Product Image" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='">
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <span id="modal-product-type" class="product-type">Category</span>
+          <h3 id="modal-product-title" style="margin: 5px 0 15px 0; color: #fff; font-size: 1.8rem;">Product Title</h3>
+        </div>
+        <div id="modal-product-price" class="product-price" style="font-size: 1.5rem; color: #ff0000;">$0.00</div>
+      </div>
+      
+      <div id="modal-product-desc" style="color: #aaa; line-height: 1.6; margin-bottom: 25px; white-space: pre-wrap;">Description goes here.</div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button id="modal-buy-btn" class="sleek-btn buy-btn" style="flex: 2; padding: 12px; font-size: 1.1rem;" onclick="initiatePurchase()">Purchase & Download</button>
+        <button class="sleek-btn" style="flex: 1;" onclick="closeModal('product-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     &copy; 2026 CRZYCLAN. All rights reserved.
   </footer>
 
-  <!-- Global Script for applying background site-wide -->
+  <!-- Firebase Scripts (needed to check if user is logged in to buy digital items) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBITxQnQLRlKD6fBtGuPq922F7vIJGzhR8",
+      authDomain: "crzyclansite.firebaseapp.com",
+      projectId: "crzyclansite",
+      storageBucket: "crzyclansite.appspot.com",
+      messagingSenderId: "534485925500",
+      appId: "1:534485925500:web:56c7c798780e477e7e13f9",
+      measurementId: "G-1NFCH3JEVW"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  </script>
+  
   <script src="global.js"></script>
+  <script src="shop.js"></script>
 </body>
 </html>

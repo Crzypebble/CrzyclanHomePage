@@ -37,6 +37,7 @@
     .role-title { display: inline-block; font-size: 0.85rem; font-weight: bold; padding: 3px 10px; border-radius: 4px; margin-bottom: 15px; }
     .role-guest { background: #333; color: #ccc; }
     .role-fan { background: #0055ff; color: #fff; }
+    .role-vip { background: linear-gradient(90deg, #ff0000, #ffaa00); color: #fff; box-shadow: 0 0 10px rgba(255,170,0,0.5); }
     .role-member { background: #ff0000; color: #fff; }
 
     /* Custom Miniature Player */
@@ -203,7 +204,6 @@
               <button class="sleek-btn" style="font-size: 0.8rem;" onclick="openSongModal()">🔍 Change Song</button>
               <button class="sleek-btn" style="font-size: 0.8rem;" onclick="setCustomProfileBG()">🖼️ Set Background</button>
               <button id="privacy-toggle-btn" class="sleek-btn" style="font-size: 0.8rem;" onclick="toggleInboxPrivacy()">🔒 Inbox: Public</button>
-              <button class="sleek-btn" style="font-size: 0.8rem; background: #550000; border-color: #ff0000; margin-top: 15px;" onclick="resetMyDMLimit()">🛠️ Reset DM Limit (Test)</button>
             </div>
 
             <div id="visitor-controls-sidebar" style="display: flex; flex-direction: column; gap: 10px; display:none;">

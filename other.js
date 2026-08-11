@@ -738,8 +738,10 @@ const siteProjects = {
     title: "Days Before Death",
     genre: "Survival / Horror",
     desc: "A gritty survival horror experience. Fight to stay alive, manage your resources, and uncover what lies in the darkness.",
+    // You can now just drop the exact filename right here:
     images: [
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+      "dbd1.jpg", 
+      "dbd2.jpg"
     ],
     linkText: "Play on Roblox",
     link: "https://www.roblox.com/"
@@ -748,9 +750,10 @@ const siteProjects = {
     title: "2022: The Game",
     genre: "Adventure",
     desc: "Step into the chaos of 2022. An adventure filled with custom Luau scripting, custom physical models, unique gameplay loops, and clan history.",
+    // You can now just drop the exact filename right here:
     images: [
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+      "2022_pic1.png",
+      "2022_pic2.png"
     ],
     linkText: "Play on Roblox",
     link: "https://www.roblox.com/"
@@ -760,7 +763,7 @@ const siteProjects = {
     genre: "In Development",
     desc: "A highly classified upcoming project currently in the works. Stay tuned for advanced scripting mechanics and brand new environments.",
     images: [
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+      "project3_sneakpeek.jpg"
     ],
     linkText: "",
     link: "#"
@@ -769,25 +772,27 @@ const siteProjects = {
     title: "Album Covers & Concepts",
     genre: "Digital Art",
     desc: "Behind the scenes look at the artwork for The Pebble, 2022, and other visual media created by the team.",
+    // I noticed these in your root folder screenshot - they will work instantly now!
     images: [
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+      "The Pebble Cover.jpg",
+      "Skull 2022.png",
+      "Badass irl edited.png"
     ],
     linkText: "",
-    link: "#" // Leave as "#" to hide the button
+    link: "#" 
   },
   'art_dice': {
     title: "CrzyReaper's Dice Sets",
     genre: "Physical Craft",
     desc: "Custom handmade dice and other physical art pieces created by CrzyReaper.",
     images: [
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true",
-      "https://github.com/Crzypebble/CrzyclanHomePage/blob/main/default-cover.jpg?raw=true"
+      "dice1.webp",
+      "dice2.webp",
+      "dice3.webp"
+      "dice4.webp"
+      "dice5.webp"
     ],
-    linkText: "View on Instagram", // Example if you want to link out to social media
+    linkText: "View on Instagram", 
     link: "#"
   }
 };
@@ -806,6 +811,7 @@ window.openProjectDetails = function(projectId) {
   if (proj.images && proj.images.length > 0) {
     proj.images.forEach(imgUrl => {
       const img = document.createElement('img');
+      // The browser will automatically resolve these relative filenames to your root directory
       img.src = imgUrl;
       img.className = 'project-gallery-img';
       galleryEl.appendChild(img);

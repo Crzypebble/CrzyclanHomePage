@@ -1,4 +1,4 @@
-let db; // Added global variable for Firestore
+Let db; // Added global variable for Firestore
 
 document.addEventListener('DOMContentLoaded', () => {
   db = firebase.firestore(); // Initialize Firestore
@@ -6,20 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logout-btn');
   const authInputs = document.getElementById('auth-inputs');
   const securitySection = document.getElementById('security-section');
-  
+
   // Buttons
   const changeNameBtn = document.getElementById('change-name-button');
   const changeEmailBtn = document.getElementById('change-email-button');
   const changePasswordBtn = document.getElementById('change-password-button');
   const deleteAccountBtn = document.getElementById('delete-account-button');
   const clearDataBtn = document.getElementById('clear-data-button');
-  
+
   // Background Elements
   const customBgInput = document.getElementById('custom-background');
   const clearBgBtn = document.getElementById('clear-background');
   const bgPreviewBox = document.getElementById('bg-preview');
   const bgUploadText = document.getElementById('bg-upload-text');
-  
+
   // Profile Elements
   const displayNameDisplay = document.getElementById('current-display-name');
   const pfpUpload = document.getElementById('pfp-upload');
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (authInputs) authInputs.style.display = 'none';
       if (logoutBtn) logoutBtn.style.display = 'block';
       if (securitySection) securitySection.style.display = 'block';
-      
+
       // Load current Display Name
       if (displayNameDisplay) {
         displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
@@ -72,21 +72,62 @@ document.addEventListener('DOMContentLoaded', () => {
   pfpUpload?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 1048576) return alert("Please choose an image smaller than 1MB.");
+    
+    // Optional: Prevent absolutely massive files from crashing the mobile browser (e.g., > 15MB)
+    // But easily allows standard 3-8MB phone camera photos
+    if (file.size > 15 * 1024 * 1024) return alert("File is too large! Please choose an image under 15MB.");
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const imageUrl = event.target.result;
-      const user = firebase.auth().currentUser;
+      // Create an image object to get the original dimensions
+      const img = new Image();
+      img.onload = () => {
+        // Set maximum dimensions for the profile picture (400x400 is plenty for a PFP)
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions while maintaining aspect ratio
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        // Create a canvas to resize the image
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw the resized image onto the canvas
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Compress to JPEG with 70% quality to save database space
+        // This takes a 4MB phone pic and turns it into a ~30KB string
+        const compressedImageUrl = canvas.toDataURL('image/jpeg', 0.7);
+        const user = firebase.auth().currentUser;
+
+        if (user) {
+          // Save the much smaller compressed image to Firestore
+          db.collection('profiles').doc(user.uid).set({ profilePic: compressedImageUrl }, { merge: true })
+            .then(() => {
+              if (pfpPreview) pfpPreview.style.backgroundImage = `url('${compressedImageUrl}')`;
+              showStatus("Profile picture updated!", "#00ff00");
+            })
+            .catch(err => showStatus("Error saving picture: " + err.message, "#ff0000"));
+        }
+      };
       
-      if (user) {
-        db.collection('profiles').doc(user.uid).set({ profilePic: imageUrl }, { merge: true })
-          .then(() => {
-            if (pfpPreview) pfpPreview.style.backgroundImage = `url('${imageUrl}')`;
-            showStatus("Profile picture updated!", "#00ff00");
-          })
-          .catch(err => showStatus("Error saving picture: " + err.message, "#ff0000"));
-      }
+      // Load the original image file into the Image object
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   });
@@ -98,12 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const imageUrl = event.target.result;
-        
+
         localStorage.setItem('customBackground', imageUrl);
-        
+
         if(bgPreviewBox) bgPreviewBox.style.backgroundImage = `url('${imageUrl}')`;
         if(bgUploadText) bgUploadText.style.display = 'none';
-        
+
         if (typeof applyBackground === 'function') {
            applyBackground(imageUrl);
         } else {
@@ -126,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.backgroundRepeat = "";
     document.body.style.backgroundPosition = "";
     document.body.style.backgroundAttachment = "";
-    
+
     if(bgPreviewBox) bgPreviewBox.style.backgroundImage = "none";
     if(bgUploadText) bgUploadText.style.display = 'block';
     showStatus("Background reverted to default.", "#ff0000");
@@ -152,7 +193,7 @@ window.login = function() {
   if (!emailInput || !passwordInput) {
     return showStatus("Please enter both email and password.", "#ff0000");
   }
-  
+
   firebase.auth().signInWithEmailAndPassword(emailInput, passwordInput)
     .then(() => {
       showStatus("Logged in successfully!", "#00ff00");
@@ -195,7 +236,7 @@ window.logout = function() {
 window.resetPassword = function() {
   let targetEmail = "";
   const user = firebase.auth().currentUser;
-  
+
   if (user) {
     targetEmail = user.email;
   } else {
@@ -279,14 +320,14 @@ function deleteAccount() {
 function clearLocalData() {
   if(confirm("This will clear your active music queue, custom background image, and site cache. Proceed?")) {
     localStorage.clear();
-    
+
     // Visually reset background elements
     document.body.style.backgroundImage = "";
     document.body.style.backgroundSize = "";
     document.body.style.backgroundRepeat = "";
     document.body.style.backgroundPosition = "";
     document.body.style.backgroundAttachment = "";
-    
+
     const bgPreviewBox = document.getElementById('bg-preview');
     const bgUploadText = document.getElementById('bg-upload-text');
     if(bgPreviewBox) bgPreviewBox.style.backgroundImage = "none";

@@ -562,7 +562,8 @@ function getDMLimit() {
   let role = "guest";
   if(myProfileData && myProfileData.role) role = myProfileData.role;
   
-  if (role === "member") return 999; 
+  // CHANGED: Members now cap at 4 messages a day!
+  if (role === "member") return 4; 
   if (role === "vip") return 15;
   if (role === "fan") return 5;
   return 1; 
@@ -580,11 +581,8 @@ function checkDMLimit() {
       const now = Date.now();
       const recentDMs = history.filter(time => (now - time) < 86400000);
       
-      if (limit === 999) {
-        dmBtn.textContent = `✉️ Send Message (Unlimited)`;
-        dmBtn.style.opacity = "1";
-        dmBtn.disabled = false;
-      } else if (recentDMs.length < limit) {
+      // Removed the "unlimited" check completely
+      if (recentDMs.length < limit) {
         dmBtn.textContent = `✉️ Send Message (Sent: ${recentDMs.length} / Limit: ${limit})`;
         dmBtn.style.opacity = "1";
         dmBtn.disabled = false;
@@ -618,7 +616,8 @@ window.sendDirectMessage = function() {
     const limit = getDMLimit();
     const recentDMs = (data.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
     
-    if (recentDMs.length >= limit && limit !== 999) return alert("Daily message limit reached.");
+    // Completely removed the unlimited bypass check here too
+    if (recentDMs.length >= limit) return alert("Daily message limit reached.");
 
     const messageText = prompt(`Type your message to ${viewedProfileData.displayName}:`);
     if (messageText && messageText.trim() !== "") {

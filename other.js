@@ -6,6 +6,7 @@ let myProfileData = null;
 let viewedProfileData = null;
 let profileListenerUnsubscribe = null;
 let inboxListenerUnsubscribe = null;
+let previousRequestCount = null; // Tracks requests so we don't spam alerts on refresh
 
 // Replaced with a 1x1 black pixel data URI to perfectly create a black circle without broken image icons
 const DEFAULT_PFP = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
@@ -110,6 +111,50 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
+// --- FLOATING TOAST NOTIFICATION FUNCTION ---
+function showNotificationBanner(msg) {
+  let banner = document.getElementById('toast-notification');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'toast-notification';
+    banner.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff0000;
+      color: #ffffff;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+      font-weight: bold;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease-out;
+      border: 1px solid #ffffff;
+    `;
+    document.body.appendChild(banner);
+  }
+
+  banner.textContent = msg;
+  banner.style.display = 'flex';
+
+  // Play a quick notification sound
+  try {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.volume = 0.5;
+    audio.play();
+  } catch (e) {
+    console.log("Audio playback blocked by browser until user interacts with page.");
+  }
+
+  // Automatically hide after 4 seconds
+  setTimeout(() => {
+    if (banner) banner.style.display = 'none';
+  }, 4000);
+}
+
 function listenToMyData(uid) {
   db.collection('profiles').doc(uid).onSnapshot(doc => {
     if (doc.exists) {
@@ -126,6 +171,13 @@ function listenToMyData(uid) {
       } else {
         badge.style.display = 'none';
       }
+
+      // --- NEW FRIEND REQUEST NOTIFICATION DETECTOR ---
+      if (previousRequestCount !== null && requests.length > previousRequestCount) {
+        showNotificationBanner("⚡ You received a new friend request!");
+      }
+      
+      previousRequestCount = requests.length;
     }
   });
 }

@@ -385,20 +385,35 @@ function changePassword() {
     });
 }
 
+// --- FULL FIREBASE DATA WIPE ADDED ---
 function deleteAccount() {
   if (confirm("Are you absolutely sure you want to delete your account? This cannot be undone and you will lose all saved playlists and likes.")) {
     const user = firebase.auth().currentUser;
-    user.delete()
-      .then(() => {
-        showStatus("Account deleted successfully.", "#00ff00");
-      })
-      .catch(error => {
-        if(error.code === 'auth/requires-recent-login') {
-          showStatus("Security requirement: Please log out and log back in before deleting your account.", "#ff0000");
-        } else {
-          showStatus(error.message, "#ff0000");
-        }
-      });
+    if (!user) return;
+
+    // 1. DELETE THE FIREBASE DATABASE PROFILE FIRST
+    db.collection('profiles').doc(user.uid).delete().then(() => {
+      
+      // 2. DELETE THEIR SAVED PLAYLISTS/MUSIC
+      return db.collection('userVotes').doc(user.uid).delete();
+      
+    }).catch(err => {
+      console.log("Database wipe issue (or data already gone), proceeding to auth deletion...");
+    }).finally(() => {
+      
+      // 3. FINALLY, DELETE THE ACTUAL LOGIN ACCOUNT
+      user.delete()
+        .then(() => {
+          showStatus("Account deleted successfully.", "#00ff00");
+        })
+        .catch(error => {
+          if(error.code === 'auth/requires-recent-login') {
+            showStatus("Security requirement: Please log out and log back in before deleting your account.", "#ff0000");
+          } else {
+            showStatus(error.message, "#ff0000");
+          }
+        });
+    });
   }
 }
 

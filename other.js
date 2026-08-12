@@ -27,31 +27,38 @@ document.addEventListener("DOMContentLoaded", () => {
       }, { merge: true });
 
       listenToMyData(currentUserId);
-      viewProfile(currentUserId);
-
-      // --- NEW: URL PARAMETER PROFILE LOADER ---
-      // Checks if the URL is something like other.html?viewUser=crzypebble
+      
+      // Only view the active user's profile if we aren't trying to load someone else via URL
       const urlParams = new URLSearchParams(window.location.search);
-      const targetUser = urlParams.get('viewUser');
-      if (targetUser) {
-        db.collection('profiles').where('searchName', '==', targetUser.toLowerCase()).get()
-          .then(snapshot => {
-            if (!snapshot.empty) {
-              const targetUid = snapshot.docs[0].id;
-              viewProfile(targetUid);
-              
-              // Automatically switch to the profile view if the function exists
-              if (typeof switchHubView === 'function') {
-                switchHubView('hub-profile');
-              }
-            }
-          });
+      if (!urlParams.get('viewClanCard') && !urlParams.get('viewUser')) {
+        viewProfile(currentUserId);
       }
 
     } else {
       document.getElementById('logged-out-warning').style.display = 'block';
     }
   });
+
+  // --- AUTOMATIC URL PROFILE LOADER (FIXED) ---
+  // We run this on a tiny delay so Firebase has time to connect first
+  setTimeout(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clanCardTarget = urlParams.get('viewClanCard');
+
+    if (clanCardTarget) {
+      db.collection('profiles').where('clanCard', '==', clanCardTarget).get().then(snap => {
+        if (!snap.empty) {
+          viewProfile(snap.docs[0].id);
+          if (typeof switchHubView === 'function') switchHubView('hub-profile');
+        } else {
+          alert(`The member for ${clanCardTarget} has not linked their card to a profile yet!`);
+        }
+      });
+    }
+  }, 500);
+
+  // --- INJECT PROFILE OF THE DAY INTO THE HUB ---
+  loadProfileOfTheDay();
 
   // --- COMPRESSOR FOR PROFILE BACKGROUND UPLOADER ---
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
@@ -130,6 +137,36 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
+// --- PROFILE OF THE DAY INJECTOR ---
+function loadProfileOfTheDay() {
+  db.collection('profiles').limit(15).get().then(snapshot => {
+    if (!snapshot.empty) {
+      const docs = snapshot.docs;
+      const randomDoc = docs[Math.floor(Math.random() * docs.length)];
+      const data = randomDoc.data();
+      
+      const pfp = data.profilePic || DEFAULT_PFP;
+      const name = data.displayName || "Unknown User";
+      const uid = randomDoc.id;
+
+      const potdContainer = document.createElement('div');
+      potdContainer.style.cssText = "max-width: 800px; margin: 0 auto 30px auto; text-align: center; background: #151515; border: 1px solid #ffaa00; border-radius: 12px; padding: 20px; box-shadow: 0 0 15px rgba(255,170,0,0.4);";
+      
+      potdContainer.innerHTML = `
+        <h3 style="color: #ffaa00; margin-top: 0;">🌟 Community Profile of the Day</h3>
+        <img src="${pfp}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffaa00; cursor: pointer;" onclick="viewProfile('${uid}'); switchHubView('hub-profile');">
+        <h4 style="margin: 10px 0 5px 0; color: #fff;">${name}</h4>
+        <button class="sleek-btn" style="border-color: #ffaa00; color: #ffaa00; background: transparent; padding: 8px 15px; cursor: pointer;" onclick="viewProfile('${uid}'); switchHubView('hub-profile');">Visit Profile</button>
+      `;
+      
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+          mainElement.prepend(potdContainer);
+      }
+    }
+  });
+}
+
 // --- SILENT IN-APP NOTIFICATION BANNER ---
 function showNotificationBanner(msg) {
   let banner = document.getElementById('toast-notification');
@@ -159,7 +196,6 @@ function showNotificationBanner(msg) {
   banner.textContent = msg;
   banner.style.display = 'flex';
 
-  // Automatically hide after 4 seconds
   setTimeout(() => {
     if (banner) banner.style.display = 'none';
   }, 4000);
@@ -198,13 +234,15 @@ window.viewMyProfile = function(btn) {
 };
 
 window.viewProfile = function(targetUid) {
-  if(!currentUserId) return;
+  // FIX: We removed the block here so non-logged in users can still view linked profiles!
   
   if(profileListenerUnsubscribe) profileListenerUnsubscribe();
   if(inboxListenerUnsubscribe) inboxListenerUnsubscribe();
 
   currentViewedProfileId = targetUid;
-  const isOwner = (currentUserId === targetUid);
+  
+  // Safely check if the person looking at this profile is the owner
+  const isOwner = currentUserId && (currentUserId === targetUid);
 
   document.getElementById('owner-controls-sidebar').style.display = isOwner ? "flex" : "none";
   document.getElementById('edit-bio-btn').style.display = isOwner ? "inline-block" : "none";

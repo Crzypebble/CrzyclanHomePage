@@ -6,13 +6,25 @@ let myProfileData = null;
 let viewedProfileData = null;
 let profileListenerUnsubscribe = null;
 let inboxListenerUnsubscribe = null;
-let previousRequestCount = null; // Tracks requests so we don't spam alerts on refresh
+let previousRequestCount = null; 
 
 // Replaced with a 1x1 black pixel data URI to perfectly create a black circle without broken image icons
 const DEFAULT_PFP = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
 document.addEventListener("DOMContentLoaded", () => {
   db = firebase.firestore();
+
+  // --- SYSTEM NOTIFICATION PERMISSION REQUEST ---
+  // Browsers require a user to interact with the page before showing the permission prompt.
+  // This listens for their very first click anywhere on the page to ask for permission.
+  if (window.Notification && Notification.permission === "default") {
+    document.body.addEventListener('click', function requestNotif() {
+      Notification.requestPermission().then(permission => {
+        console.log("Notification permission:", permission);
+      });
+      document.body.removeEventListener('click', requestNotif);
+    }, { once: true });
+  }
 
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
@@ -111,8 +123,17 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- FLOATING TOAST NOTIFICATION FUNCTION ---
+// --- SILENT FLOATING TOAST & SYSTEM NOTIFICATION ---
 function showNotificationBanner(msg) {
+  // 1. Fire Native System Notification (if allowed)
+  if (window.Notification && Notification.permission === "granted") {
+    new Notification("CRZYCLAN", {
+      body: msg,
+      icon: DEFAULT_PFP // Uses the default black circle, or you can swap this for a direct URL to a site logo
+    });
+  }
+
+  // 2. Show In-App Visual Banner
   let banner = document.getElementById('toast-notification');
   if (!banner) {
     banner = document.createElement('div');
@@ -139,15 +160,6 @@ function showNotificationBanner(msg) {
 
   banner.textContent = msg;
   banner.style.display = 'flex';
-
-  // Play a quick notification sound
-  try {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    audio.volume = 0.5;
-    audio.play();
-  } catch (e) {
-    console.log("Audio playback blocked by browser until user interacts with page.");
-  }
 
   // Automatically hide after 4 seconds
   setTimeout(() => {
@@ -614,7 +626,7 @@ function getDMLimit() {
   let role = "guest";
   if(myProfileData && myProfileData.role) role = myProfileData.role;
   
-  // CHANGED: Members now cap at 4 messages a day!
+  // Members now cap at 4 messages a day
   if (role === "member") return 4; 
   if (role === "vip") return 15;
   if (role === "fan") return 5;
@@ -633,7 +645,6 @@ function checkDMLimit() {
       const now = Date.now();
       const recentDMs = history.filter(time => (now - time) < 86400000);
       
-      // Removed the "unlimited" check completely
       if (recentDMs.length < limit) {
         dmBtn.textContent = `✉️ Send Message (Sent: ${recentDMs.length} / Limit: ${limit})`;
         dmBtn.style.opacity = "1";
@@ -668,7 +679,6 @@ window.sendDirectMessage = function() {
     const limit = getDMLimit();
     const recentDMs = (data.dmHistory || []).filter(time => (Date.now() - time) < 86400000);
     
-    // Completely removed the unlimited bypass check here too
     if (recentDMs.length >= limit) return alert("Daily message limit reached.");
 
     const messageText = prompt(`Type your message to ${viewedProfileData.displayName}:`);

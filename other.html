@@ -117,9 +117,14 @@
     </nav>
   </header>
 
+  <!-- Profile of the Day Target Container (Centered at the top, outside the grid) -->
+  <div style="max-width: 1300px; margin: 20px auto 0 auto; padding: 0 20px; display: flex; justify-content: center;">
+    <div id="potd-target" style="width: 100%; max-width: 800px;"></div>
+  </div>
+
   <main class="hub-wrapper">
     
-    <!-- SIDEBAR NAVIGATION -->
+    <!-- SIDEBAR NAVIGATION (Left Column) -->
     <div class="hub-sidebar">
       <button class="sidebar-btn active" onclick="switchHubView('hub-main', this)">🎮 Community Hub</button>
       <button class="sidebar-btn" id="my-profile-btn" onclick="viewMyProfile(this)">👤 My Profile</button>
@@ -128,7 +133,7 @@
       <button class="sidebar-btn" onclick="switchHubView('hub-add-friend', this)">🔍 Add Friend</button>
     </div>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTENT AREA (Right Column) -->
     <div class="hub-content">
       
       <div id="logged-out-warning" style="background: rgba(255,0,0,0.1); border: 1px solid #ff0000; padding: 15px; border-radius: 8px; color: #fff; margin-bottom: 20px; display: none;">

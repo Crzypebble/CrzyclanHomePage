@@ -14,18 +14,6 @@ const DEFAULT_PFP = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAA
 document.addEventListener("DOMContentLoaded", () => {
   db = firebase.firestore();
 
-  // --- SYSTEM NOTIFICATION PERMISSION REQUEST ---
-  // Browsers require a user to interact with the page before showing the permission prompt.
-  // This listens for their very first click anywhere on the page to ask for permission.
-  if (window.Notification && Notification.permission === "default") {
-    document.body.addEventListener('click', function requestNotif() {
-      Notification.requestPermission().then(permission => {
-        console.log("Notification permission:", permission);
-      });
-      document.body.removeEventListener('click', requestNotif);
-    }, { once: true });
-  }
-
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       currentUserId = user.uid;
@@ -40,6 +28,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       listenToMyData(currentUserId);
       viewProfile(currentUserId);
+
+      // --- NEW: URL PARAMETER PROFILE LOADER ---
+      // Checks if the URL is something like other.html?viewUser=crzypebble
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetUser = urlParams.get('viewUser');
+      if (targetUser) {
+        db.collection('profiles').where('searchName', '==', targetUser.toLowerCase()).get()
+          .then(snapshot => {
+            if (!snapshot.empty) {
+              const targetUid = snapshot.docs[0].id;
+              viewProfile(targetUid);
+              
+              // Automatically switch to the profile view if the function exists
+              if (typeof switchHubView === 'function') {
+                switchHubView('hub-profile');
+              }
+            }
+          });
+      }
 
     } else {
       document.getElementById('logged-out-warning').style.display = 'block';
@@ -123,17 +130,8 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- SILENT FLOATING TOAST & SYSTEM NOTIFICATION ---
+// --- SILENT IN-APP NOTIFICATION BANNER ---
 function showNotificationBanner(msg) {
-  // 1. Fire Native System Notification (if allowed)
-  if (window.Notification && Notification.permission === "granted") {
-    new Notification("CRZYCLAN", {
-      body: msg,
-      icon: DEFAULT_PFP // Uses the default black circle, or you can swap this for a direct URL to a site logo
-    });
-  }
-
-  // 2. Show In-App Visual Banner
   let banner = document.getElementById('toast-notification');
   if (!banner) {
     banner = document.createElement('div');
@@ -184,7 +182,6 @@ function listenToMyData(uid) {
         badge.style.display = 'none';
       }
 
-      // --- NEW FRIEND REQUEST NOTIFICATION DETECTOR ---
       if (previousRequestCount !== null && requests.length > previousRequestCount) {
         showNotificationBanner("⚡ You received a new friend request!");
       }
@@ -626,7 +623,6 @@ function getDMLimit() {
   let role = "guest";
   if(myProfileData && myProfileData.role) role = myProfileData.role;
   
-  // Members now cap at 4 messages a day
   if (role === "member") return 4; 
   if (role === "vip") return 15;
   if (role === "fan") return 5;

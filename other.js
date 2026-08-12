@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       listenToMyData(currentUserId);
       
-      // Only view the active user's profile if we aren't trying to load someone else via URL
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.get('viewClanCard') && !urlParams.get('viewUser')) {
         viewProfile(currentUserId);
@@ -39,8 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- AUTOMATIC URL PROFILE LOADER (FIXED) ---
-  // We run this on a tiny delay so Firebase has time to connect first
+  // --- AUTOMATIC URL PROFILE LOADER ---
   setTimeout(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const clanCardTarget = urlParams.get('viewClanCard');
@@ -137,31 +135,42 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- PROFILE OF THE DAY INJECTOR ---
+// --- PROFILE OF THE DAY INJECTOR (FIXED LAYOUT & FILTER) ---
 function loadProfileOfTheDay() {
-  db.collection('profiles').limit(15).get().then(snapshot => {
+  db.collection('profiles').limit(25).get().then(snapshot => {
     if (!snapshot.empty) {
-      const docs = snapshot.docs;
-      const randomDoc = docs[Math.floor(Math.random() * docs.length)];
+      // Filter out blank accounts so we don't display "Unknown User"
+      const validDocs = snapshot.docs.filter(doc => {
+        const d = doc.data();
+        return d.displayName && d.displayName !== "Unknown User" && d.displayName.trim() !== "";
+      });
+
+      if (validDocs.length === 0) return;
+
+      const randomDoc = validDocs[Math.floor(Math.random() * validDocs.length)];
       const data = randomDoc.data();
       
       const pfp = data.profilePic || DEFAULT_PFP;
-      const name = data.displayName || "Unknown User";
+      const name = data.displayName;
       const uid = randomDoc.id;
 
-      const potdContainer = document.createElement('div');
-      potdContainer.style.cssText = "max-width: 800px; margin: 0 auto 30px auto; text-align: center; background: #151515; border: 1px solid #ffaa00; border-radius: 12px; padding: 20px; box-shadow: 0 0 15px rgba(255,170,0,0.4);";
-      
-      potdContainer.innerHTML = `
-        <h3 style="color: #ffaa00; margin-top: 0;">🌟 Community Profile of the Day</h3>
-        <img src="${pfp}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffaa00; cursor: pointer;" onclick="viewProfile('${uid}'); switchHubView('hub-profile');">
-        <h4 style="margin: 10px 0 5px 0; color: #fff;">${name}</h4>
-        <button class="sleek-btn" style="border-color: #ffaa00; color: #ffaa00; background: transparent; padding: 8px 15px; cursor: pointer;" onclick="viewProfile('${uid}'); switchHubView('hub-profile');">Visit Profile</button>
-      `;
-      
-      const mainElement = document.querySelector('main');
-      if (mainElement) {
-          mainElement.prepend(potdContainer);
+      // Find the specific container in the HTML instead of breaking the <main> layout
+      const potdContainer = document.getElementById('potd-target');
+      if (potdContainer) {
+        potdContainer.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; background: #151515; border: 1px solid #ffaa00; border-radius: 8px; padding: 15px; box-shadow: 0 0 10px rgba(255,170,0,0.3); margin-bottom: 20px; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <img src="${pfp}" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffaa00; cursor: pointer; object-fit: cover;" onclick="viewProfile('${uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">
+              <div>
+                <h4 style="color: #ffaa00; margin: 0 0 5px 0; font-size: 0.9rem;">🌟 Community Profile of the Day</h4>
+                <h3 style="margin: 0; color: #fff;">${name}</h3>
+              </div>
+            </div>
+            <button class="sleek-btn" style="border-color: #ffaa00; color: #ffaa00; background: transparent; padding: 8px 15px; cursor: pointer;" onclick="viewProfile('${uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">View Profile</button>
+          </div>
+        `;
+      } else {
+        console.warn("Could not find <div id='potd-target'></div> in your HTML!");
       }
     }
   });
@@ -234,14 +243,11 @@ window.viewMyProfile = function(btn) {
 };
 
 window.viewProfile = function(targetUid) {
-  // FIX: We removed the block here so non-logged in users can still view linked profiles!
-  
   if(profileListenerUnsubscribe) profileListenerUnsubscribe();
   if(inboxListenerUnsubscribe) inboxListenerUnsubscribe();
 
   currentViewedProfileId = targetUid;
   
-  // Safely check if the person looking at this profile is the owner
   const isOwner = currentUserId && (currentUserId === targetUid);
 
   document.getElementById('owner-controls-sidebar').style.display = isOwner ? "flex" : "none";

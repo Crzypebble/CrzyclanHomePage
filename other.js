@@ -8,7 +8,6 @@ let profileListenerUnsubscribe = null;
 let inboxListenerUnsubscribe = null;
 let previousRequestCount = null; 
 
-// Replaced with a 1x1 black pixel data URI to perfectly create a black circle without broken image icons
 const DEFAULT_PFP = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,15 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const displayName = user.displayName || user.email.split('@')[0];
       const profileRef = db.collection('profiles').doc(currentUserId);
       
-      // --- THE NEW DATABASE SCHEMA FIX ---
-      // This checks if the user is brand new. If they are, it instantly builds out 
-      // their ENTIRE database profile so you don't have to guess where fields are.
       profileRef.get().then(doc => {
           if (!doc.exists) {
               profileRef.set({
                   displayName: displayName,
                   searchName: displayName.toLowerCase(),
-                  role: "guest", // Defaults to guest so you can easily change it to "member"
+                  role: "guest",
                   bio: "No bio set.",
                   profilePic: "",
                   profileBg: "",
@@ -49,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
                   publicPlaylistIndex: ""
               });
           } else {
-              // If they already exist, just make sure their display name is up to date
               profileRef.set({
                   displayName: displayName,
                   searchName: displayName.toLowerCase()
@@ -69,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // --- AUTOMATIC URL PROFILE LOADER ---
   setTimeout(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const clanCardTarget = urlParams.get('viewClanCard');
@@ -86,10 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 500);
 
-  // --- INJECT PROFILE OF THE DAY INTO THE HUB ---
+  // Load the new universal POTD
   loadProfileOfTheDay();
 
-  // --- COMPRESSOR FOR PROFILE BACKGROUND UPLOADER ---
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -166,16 +159,19 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- MISSING FUNCTION ADDED ---
-// This is why the button wasn't working. It links the button to the hidden file uploader!
 window.setCustomProfileBG = function() {
   document.getElementById('bg-uploader').click();
 };
 
-// --- PROFILE OF THE DAY INJECTOR ---
+// --- PROFILE OF THE DAY INJECTOR (UNIVERSAL & NO-REPEAT) ---
 function loadProfileOfTheDay() {
-  db.collection('profiles').limit(25).get().then(snapshot => {
-    if (!snapshot.empty) {
+  db.collection('system').doc('potd').get().then(potdDoc => {
+    // Get today's local date string
+    const todayStr = new Date().toLocaleDateString('en-US');
+    
+    db.collection('profiles').limit(50).get().then(snapshot => {
+      if (snapshot.empty) return;
+      
       const validDocs = snapshot.docs.filter(doc => {
         const d = doc.data();
         return d.displayName && d.displayName !== "Unknown User" && d.displayName.trim() !== "";
@@ -183,33 +179,52 @@ function loadProfileOfTheDay() {
 
       if (validDocs.length === 0) return;
 
-      const randomDoc = validDocs[Math.floor(Math.random() * validDocs.length)];
-      const data = randomDoc.data();
-      
-      const pfp = data.profilePic || DEFAULT_PFP;
-      const name = data.displayName;
-      const uid = randomDoc.id;
+      let currentPotd = potdDoc.exists ? potdDoc.data() : null;
 
+      // If there is no POTD document yet, OR the date has flipped to the next day:
+      if (!currentPotd || currentPotd.date !== todayStr) {
+        let availableDocs = validDocs;
+        
+        // Remove yesterday's profile from the pool so they can't be chosen twice in a row
+        if (currentPotd && currentPotd.uid) {
+          availableDocs = validDocs.filter(d => d.id !== currentPotd.uid);
+          if (availableDocs.length === 0) availableDocs = validDocs; // Fallback 
+        }
+
+        const randomDoc = availableDocs[Math.floor(Math.random() * availableDocs.length)];
+        const data = randomDoc.data();
+        
+        currentPotd = {
+          date: todayStr,
+          uid: randomDoc.id,
+          name: data.displayName,
+          pfp: data.profilePic || DEFAULT_PFP
+        };
+
+        // Save this to the global Firebase so EVERYONE sees this exact same profile today
+        db.collection('system').doc('potd').set(currentPotd, { merge: true });
+      }
+
+      // Render the universal profile
       const potdContainer = document.getElementById('potd-target');
       if (potdContainer) {
         potdContainer.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: space-between; background: #151515; border: 1px solid #ffaa00; border-radius: 8px; padding: 15px; box-shadow: 0 0 10px rgba(255,170,0,0.3); margin-bottom: 20px; width: 100%;">
             <div style="display: flex; align-items: center; gap: 15px;">
-              <img src="${pfp}" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffaa00; cursor: pointer; object-fit: cover;" onclick="viewProfile('${uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">
+              <img src="${currentPotd.pfp}" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffaa00; cursor: pointer; object-fit: cover;" onclick="viewProfile('${currentPotd.uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">
               <div>
                 <h4 style="color: #ffaa00; margin: 0 0 5px 0; font-size: 0.9rem;">🌟 Community Profile of the Day</h4>
-                <h3 style="margin: 0; color: #fff;">${name}</h3>
+                <h3 style="margin: 0; color: #fff;">${currentPotd.name}</h3>
               </div>
             </div>
-            <button class="sleek-btn" style="border-color: #ffaa00; color: #ffaa00; background: transparent; padding: 8px 15px; cursor: pointer;" onclick="viewProfile('${uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">View Profile</button>
+            <button class="sleek-btn" style="border-color: #ffaa00; color: #ffaa00; background: transparent; padding: 8px 15px; cursor: pointer;" onclick="viewProfile('${currentPotd.uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">View Profile</button>
           </div>
         `;
       }
-    }
+    });
   });
 }
 
-// --- SILENT IN-APP NOTIFICATION BANNER ---
 function showNotificationBanner(msg) {
   let banner = document.getElementById('toast-notification');
   if (!banner) {
@@ -378,7 +393,6 @@ window.viewProfile = function(targetUid) {
     }
   });
 
-  // --- MESSAGE LISTENER & EXPIRATION LOGIC ---
   inboxListenerUnsubscribe = db.collection('messages').where('toUserId', '==', targetUid).onSnapshot(snapshot => {
       const inboxList = document.getElementById('messages-list');
       inboxList.innerHTML = ''; 
@@ -456,7 +470,6 @@ window.viewProfile = function(targetUid) {
     });
 };
 
-// --- PIN LOGIC ---
 window.togglePinMessage = function(msgId, currentlyPinned) {
     if (!currentUserId) return;
     
@@ -550,8 +563,6 @@ window.saveSongSpeed = function(speedVal) {
   }).then(() => console.log("Speed saved"));
 };
 
-
-// --- FRIEND REQUEST SYSTEM ---
 window.searchFriend = function() {
   const input = document.getElementById('friend-search-input').value.trim();
   if(!input) return;
@@ -695,7 +706,6 @@ window.removeFriend = function(friendUid, friendName) {
   }
 };
 
-// --- DIRECT MESSAGING ---
 function getDMLimit() { 
   let role = "guest";
   if(myProfileData && myProfileData.role) role = myProfileData.role;
@@ -775,7 +785,6 @@ window.sendDirectMessage = function() {
   });
 };
 
-// --- MODALS & PLAYLISTS ---
 window.toggleLike = function() {
   if (!currentUserId || !currentViewedProfileId) return;
   const ref = db.collection('profiles').doc(currentViewedProfileId); 
@@ -903,7 +912,6 @@ window.editBio = function() {
   if (newBio !== null) db.collection('profiles').doc(currentUserId).update({ bio: newBio });
 };
 
-// --- PROJECT / GAME DETAILS / ART GALLERY SYSTEM ---
 const siteProjects = {
   'dbd': {
     title: "Days Before Death",

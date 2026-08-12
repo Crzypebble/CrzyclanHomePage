@@ -50,13 +50,45 @@ document.addEventListener('DOMContentLoaded', () => {
       if (logoutBtn) logoutBtn.style.display = 'block';
       if (securitySection) securitySection.style.display = 'block';
 
+      const defaultName = user.displayName ? user.displayName : user.email.split('@')[0];
       if (displayNameDisplay) {
-        displayNameDisplay.textContent = user.displayName ? user.displayName : "Not Set";
+        displayNameDisplay.textContent = defaultName;
       }
 
-      // Fetch Profile Data
-      db.collection('profiles').doc(user.uid).get().then(doc => {
-        if (doc.exists) {
+      // --- THE NEW DATABASE SCHEMA GENERATOR FOR SETTINGS PAGE ---
+      const profileRef = db.collection('profiles').doc(user.uid);
+      
+      profileRef.get().then(doc => {
+        if (!doc.exists) {
+          // If the profile doesn't exist yet, instantly build the full schema
+          profileRef.set({
+            displayName: defaultName,
+            searchName: defaultName.toLowerCase(),
+            role: "guest", // Easily changeable in Firebase to "member"
+            bio: "No bio set.",
+            profilePic: "",
+            profileBg: "",
+            clanCard: "",
+            friends: [],
+            friendRequests: [],
+            outgoingRequests: [],
+            likedBy: [],
+            dmHistory: [],
+            inboxPrivacy: "public",
+            profileSongTitle: "",
+            profileSongFile: "",
+            profileSongSpeed: 1,
+            publicPlaylistName: "",
+            publicPlaylistTrackCount: 0,
+            publicPlaylistIndex: ""
+          });
+
+          // Set default blank UI for new user
+          if (pfpPreview) pfpPreview.style.backgroundImage = "none";
+          if (robloxUsernameInput) robloxUsernameInput.value = "";
+          
+        } else {
+          // Profile exists, load existing data
           const data = doc.data();
           
           if (data.profilePic) {
@@ -67,15 +99,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (data.robloxUsername && robloxUsernameInput) {
             robloxUsernameInput.value = data.robloxUsername;
+          } else if (robloxUsernameInput) {
+            robloxUsernameInput.value = "";
           }
         }
       });
 
       showStatus(`Logged in securely as ${user.email}`, "#00ff00");
     } else {
+      // --- WIPE CLEAN PROTOCOL --- 
+      // This prevents the previous user's info/picture from showing up for the next person
       if (authInputs) authInputs.style.display = 'block';
       if (logoutBtn) logoutBtn.style.display = 'none';
       if (securitySection) securitySection.style.display = 'none';
+      
+      if (pfpPreview) pfpPreview.style.backgroundImage = "none";
+      if (displayNameDisplay) displayNameDisplay.textContent = "Not Set";
+      if (robloxUsernameInput) robloxUsernameInput.value = "";
     }
   });
 

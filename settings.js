@@ -45,6 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- AUTHENTICATION STATE LISTENER ---
   firebase.auth().onAuthStateChanged((user) => {
+    
+    // --- THE HARD WIPE --- 
+    // This forcibly clears the UI the moment the auth state changes, 
+    // ensuring no "ghost" profile pictures or names from previous accounts are shown.
+    if (pfpPreview) pfpPreview.style.backgroundImage = "none";
+    if (robloxUsernameInput) robloxUsernameInput.value = "";
+    if (displayNameDisplay) displayNameDisplay.textContent = "Loading...";
+
     if (user) {
       if (authInputs) authInputs.style.display = 'none';
       if (logoutBtn) logoutBtn.style.display = 'block';
@@ -55,16 +63,24 @@ document.addEventListener('DOMContentLoaded', () => {
         displayNameDisplay.textContent = defaultName;
       }
 
-      // --- THE NEW DATABASE SCHEMA GENERATOR FOR SETTINGS PAGE ---
+      // Fetch Profile Data for the logged-in user
       const profileRef = db.collection('profiles').doc(user.uid);
       
       profileRef.get().then(doc => {
-        if (!doc.exists) {
-          // If the profile doesn't exist yet, instantly build the full schema
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.profilePic) {
+            if(pfpPreview) pfpPreview.style.backgroundImage = `url('${data.profilePic}')`;
+          }
+          if (data.robloxUsername && robloxUsernameInput) {
+            robloxUsernameInput.value = data.robloxUsername;
+          }
+        } else {
+          // Backup generator just in case they slipped through
           profileRef.set({
             displayName: defaultName,
             searchName: defaultName.toLowerCase(),
-            role: "guest", // Easily changeable in Firebase to "member"
+            role: "guest",
             bio: "No bio set.",
             profilePic: "",
             profileBg: "",
@@ -82,40 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
             publicPlaylistTrackCount: 0,
             publicPlaylistIndex: ""
           });
-
-          // Set default blank UI for new user
-          if (pfpPreview) pfpPreview.style.backgroundImage = "none";
-          if (robloxUsernameInput) robloxUsernameInput.value = "";
-          
-        } else {
-          // Profile exists, load existing data
-          const data = doc.data();
-          
-          if (data.profilePic) {
-            if(pfpPreview) pfpPreview.style.backgroundImage = `url('${data.profilePic}')`;
-          } else {
-            if(pfpPreview) pfpPreview.style.backgroundImage = "none"; 
-          }
-
-          if (data.robloxUsername && robloxUsernameInput) {
-            robloxUsernameInput.value = data.robloxUsername;
-          } else if (robloxUsernameInput) {
-            robloxUsernameInput.value = "";
-          }
         }
       });
 
       showStatus(`Logged in securely as ${user.email}`, "#00ff00");
     } else {
-      // --- WIPE CLEAN PROTOCOL --- 
-      // This prevents the previous user's info/picture from showing up for the next person
       if (authInputs) authInputs.style.display = 'block';
       if (logoutBtn) logoutBtn.style.display = 'none';
       if (securitySection) securitySection.style.display = 'none';
-      
-      if (pfpPreview) pfpPreview.style.backgroundImage = "none";
       if (displayNameDisplay) displayNameDisplay.textContent = "Not Set";
-      if (robloxUsernameInput) robloxUsernameInput.value = "";
     }
   });
 
@@ -126,8 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
   deleteAccountBtn?.addEventListener('click', deleteAccount);
   clearDataBtn?.addEventListener('click', clearLocalData);
 
-  // --- NEW: IMAGE COMPRESSOR FUNCTION ---
-  // Shrinks images via an invisible HTML canvas before saving them
+  // --- IMAGE COMPRESSOR FUNCTION ---
   function compressImage(file, maxWidth, maxHeight, quality, callback) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -138,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let width = img.width;
         let height = img.height;
 
-        // Calculate new dimensions keeping aspect ratio
         if (width > height) {
           if (width > maxWidth) {
             height = Math.round((height *= maxWidth / width));
@@ -157,25 +146,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Export as JPEG with chosen quality (e.g. 0.8 = 80% quality)
         const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
         callback(compressedDataUrl);
       };
     };
   }
 
-  // --- PROFILE PICTURE UPLOADER (NOW WITH COMPRESSION) ---
+  // --- PROFILE PICTURE UPLOADER ---
   pfpUpload?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     
     showStatus("Compressing profile picture...", "#ffaa00");
 
-    // Compress to max 400x400 pixels at 80% quality
     compressImage(file, 400, 400, 0.8, (compressedImageUrl) => {
-      
-      // Safety check just in case the compressed file is still somehow over 1MB
-      // (Length of base64 * 0.75 gives rough byte size)
       if ((compressedImageUrl.length * 0.75) > 1048576) {
         return showStatus("Image is still too large after compression. Try a different image.", "#ff0000");
       }
@@ -192,16 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- BACKGROUND IMAGE UPLOADER (NOW WITH COMPRESSION) ---
+  // --- BACKGROUND IMAGE UPLOADER ---
   customBgInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     showStatus("Compressing background image...", "#ffaa00");
 
-    // Compress to max 1920x1080 pixels (Standard HD) at 70% quality
     compressImage(file, 1920, 1080, 0.7, (compressedImageUrl) => {
-      
       try {
         localStorage.setItem('customBackground', compressedImageUrl);
 
@@ -219,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         showStatus("Custom background compressed and applied!", "#00ff00");
       } catch (err) {
-        // This catches the error if they somehow exceed localStorage limits even after compression
         showStatus("Error: Image is still too large for local storage.", "#ff0000");
       }
     });
@@ -240,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- HELPER FUNCTIONS ---
-
 function showStatus(msg, color) {
   const statusEl = document.getElementById('status-msg');
   if (statusEl) {
@@ -253,7 +233,6 @@ function showStatus(msg, color) {
 }
 
 // --- AUTHENTICATION FUNCTIONS ---
-
 window.login = function() {
   const emailInput = document.getElementById('email').value.trim();
   const passwordInput = document.getElementById('password').value;
@@ -278,8 +257,36 @@ window.signUp = function() {
   }
 
   firebase.auth().createUserWithEmailAndPassword(emailInput, passwordInput)
-    .then(() => {
-      showStatus("Account created successfully!", "#00ff00");
+    .then((userCredential) => {
+      const user = userCredential.user;
+      const defaultName = user.email.split('@')[0];
+      
+      // --- FORCED SCHEMA BUILDER ---
+      // This guarantees the database gets built the exact millisecond 
+      // the account is successfully created, stopping the race condition.
+      db.collection('profiles').doc(user.uid).set({
+        displayName: defaultName,
+        searchName: defaultName.toLowerCase(),
+        role: "guest",
+        bio: "No bio set.",
+        profilePic: "",
+        profileBg: "",
+        clanCard: "",
+        friends: [],
+        friendRequests: [],
+        outgoingRequests: [],
+        likedBy: [],
+        dmHistory: [],
+        inboxPrivacy: "public",
+        profileSongTitle: "",
+        profileSongFile: "",
+        profileSongSpeed: 1,
+        publicPlaylistName: "",
+        publicPlaylistTrackCount: 0,
+        publicPlaylistIndex: ""
+      }).then(() => {
+        showStatus("Account created and profile generated successfully!", "#00ff00");
+      });
     })
     .catch((error) => {
       showStatus(error.message, "#ff0000");
@@ -299,7 +306,6 @@ window.logout = function() {
 };
 
 // --- SECURITY & ACCOUNT FUNCTIONS ---
-
 window.updateRobloxUsername = function() {
   const robloxUser = document.getElementById('roblox-username-input').value.trim();
   const user = firebase.auth().currentUser;
@@ -397,7 +403,6 @@ function deleteAccount() {
 }
 
 // --- DATA MANAGEMENT FUNCTIONS ---
-
 function clearLocalData() {
   if(confirm("This will clear your active music queue, custom background image, and site cache. Proceed?")) {
     localStorage.clear();

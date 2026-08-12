@@ -21,7 +21,6 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <!-- ADDED FIRESTORE SO THE PROFILE OF THE DAY CAN LOAD -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
@@ -51,26 +50,21 @@
     <section id="home" class="tab-section">
       <h2>Welcome to Crzyclan</h2>
       <p>We're the CRZYCLAN — Crzyclan is a small but growing clan based on competitive gaming that evolved into music, games of our own, and any other form of art or talent.</p>
+      
+      <!-- Added ID for the 5-click easter egg -->
       <div class="skull-image">
-        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Crzyclan Skull" class="skull-logo">
-      </div>
-
-      <!-- --- NEW: PROFILE OF THE DAY SECTION --- -->
-      <h2>Community Spotlight</h2>
-      <div class="member-container" id="potd-container">
-         <p style="color: #aaa;">Rolling the dice... Finding a lucky community member...</p>
+        <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/Skull%202022.png?raw=true" alt="Crzyclan Skull" class="skull-logo" id="secret-skull-btn" style="cursor: pointer;">
       </div>
 
       <h2>Crzyclan Leaders</h2>
       <div class="member-container">
-        <!-- Added onclick URL parameters so clicking them opens their profile in the Hub! -->
-        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzypebble'">
+        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzyPebble'">
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/ChillAustinPFP.jpg?raw=true" alt="Crzypebble">
           <h4>CrzyPebble</h4>
           <p>"#1"</p>
           <p><strong>Skills:</strong> Rpg, Strategy, FPS, Game Dev, Vocalist, Guitarist</p>
         </div>
-        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzysniper'">
+        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzySniper'">
           <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BurgerkingDonny.webp" alt="CrzySniper">
           <h4>CrzySniper</h4>
           <p>"#3"</p>
@@ -80,31 +74,31 @@
 
       <h2>Crzyclan Members</h2>
       <div class="member-container">
-         <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzyreaper'">
+         <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzyReaper'">
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/NoahImage.webp?raw=true" alt="CrzyReaper">
           <h4>CrzyReaper</h4>
           <p>"#7"</p>
           <p><strong>Skills:</strong> Strategy, FPS, Guitarist, Vocalist, Dice Maker</p>
         </div>
-        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzydevotion'">
+        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzyDevotion'">
           <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/Popnigel.webp" alt="CrzyDevotion">
           <h4>CrzyDevotion</h4>
           <p>"#6"</p>
           <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
         </div>
-        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzykahoona'">
+        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzyKahoona'">
           <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/biggie%20trev.webp" alt="CrzyKahoona">
           <h4>CrzyKahoona</h4>
           <p>"#5"</p>
           <p><strong>Skills:</strong> Strategy, RPG, FPS, Guitarist, Vocalist, Drummer</p>
         </div>
-        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzydemon'">
+        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzyDemon'">
           <img src="https://raw.githubusercontent.com/Crzypebble/CrzyclanHomePage/refs/heads/main/BigBooey.webp" alt="CrzyDemon">
           <h4>CrzyDemon</h4>
           <p>"#4"</p>
           <p><strong>Skills:</strong> Strategy, RPG, FPS</p>
         </div>
-        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewUser=crzywraith'">
+        <div class="member-card" style="cursor: pointer;" onclick="window.location.href='other.html?viewClanCard=CrzyWraith'">
           <img src="https://github.com/Crzypebble/CrzyclanHomePage/blob/main/TylerImage.webp?raw=true" alt="CrzyWraith">
           <h4>CrzyWraith</h4>
           <p>"#2"</p>
@@ -118,52 +112,57 @@
     &copy; 2026 Crzyclan. All rights reserved.
   </footer>
 
-  <!-- Global Script for applying background site-wide -->
   <script src="global.js"></script>
-
-  <!-- JavaScript -->
   <script src="ui.js"></script>
   <script src="tabs.js"></script>
   <script src="theme.js"></script>
   <script src="effects.js"></script>
   <script src="main.js"></script>
 
-  <!-- PROFILE OF THE DAY SCRIPT -->
+  <!-- THE SECRET 5-CLICK CLAN LINKER SCRIPT -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const siteDb = firebase.firestore();
-      
-      // Grabs a chunk of users from the database to shuffle through
-      siteDb.collection('profiles').limit(15).get().then(snapshot => {
-        const container = document.getElementById('potd-container');
+    let skullClicks = 0;
+    let clickTimer;
+    
+    document.getElementById('secret-skull-btn').addEventListener('click', () => {
+        skullClicks++;
         
-        if (!snapshot.empty) {
-          const docs = snapshot.docs;
-          // Randomly pick one user from the list
-          const randomDoc = docs[Math.floor(Math.random() * docs.length)];
-          const data = randomDoc.data();
-          
-          const pfp = data.profilePic || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
-          const name = data.displayName || "Unknown User";
-          const searchName = data.searchName || name.toLowerCase();
-          const bio = data.bio || "No bio set.";
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { skullClicks = 0; }, 2000); 
 
-          // Build a glowing card that matches the other clan members but stands out!
-          container.innerHTML = `
-            <div class="member-card" style="cursor: pointer; border-color: #ffaa00; box-shadow: 0 0 15px rgba(255,170,0,0.4);" onclick="window.location.href='other.html?viewUser=${searchName}'">
-              <p style="color: #ffaa00; font-weight: bold; margin-top: 0; margin-bottom: 10px;">🌟 Profile of the Day</p>
-              <img src="${pfp}" alt="${name}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid #ffaa00;">
-              <h4>${name}</h4>
-              <p style="color: #aaa; font-size: 0.9rem; font-style: italic;">"${bio}"</p>
-              <p style="margin-top: 15px; color: #ff0000; font-size: 0.85rem; font-weight: bold;">Click to view profile</p>
-            </div>
-          `;
-        } else {
-          container.innerHTML = `<p style="color: #888;">No community members found yet. Be the first to set up your profile!</p>`;
+        if (skullClicks === 5) {
+            skullClicks = 0;
+            
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert("You must be logged in to link a Clan Card!");
+                return;
+            }
+
+            const code = prompt("ENTER CLAN AUTHORIZATION CODE:");
+            if (!code) return;
+
+            const clanCodes = {
+                "pebblelink1": "CrzyPebble",
+                "sniperlink2": "CrzySniper",
+                "reaperlink3": "CrzyReaper",
+                "devotionlink4": "CrzyDevotion",
+                "kahoonalink5": "CrzyKahoona",
+                "demonlink6": "CrzyDemon",
+                "wraithlink7": "CrzyWraith"
+            };
+
+            const targetCard = clanCodes[code.trim()];
+            
+            if (targetCard) {
+                const db = firebase.firestore();
+                db.collection('profiles').doc(user.uid).update({ clanCard: targetCard })
+                  .then(() => alert(`SUCCESS: Your profile is now permanently linked to the ${targetCard} card!`))
+                  .catch(err => alert("Database Error: " + err.message));
+            } else {
+                alert("ACCESS DENIED: Invalid authorization code.");
+            }
         }
-      }).catch(err => {
-        console.log("Error loading Profile of the Day:", err);
-      });
     });
   </script>
 </body>

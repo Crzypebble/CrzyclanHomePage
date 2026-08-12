@@ -20,18 +20,49 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById('logged-out-warning').style.display = 'none';
       
       const displayName = user.displayName || user.email.split('@')[0];
+      const profileRef = db.collection('profiles').doc(currentUserId);
       
-      db.collection('profiles').doc(currentUserId).set({
-        displayName: displayName,
-        searchName: displayName.toLowerCase() 
-      }, { merge: true });
-
-      listenToMyData(currentUserId);
-      
-      const urlParams = new URLSearchParams(window.location.search);
-      if (!urlParams.get('viewClanCard') && !urlParams.get('viewUser')) {
-        viewProfile(currentUserId);
-      }
+      // --- THE NEW DATABASE SCHEMA FIX ---
+      // This checks if the user is brand new. If they are, it instantly builds out 
+      // their ENTIRE database profile so you don't have to guess where fields are.
+      profileRef.get().then(doc => {
+          if (!doc.exists) {
+              profileRef.set({
+                  displayName: displayName,
+                  searchName: displayName.toLowerCase(),
+                  role: "guest", // Defaults to guest so you can easily change it to "member"
+                  bio: "No bio set.",
+                  profilePic: "",
+                  profileBg: "",
+                  clanCard: "",
+                  friends: [],
+                  friendRequests: [],
+                  outgoingRequests: [],
+                  likedBy: [],
+                  dmHistory: [],
+                  inboxPrivacy: "public",
+                  profileSongTitle: "",
+                  profileSongFile: "",
+                  profileSongSpeed: 1,
+                  publicPlaylistName: "",
+                  publicPlaylistTrackCount: 0,
+                  publicPlaylistIndex: ""
+              });
+          } else {
+              // If they already exist, just make sure their display name is up to date
+              profileRef.set({
+                  displayName: displayName,
+                  searchName: displayName.toLowerCase()
+              }, { merge: true });
+          }
+          
+          listenToMyData(currentUserId);
+          
+          const urlParams = new URLSearchParams(window.location.search);
+          if (!urlParams.get('viewClanCard') && !urlParams.get('viewUser')) {
+            viewProfile(currentUserId);
+          }
+      });
 
     } else {
       document.getElementById('logged-out-warning').style.display = 'block';
@@ -135,11 +166,16 @@ const allSiteSongs = [
   { title: "Cart was full", file: "cartwasfull.mp3" }
 ];
 
-// --- PROFILE OF THE DAY INJECTOR (FIXED LAYOUT & FILTER) ---
+// --- MISSING FUNCTION ADDED ---
+// This is why the button wasn't working. It links the button to the hidden file uploader!
+window.setCustomProfileBG = function() {
+  document.getElementById('bg-uploader').click();
+};
+
+// --- PROFILE OF THE DAY INJECTOR ---
 function loadProfileOfTheDay() {
   db.collection('profiles').limit(25).get().then(snapshot => {
     if (!snapshot.empty) {
-      // Filter out blank accounts so we don't display "Unknown User"
       const validDocs = snapshot.docs.filter(doc => {
         const d = doc.data();
         return d.displayName && d.displayName !== "Unknown User" && d.displayName.trim() !== "";
@@ -154,7 +190,6 @@ function loadProfileOfTheDay() {
       const name = data.displayName;
       const uid = randomDoc.id;
 
-      // Find the specific container in the HTML instead of breaking the <main> layout
       const potdContainer = document.getElementById('potd-target');
       if (potdContainer) {
         potdContainer.innerHTML = `
@@ -169,8 +204,6 @@ function loadProfileOfTheDay() {
             <button class="sleek-btn" style="border-color: #ffaa00; color: #ffaa00; background: transparent; padding: 8px 15px; cursor: pointer;" onclick="viewProfile('${uid}'); if(typeof switchHubView === 'function') switchHubView('hub-profile');">View Profile</button>
           </div>
         `;
-      } else {
-        console.warn("Could not find <div id='potd-target'></div> in your HTML!");
       }
     }
   });

@@ -130,7 +130,7 @@
     let skullClicks = 0;
     let clickTimer;
     
-    document.getElementById('secret-skull-btn').addEventListener('click', () => {
+    document.getElementById('secret-skull-btn').addEventListener('click', async () => {
         skullClicks++;
         
         clearTimeout(clickTimer);
@@ -139,16 +139,24 @@
         if (skullClicks === 5) {
             skullClicks = 0;
             
-            const user = firebase.auth().currentUser;
+            // --- THE BULLETPROOF FIX ---
+            // This forces Javascript to stop and demand the true login status 
+            // directly from Firebase's core engine before doing anything else.
+            const user = await new Promise((resolve) => {
+                const unsubscribe = firebase.auth().onAuthStateChanged((u) => {
+                    unsubscribe(); // Stop listening once we get the answer
+                    resolve(u);
+                });
+            });
+
             if (!user) {
-                alert("You must be logged in to link a Clan Card!");
+                alert("ACCESS DENIED: The database shows you are logged out. Please go to the Settings tab and sign in.");
                 return;
             }
 
             const code = prompt("ENTER CLAN AUTHORIZATION CODE:");
             if (!code) return;
 
-            // FIXED: The missing comma after "CrzyWraith" is fixed here
             const clanCodes = {
                 "pebblelink1": "CrzyPebble",
                 "bambalink2": "CrzySniper",
@@ -164,7 +172,8 @@
             
             if (targetCard) {
                 const db = firebase.firestore();
-                db.collection('profiles').doc(user.uid).update({ clanCard: targetCard })
+                // Upgraded to set + merge: true to avoid crashes if profile is still building
+                db.collection('profiles').doc(user.uid).set({ clanCard: targetCard }, { merge: true })
                   .then(() => alert(`SUCCESS: Your profile is now permanently linked to the ${targetCard} card!`))
                   .catch(err => alert("Database Error: " + err.message));
             } else {

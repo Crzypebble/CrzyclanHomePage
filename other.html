@@ -127,6 +127,7 @@
     <!-- SIDEBAR NAVIGATION (Left Column) -->
     <div class="hub-sidebar">
       <button class="sidebar-btn active" onclick="switchHubView('hub-main', this)">🎮 Community Hub</button>
+      <button class="sidebar-btn" onclick="switchHubView('hub-web-games', this)">🕹️ Web Games</button>
       <button class="sidebar-btn" id="my-profile-btn" onclick="viewMyProfile(this)">👤 My Profile</button>
       <button class="sidebar-btn" onclick="switchHubView('hub-friends', this)">👥 Friends List</button>
       <button class="sidebar-btn" onclick="switchHubView('hub-requests', this)">📩 Friend Requests <span id="request-badge" class="badge">0</span></button>
@@ -176,6 +177,15 @@
             <button class="sleek-btn" style="margin-top: 10px; width: 100%; text-align: center; background: #222;" onclick="openProjectDetails('art_dice')">View Gallery</button>
           </div>
         </div>
+      </div>
+
+      <!-- VIEW 1.5: PLAYABLE WEB GAMES -->
+      <div id="hub-web-games" class="hub-view">
+        <h2 class="section-header">Playable Web Games</h2>
+        <p style="color: #aaa; margin-bottom: 20px;">Browser games hosted directly on the site. Click a card to play!</p>
+        
+        <!-- JavaScript will automatically build the game cards here -->
+        <div id="web-games-grid" class="content-grid"></div>
       </div>
 
       <!-- VIEW 2: PROFILE & INBOX -->
@@ -344,6 +354,22 @@
         <a id="project-modal-link" href="#" target="_blank" class="sleek-btn" style="background: #ff0000; color: #fff; text-align: center; text-decoration: none; flex: 1; border: none; font-weight: bold; display: flex; justify-content: center; align-items: center;">Action Button</a>
         <button class="sleek-btn" style="flex: 1;" onclick="closeModal('project-details-modal')">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PLAY WEB GAME -->
+  <div id="web-game-modal" class="custom-modal">
+    <div class="custom-modal-inner" style="max-width: 1000px; width: 95%; height: 85vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; border: 2px solid #ff0000;">
+      
+      <!-- Game Header Bar with X button -->
+      <div style="background: #111; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+        <h3 id="web-game-title" style="margin: 0; color: #fff; font-size: 1.2rem;">Game Title</h3>
+        <button style="background: transparent; color: #ff0000; border: none; font-size: 1.5rem; font-weight: bold; cursor: pointer; padding: 0 10px; transition: 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ff0000'" onclick="closeWebGame()">✕</button>
+      </div>
+
+      <!-- The Game Screen (Iframe) -->
+      <iframe id="web-game-iframe" src="" style="width: 100%; flex-grow: 1; border: none; background: #000;"></iframe>
+
     </div>
   </div>
 

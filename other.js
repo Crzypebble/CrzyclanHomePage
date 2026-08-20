@@ -166,7 +166,6 @@ window.setCustomProfileBG = function() {
   document.getElementById('bg-uploader').click();
 };
 
-// --- PROFILE OF THE DAY INJECTOR (UNIVERSAL & NO-REPEAT) ---
 function loadProfileOfTheDay() {
   db.collection('system').doc('potd').get().then(potdDoc => {
     const todayStr = new Date().toLocaleDateString('en-US');
@@ -1007,27 +1006,38 @@ window.openProjectDetails = function(projectId) {
 };
 
 // ==========================================
-// --- NEW WEB GAMES CONFIGURATION ARRAY ---
+// --- WEB GAMES CONFIGURATION ARRAY ---
 // ==========================================
+// To add a new game, copy everything from the { to the } 
+// and paste it below the previous game, separated by a comma.
 const playableWebGames = [
   {
     id: "crzy-journey",
     title: "The Crzy Journey",
-    folderName: "game", 
-    image: "game/assets/backgrounds/area1_bg.jpg", 
+    folderName: "game", // The exact name of the folder you uploaded for this game
+    image: "image_543213.png", // The thumbnail image uploaded to your root folder
     desc: "A custom 2D platformer built for CRZYCLAN. Battle through 10 unique areas, master elemental powers, and defeat the Void Warlords to retrieve the Golden Skull!"
   }
-  // To add a new game later, just add a comma above and paste another block right here!
+  
+  /* --- EXAMPLE OF HOW TO ADD ANOTHER GAME ---
+  , {
+    id: "your-next-game",
+    title: "Next Game Title",
+    folderName: "next-game-folder",
+    image: "next_game_image.png",
+    desc: "Description of your next game goes here."
+  }
+  ------------------------------------------- */
 ];
 
 // ==========================================
-// --- NEW WEB GAMES RENDERING & MODALS ---
+// --- WEB GAMES RENDERING & MODALS ---
 // ==========================================
 function renderWebGames() {
   const grid = document.getElementById('web-games-grid');
   if (!grid) return;
 
-  grid.innerHTML = ''; // Clear it out so it doesn't duplicate
+  grid.innerHTML = ''; 
 
   playableWebGames.forEach(game => {
     const card = document.createElement('div');
@@ -1036,7 +1046,7 @@ function renderWebGames() {
       <img src="${game.image}" alt="${game.title}" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='">
       <h3>${game.title}</h3>
       <p>${game.desc}</p>
-      <button class="sleek-btn" style="margin-top: 10px; width: 100%; text-align: center; background: #ff0000; border: none; color: #fff;" onclick="openWebGame('${game.folderName}', '${game.title}')">▶ Play Now</button>
+      <button class="sleek-btn" style="margin-top: 10px; width: 100%; text-align: center; background: #ff0000; border: none; color: #fff;" onclick="openWebGame('${game.folderName}', '${game.title}')">▶ Play Game</button>
     `;
     grid.appendChild(card);
   });
@@ -1048,7 +1058,7 @@ window.openWebGame = function(folderPath, gameTitle) {
   const titleEl = document.getElementById('web-game-title');
 
   titleEl.textContent = gameTitle;
-  // This automatically targets the index.html inside the folder name you provided!
+  
   iframe.src = `/${folderPath}/index.html`; 
   modal.style.display = 'flex';
 };
@@ -1058,7 +1068,6 @@ window.closeWebGame = function() {
   const iframe = document.getElementById('web-game-iframe');
 
   modal.style.display = 'none';
-  // CRITICAL: We have to wipe the iframe source when closing. 
-  // Otherwise, the game keeps running invisibly and the music will keep playing!
+  
   iframe.src = ""; 
 };

@@ -1,15 +1,34 @@
 // js/engine.js
+
+// ==========================================
+// KILLS ALL SAVING FOR THIS SPECIFIC VERSION
+// ==========================================
+const DISABLE_SAVING = true; 
+
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas ? canvas.getContext("2d") : null;
 const gameContainer = document.getElementById("game-container");
 const completeScreen = document.getElementById("level-complete-screen");
 const gameOverScreen = document.getElementById("game-over-screen");
 
-// FORCE FOCUS TO PREVENT CONSOLE BROWSER CURSOR HIJACK
+// FIX HUD OVERLAP VIA JS (NO HTML EDITS NEEDED)
+const hud = document.getElementById("game-hud");
+if (hud) {
+    hud.style.flexWrap = "wrap";
+    hud.style.gap = "10px";
+}
+
+// AGGRESSIVE POINTER LOCK TO TRAP THE CONSOLE CURSOR
 if (canvas) {
     canvas.setAttribute("tabindex", "0");
-    canvas.addEventListener("click", () => canvas.focus());
-    canvas.addEventListener("mouseenter", () => canvas.focus());
+    canvas.addEventListener("click", () => {
+        canvas.focus();
+        if (engineState === "PLAYING" && !document.pointerLockElement) {
+            if (canvas.requestPointerLock) {
+                canvas.requestPointerLock().catch(err => console.log("Pointer lock issue:", err));
+            }
+        }
+    });
 }
 
 let gameLoopId;
@@ -39,11 +58,10 @@ window.addEventListener("keydown", e => {
 });
 window.addEventListener("keyup", e => keys[e.code] = false);
 
+// Mute physical mouse clicks on the canvas to stop browser hijacking
 window.addEventListener("pointerdown", e => {
-    const cursorSel = document.getElementById("cursor-select");
-    if (cursorSel && cursorSel.value === "hide" && e.pointerType === "mouse") {
+    if (e.pointerType === "mouse" && engineState === "PLAYING") {
         e.preventDefault();
-        e.stopPropagation();
     }
 }, { capture: true });
 
@@ -93,7 +111,6 @@ function isActionPressed(action, playerNum = 1) {
             if (action === "moveDown" && (gp.buttons[13]?.pressed || gp.axes[1] > 0.5)) return true; 
         }
     } else if (playerNum === 2) {
-        // P2 Keyboard mapping (WASD + E/R)
         if (action === "moveLeft" && (keys["KeyA"])) return true;
         if (action === "moveRight" && (keys["KeyD"])) return true;
         if (action === "moveDown" && (keys["KeyS"])) return true;
@@ -104,7 +121,7 @@ function isActionPressed(action, playerNum = 1) {
 
         const gp2 = navigator.getGamepads ? navigator.getGamepads()[1] : null;
         if (gp2) {
-            if (action === "join" && gp2.buttons[9]?.pressed) return true; // Options/Start
+            if (action === "join" && gp2.buttons[9]?.pressed) return true; 
             if (action === "jump" && gp2.buttons[0]?.pressed) return true; 
             if (action === "attack" && (gp2.buttons[2]?.pressed || gp2.buttons[1]?.pressed)) return true; 
             if (action === "swap" && gp2.buttons[3]?.pressed) return true; 
@@ -116,7 +133,6 @@ function isActionPressed(action, playerNum = 1) {
     return false;
 }
 
-// SHARED STATE
 let sharedLives = 3;
 let projectiles = [], enemyProjectiles = [], enemies = [], platforms = [], physicalDrops = [], finishLineX = 3000, boss = null, secretWarp = null;
 
@@ -153,6 +169,7 @@ window.startGameEngine = function(levelData, areaObj, lIdx) {
 
 window.quitGame = function() {
     engineState = "MENU"; cancelAnimationFrame(gameLoopId);
+    if (document.exitPointerLock) document.exitPointerLock();
     if (gameContainer) gameContainer.style.display = "none";
     if (completeScreen) completeScreen.style.display = "none";
     if (gameOverScreen) gameOverScreen.style.display = "none";
@@ -197,7 +214,6 @@ function resetLevel() {
     let areaPowerObj = { type: "fire", icon: "🔥", color: "red", projSpeed: 10 };
     if (window.AREA_POWERUPS && window.AREA_POWERUPS.length > 0) areaPowerObj = window.AREA_POWERUPS[Math.min(currentAreaIdx - 1, window.AREA_POWERUPS.length - 1)];
 
-    // SPREAD POWERUPS ACROSS LEVEL
     if (currentLevelData && !currentLevelData.isAreaBoss && !currentLevelData.hasMiniBoss && !currentLevelData.noPowerups) {
         let drops = Math.floor(finishLineX / 800);
         for(let i=1; i<=drops; i++) {
@@ -209,7 +225,6 @@ function resetLevel() {
         physicalDrops.push({ x: 500, y: floorY - 300, vx: 0, vy: 0, type: "powerup", data: areaPowerObj });
     }
 
-    // PLATFORMS
     if (currentLevelData && (currentLevelData.isAreaBoss || currentLevelData.hasMiniBoss)) {
         platforms.push({ x: -100, y: floorY, w: finishLineX + 2000, h: 60 }); 
         platforms.push({x: finishLineX - 800, y: floorY - 150, w: 200, h: 20});
@@ -230,7 +245,6 @@ function resetLevel() {
         }
     }
 
-    // ENEMIES (Increased density)
     if (!currentLevelData || !currentLevelData.isAreaBoss) {
         for(let i=1; i < (finishLineX/350); i++) { 
             let eSpeed = -2 * (1 + (currentAreaIdx * 0.05)) * difficultyMult;
@@ -274,6 +288,7 @@ function triggerGameOver() {
         document.getElementById("game-over-text").textContent = (nightmareMode !== "none") ? "NIGHTMARE RUN FAILED" : "GAME OVER";
         gameOverScreen.style.display = "block"; 
     }
+    if (document.exitPointerLock) document.exitPointerLock();
     levelAudio.pause(); 
 }
 
@@ -291,7 +306,7 @@ function takeDamage(playerObj) {
 
 function shoot(playerObj) {
     if (!playerObj.powerup) return;
-    if (projectiles.length > 6) return; // Increased limit for 2 players
+    if (projectiles.length > 6) return; 
     let isGlock = playerObj.powerup.type === "glock";
     let lookDir = playerObj.vx < 0 ? -1 : 1; 
     if (playerObj.vx === 0) lookDir = 1;
@@ -309,11 +324,26 @@ function updateHUD() {
     }
 }
 
+// XXXX FIX AND SAVE BYPASS
 function winLevel() {
     engineState = "COMPLETE";
     let nextA = currentAreaIdx; let nextL = currentLevelIdx + 1;
     if (nextL > currentAreaObj.levels.length) { nextL = 1; nextA++; }
-    if (typeof saveProgress === 'function') saveProgress(nextA, nextL);
+    
+    // Write the code to the screen BEFORE doing any save checks
+    const codeEl = document.getElementById("generated-save-code");
+    if (codeEl) codeEl.textContent = `CRZY-${nextA}-${nextL}`;
+
+    // Bypass saving entirely if the killswitch is active
+    if (!DISABLE_SAVING) {
+        try {
+            if (typeof saveProgress === 'function') saveProgress(nextA, nextL);
+        } catch(e) {
+            console.log("Save blocked or unavailable.");
+        }
+    }
+    
+    if (document.exitPointerLock) document.exitPointerLock();
     if (completeScreen) completeScreen.style.display = "block";
 }
 
@@ -375,19 +405,13 @@ function gameLoop() {
     const floorY = canvas.height - 60;
 
     if (engineState === "PLAYING") {
-        
-        // CHECK P2 JOIN
         if (!p2.active && isActionPressed("join", 2)) {
-            p2.active = true;
-            p2.x = p1.x; p2.y = p1.y - 50;
-            sharedLives += 3;
-            updateHUD();
+            p2.active = true; p2.x = p1.x; p2.y = p1.y - 50; sharedLives += 3; updateHUD();
         }
 
         updatePlayerPhysics(p1, 1);
         if (p2.active) updatePlayerPhysics(p2, 2);
 
-        // CO-OP CAMERA (Centers between players if P2 active, otherwise follows P1)
         let camTargetX = p1.x;
         if (p2.active) camTargetX = (p1.x + p2.x) / 2;
         
@@ -399,7 +423,6 @@ function gameLoop() {
             if (boss.phase === 2) cameraLocked = false; 
         }
 
-        // Projectiles
         for (let i = projectiles.length - 1; i >= 0; i--) {
             let p = projectiles[i]; p.vy += p.gravity; p.x += p.vx; p.y += p.vy;
             if (p.x > cameraX + canvas.width || p.x < cameraX || p.y > canvas.height) { projectiles.splice(i, 1); continue; }
@@ -439,11 +462,8 @@ function gameLoop() {
             }
         }
 
-        // ENEMY LOGIC (Culling fixed so they don't walk off map while offscreen)
         for (let i = enemies.length - 1; i >= 0; i--) {
             let e = enemies[i]; 
-            
-            // FREEZE ENEMIES FAR AWAY
             if (e.x > cameraX + canvas.width + 300 || e.x < cameraX - 300) continue; 
 
             if (e.type === "flyer") {
@@ -509,7 +529,6 @@ function gameLoop() {
                     if (boss.phase === 2 || boss.phase === 3) fireThresh *= 0.35; 
 
                     if (boss.shootTimer > fireThresh) {
-                        // Boss targets closest player
                         let target = p1;
                         if (p2.active && Math.abs(p2.x - boss.x) < Math.abs(p1.x - boss.x)) target = p2;
                         
@@ -567,6 +586,12 @@ function gameLoop() {
         ctx.beginPath(); ctx.arc(e.x + e.width/2, e.y + 10, 10, 0, Math.PI*2); ctx.fill();
         ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(e.x + e.width/2 - 4, e.y + 8, 4, 0, Math.PI*2); ctx.fill();
         ctx.fillStyle = "black"; ctx.beginPath(); ctx.arc(e.x + e.width/2 - 5, e.y + 8, 2, 0, Math.PI*2); ctx.fill();
+
+        // THE ENEMY LEGS RESTORED 
+        ctx.fillStyle = (e.type === "flyer") ? "purple" : (e.type === "jumper" ? "orange" : `hsl(${currentAreaIdx * 35}, 80%, 40%)`);
+        let legOff = (Math.floor(Date.now() / 100) % 2 === 0) ? 3 : 0;
+        ctx.fillRect(e.x + 10, e.y + e.height - 10, 6, 10 - legOff);
+        ctx.fillRect(e.x + 24, e.y + e.height - 10, 6, 10 + legOff);
     });
 
     if (boss) {
@@ -584,7 +609,6 @@ function gameLoop() {
         ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x + p.width/2, p.y + p.height/2, p.width/2, 0, Math.PI*2); ctx.fill(); 
     });
 
-    // RENDER PLAYERS
     let playersToDraw = p2.active ? [p1, p2] : [p1];
     playersToDraw.forEach(pObj => {
         if ((pObj.invulnTimer % 10 < 5 || pObj.invulnTimer === 0) && engineState !== "GAMEOVER") { 

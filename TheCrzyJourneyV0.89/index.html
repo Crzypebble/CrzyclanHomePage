@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>The Crzy Journey</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #111; font-family: Arial Black, Arial, sans-serif; color: white; text-shadow: 2px 2px 8px black; overflow: hidden; transition: background 0.5s ease; touch-action: none; }
+    body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: -1; display: none; }
+    body.show-bg::before { display: block; }
+    
+    /* MOUSE HIDDEN MODE */
+    body.hide-mouse, body.hide-mouse * { cursor: none !important; }
+
+    .title { font-size: 4rem; font-weight: bold; margin-bottom: 60px; text-align: center; }
+    .menu button, .menu select, .menu input { display: block; width: 220px; padding: 14px; margin: 15px auto; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 10px; background: rgba(0,0,0,.7); color: red; cursor: pointer; border: 2px solid transparent; }
+    .menu input { background: #222; color: white; text-align: center; border: 2px solid red; text-transform: uppercase; }
+    .menu button:hover:not(:disabled) { background: red; color: white; transform: scale(1.05); border: 2px solid white; outline: none; }
+    .menu-section { display: none; text-align: center; overflow-y: auto; max-height: 100vh; padding: 40px 20px; box-sizing: border-box; width: 100%; }
+    
+    #game-container { display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 500; }
+    #game-canvas { width: 100%; height: 100%; display: block; }
+    #game-hud { position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 501; }
+    .hud-text { font-size: 1.5rem; color: #fff; text-shadow: 2px 2px 0px #000; font-weight: bold; }
+    
+    #boss-hp-container { display: none; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); width: 400px; z-index: 501; }
+    #boss-name-ui { color: #fff; font-size: 1.2rem; font-weight: bold; text-align: center; margin-bottom: 5px; text-transform: uppercase; }
+    #boss-hp-wrapper { width: 100%; height: 24px; border: 3px solid #fff; background: #222; }
+    #boss-hp-bar { width: 100%; height: 100%; background: #ff0000; transition: width 0.2s ease; }
+
+    #level-complete-screen, #game-over-screen { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); border: 2px solid #ffaa00; padding: 40px; text-align: center; border-radius: 12px; z-index: 502; }
+
+    #mobile-controls { display: none; position: absolute; bottom: 20px; left: 0; width: 100%; z-index: 999; justify-content: space-between; padding: 0 30px; box-sizing: border-box; pointer-events: none; }
+    .m-btn { width: 65px; height: 65px; border-radius: 50%; background: rgba(255,0,0,0.4); color: #fff; font-size: 1.5rem; border: 2px solid rgba(255,255,255,0.5); pointer-events: auto; touch-action: manipulation; user-select: none; }
+    @media (pointer: coarse) { #mobile-controls.auto-mode { display: flex; } }
+  </style>
+</head>
+<body>
+
+  <audio id="menu-music" loop><source src="assets/audio/music/menu_music.mp3" type="audio/mpeg"></audio>
+
+  <div id="disclaimer-screen" class="menu-section">
+    <div class="title" style="color: #ff0000;">WARNING</div>
+    <p style="font-size: 1.2rem;">The Warlords of the Digital Void have stolen the Golden Skull.<br>By proceeding, you agree to the rules of the clan.</p>
+    <div class="menu"><button id="accept-btn">I ACCEPT</button></div>
+  </div>
+
+  <div id="main-menu" class="menu-section">
+    <div class="title">THE CRZY JOURNEY</div>
+    <div class="menu">
+      <button class="menu-tab" data-target="play-menu">Play</button>
+      <button class="menu-tab" data-target="settings-menu">Settings</button>
+      <button class="menu-tab" data-target="savecode-menu">Load Save Code</button>
+    </div>
+  </div>
+  
+  <div id="savecode-menu" class="menu-section">
+    <div class="title">Load Progress</div>
+    <div class="menu">
+      <input type="text" id="save-code-input" placeholder="e.g. CRZY-2-1" autocomplete="off">
+      <button onclick="loadSaveCode()">Load Game</button>
+      <button class="menu-tab" data-target="main-menu">Back</button>
+    </div>
+  </div>
+
+  <div id="play-menu" class="menu-section">
+    <div class="title">Level Select</div>
+    <div id="areas-container" class="menu"></div>
+    <div class="menu"><button class="menu-tab" data-target="main-menu">Back</button></div>
+  </div>
+
+  <div id="settings-menu" class="menu-section">
+    <div class="title">Settings</div>
+    <div class="menu">
+      <button id="fullscreen-btn" style="background: #333; color: #fff;">Toggle Fullscreen</button>
+      <label style="margin-top: 15px; display: block;">Mouse Cursor:
+        <select id="cursor-select" style="margin-top: 10px;">
+          <option value="show" selected>Visible (Allow Mouse Clicks)</option>
+          <option value="hide">Hidden (Controller/Keys Only)</option>
+        </select>
+      </label>
+      <label style="margin-top: 15px; display: block;">Difficulty:
+        <select id="difficulty-select"><option value="Easy">Easy</option><option value="Normal" selected>Normal</option><option value="Hard">Hard</option></select>
+      </label>
+      <label style="color: #ff0000; font-weight: bold; margin-top: 15px; display: block;">Nightmare Mode (Fail = Area 1 Reset):
+        <select id="nightmare-select" style="margin-top: 10px;">
+          <option value="none" selected>Off</option>
+          <option value="reset_all">3 Lives (Reset on Game Over)</option>
+          <option value="1life">1 Life Only (Hardcore)</option>
+          <option value="timer">3 Lives + 15 Min Universal Timer</option>
+          <option value="timer_1life">1 Life + 15 Min Universal Timer</option>
+        </select>
+      </label>
+      <label style="margin-top: 15px; display: block;">Mobile Controls:
+        <select id="mobile-controls-select" style="margin-top: 10px;">
+          <option value="auto" selected>Auto (Touch Devices)</option>
+          <option value="on">Force ON</option>
+          <option value="off">Force OFF</option>
+        </select>
+      </label>
+      <button class="menu-tab" data-target="controls-menu" style="margin-top: 30px;">Controller Bindings</button>
+      <button class="menu-tab" data-target="main-menu">Back</button>
+    </div>
+  </div>
+
+  <!-- RESTORED CONTROLS MENU -->
+  <div id="controls-menu" class="menu-section">
+    <div class="title">Controller Bindings</div>
+    <div class="menu" id="bindings-container">
+      <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 20px;">(If custom bindings fail, native PlayStation/Xbox defaults are permanently active)</p>
+      <!-- your controls.js will populate this area -->
+      <button class="menu-tab" data-target="settings-menu" style="margin-top: 40px;">Back</button>
+    </div>
+  </div>
+
+  <!-- ACTUAL GAME SCREEN -->
+  <div id="game-container">
+    <div id="game-hud">
+      <div class="hud-text">Lives: <span id="ui-lives">❤️❤️❤️</span></div>
+      <div class="hud-text">Level: <span id="ui-level">1-1</span> <span id="ui-time" style="color:red; margin-left:20px; display:none;"></span></div>
+      <div class="hud-text">Equipped: <span id="ui-powerup">None</span> | Reserve: <span id="ui-reserve">None</span></div>
+    </div>
+
+    <div id="boss-hp-container">
+      <div id="boss-name-ui">Warlord</div>
+      <div id="boss-hp-wrapper"><div id="boss-hp-bar"></div></div>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+    
+    <div id="mobile-controls" class="auto-mode">
+      <div style="display:flex; gap:15px;">
+        <button class="m-btn" id="btn-left">◄</button>
+        <button class="m-btn" id="btn-down">▼</button>
+        <button class="m-btn" id="btn-right">►</button>
+      </div>
+      <div style="display:flex; gap:15px;">
+        <button class="m-btn" id="btn-swap">🔄</button>
+        <button class="m-btn" id="btn-shoot">🔫</button>
+        <button class="m-btn" id="btn-jump">▲</button>
+      </div>
+    </div>
+
+    <button onclick="quitGame()" style="position:absolute; top:70px; right:20px; z-index:501; padding:10px 20px; background:rgba(255,0,0,0.7); color:white; border-radius:5px; font-weight:bold; cursor:pointer;">Quit to Menu</button>
+    
+    <div id="level-complete-screen">
+      <h1 style="color: #ffaa00;">LEVEL CLEARED!</h1>
+      <h2 id="generated-save-code" style="background: #222; padding: 15px; border-radius: 8px;">XXXX-XXXX</h2>
+      <button onclick="nextLevel()" style="background: #00ccff; padding: 10px 20px; font-weight: bold; cursor: pointer;">Next Level</button>
+    </div>
+    <div id="game-over-screen">
+      <h1 id="game-over-text" style="color: #ff0000; font-size: 3rem;">GAME OVER</h1>
+      <button onclick="handleGameOverAction()" style="background: #ff0000; color: #fff; padding: 10px 20px; margin-right: 10px; cursor: pointer;" id="retry-btn">Try Again</button>
+      <button onclick="quitGame()" style="background: #333; color: #fff; padding: 10px 20px; cursor: pointer;">Quit to Menu</button>
+    </div>
+  </div>
+
+  <script src="levels/levelData.js"></script>
+  <script src="js/areas.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/controls.js"></script>
+</body>
+</html>

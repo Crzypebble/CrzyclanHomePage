@@ -83,6 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load the new universal POTD
   loadProfileOfTheDay();
 
+  // Load the Web Games into the grid!
+  renderWebGames();
+
   document.getElementById('bg-uploader').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -166,7 +169,6 @@ window.setCustomProfileBG = function() {
 // --- PROFILE OF THE DAY INJECTOR (UNIVERSAL & NO-REPEAT) ---
 function loadProfileOfTheDay() {
   db.collection('system').doc('potd').get().then(potdDoc => {
-    // Get today's local date string
     const todayStr = new Date().toLocaleDateString('en-US');
     
     db.collection('profiles').limit(50).get().then(snapshot => {
@@ -181,14 +183,12 @@ function loadProfileOfTheDay() {
 
       let currentPotd = potdDoc.exists ? potdDoc.data() : null;
 
-      // If there is no POTD document yet, OR the date has flipped to the next day:
       if (!currentPotd || currentPotd.date !== todayStr) {
         let availableDocs = validDocs;
         
-        // Remove yesterday's profile from the pool so they can't be chosen twice in a row
         if (currentPotd && currentPotd.uid) {
           availableDocs = validDocs.filter(d => d.id !== currentPotd.uid);
-          if (availableDocs.length === 0) availableDocs = validDocs; // Fallback 
+          if (availableDocs.length === 0) availableDocs = validDocs; 
         }
 
         const randomDoc = availableDocs[Math.floor(Math.random() * availableDocs.length)];
@@ -201,11 +201,9 @@ function loadProfileOfTheDay() {
           pfp: data.profilePic || DEFAULT_PFP
         };
 
-        // Save this to the global Firebase so EVERYONE sees this exact same profile today
         db.collection('system').doc('potd').set(currentPotd, { merge: true });
       }
 
-      // Render the universal profile
       const potdContainer = document.getElementById('potd-target');
       if (potdContainer) {
         potdContainer.innerHTML = `
@@ -1006,4 +1004,61 @@ window.openProjectDetails = function(projectId) {
   }
   
   document.getElementById('project-details-modal').style.display = 'flex';
+};
+
+// ==========================================
+// --- NEW WEB GAMES CONFIGURATION ARRAY ---
+// ==========================================
+const playableWebGames = [
+  {
+    id: "crzy-journey",
+    title: "The Crzy Journey",
+    folderName: "game", 
+    image: "game/assets/backgrounds/area1_bg.jpg", 
+    desc: "A custom 2D platformer built for CRZYCLAN. Battle through 10 unique areas, master elemental powers, and defeat the Void Warlords to retrieve the Golden Skull!"
+  }
+  // To add a new game later, just add a comma above and paste another block right here!
+];
+
+// ==========================================
+// --- NEW WEB GAMES RENDERING & MODALS ---
+// ==========================================
+function renderWebGames() {
+  const grid = document.getElementById('web-games-grid');
+  if (!grid) return;
+
+  grid.innerHTML = ''; // Clear it out so it doesn't duplicate
+
+  playableWebGames.forEach(game => {
+    const card = document.createElement('div');
+    card.className = 'content-card';
+    card.innerHTML = `
+      <img src="${game.image}" alt="${game.title}" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='">
+      <h3>${game.title}</h3>
+      <p>${game.desc}</p>
+      <button class="sleek-btn" style="margin-top: 10px; width: 100%; text-align: center; background: #ff0000; border: none; color: #fff;" onclick="openWebGame('${game.folderName}', '${game.title}')">▶ Play Now</button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+window.openWebGame = function(folderPath, gameTitle) {
+  const modal = document.getElementById('web-game-modal');
+  const iframe = document.getElementById('web-game-iframe');
+  const titleEl = document.getElementById('web-game-title');
+
+  titleEl.textContent = gameTitle;
+  // This automatically targets the index.html inside the folder name you provided!
+  iframe.src = `/${folderPath}/index.html`; 
+  modal.style.display = 'flex';
+};
+
+window.closeWebGame = function() {
+  const modal = document.getElementById('web-game-modal');
+  const iframe = document.getElementById('web-game-iframe');
+
+  modal.style.display = 'none';
+  // CRITICAL: We have to wipe the iframe source when closing. 
+  // Otherwise, the game keeps running invisibly and the music will keep playing!
+  iframe.src = ""; 
 };

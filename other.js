@@ -1043,7 +1043,7 @@ function renderWebGames() {
     const card = document.createElement('div');
     card.className = 'content-card';
     card.innerHTML = `
-      <img src="${game.image}" alt="${game.title}" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='">
+      <img src="${game.image}" alt="${game.title}" style="width: 100%; height: 200px; object-fit: contain; background-color: #0a0a0a; border-radius: 8px;" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='">
       <h3>${game.title}</h3>
       <p>${game.desc}</p>
       <button class="sleek-btn" style="margin-top: 10px; width: 100%; text-align: center; background: #ff0000; border: none; color: #fff;" onclick="openWebGame('${game.folderName}', '${game.title}')">▶ Play Game</button>
@@ -1059,7 +1059,8 @@ window.openWebGame = function(folderPath, gameTitle) {
 
   titleEl.textContent = gameTitle;
   
-  iframe.src = `/${folderPath}/index.html`; 
+  // FIX: Removed the leading slash so it respects the GitHub Pages repo path!
+  iframe.src = `${folderPath}/index.html`; 
   modal.style.display = 'flex';
 };
 

@@ -11,7 +11,7 @@ const gameContainer = document.getElementById("game-container");
 const completeScreen = document.getElementById("level-complete-screen");
 const gameOverScreen = document.getElementById("game-over-screen");
 
-// FIX HUD OVERLAP VIA JS (NO HTML EDITS NEEDED)
+// FIX HUD OVERLAP VIA JS
 const hud = document.getElementById("game-hud");
 if (hud) {
     hud.style.flexWrap = "wrap";
@@ -117,10 +117,10 @@ function isActionPressed(action, playerNum = 1) {
         if (action === "jump" && (keys["KeyW"])) return true;
         if (action === "attack" && (keys["KeyE"])) return true;
         if (action === "swap" && (keys["KeyR"])) return true;
-        if (action === "join" && (keys["Enter"])) return true;
 
         const gp2 = navigator.getGamepads ? navigator.getGamepads()[1] : null;
         if (gp2) {
+            // ONLY physical controller Start button allowed for joining
             if (action === "join" && gp2.buttons[9]?.pressed) return true; 
             if (action === "jump" && gp2.buttons[0]?.pressed) return true; 
             if (action === "attack" && (gp2.buttons[2]?.pressed || gp2.buttons[1]?.pressed)) return true; 
@@ -310,7 +310,19 @@ function shoot(playerObj) {
     let isGlock = playerObj.powerup.type === "glock";
     let lookDir = playerObj.vx < 0 ? -1 : 1; 
     if (playerObj.vx === 0) lookDir = 1;
-    projectiles.push({ x: playerObj.x + (lookDir === 1 ? playerObj.width : -20), y: playerObj.y + 15, vx: playerObj.powerup.projSpeed * lookDir, vy: isGlock ? 0 : -5, gravity: isGlock ? 0 : 0.6, width: 20, height: 20, color: playerObj.powerup.color, icon: playerObj.powerup.icon });
+    
+    // Glock shoots actual tracers, everything else shoots its icon
+    projectiles.push({ 
+        x: playerObj.x + (lookDir === 1 ? playerObj.width : -20), 
+        y: playerObj.y + 15, 
+        vx: playerObj.powerup.projSpeed * lookDir, 
+        vy: isGlock ? 0 : -5, 
+        gravity: isGlock ? 0 : 0.6, 
+        width: isGlock ? 25 : 20, 
+        height: isGlock ? 4 : 20, 
+        color: isGlock ? "#ffff00" : playerObj.powerup.color, 
+        icon: isGlock ? null : playerObj.powerup.icon 
+    });
 }
 
 function updateHUD() {
@@ -324,17 +336,14 @@ function updateHUD() {
     }
 }
 
-// XXXX FIX AND SAVE BYPASS
 function winLevel() {
     engineState = "COMPLETE";
     let nextA = currentAreaIdx; let nextL = currentLevelIdx + 1;
     if (nextL > currentAreaObj.levels.length) { nextL = 1; nextA++; }
     
-    // Write the code to the screen BEFORE doing any save checks
     const codeEl = document.getElementById("generated-save-code");
     if (codeEl) codeEl.textContent = `CRZY-${nextA}-${nextL}`;
 
-    // Bypass saving entirely if the killswitch is active
     if (!DISABLE_SAVING) {
         try {
             if (typeof saveProgress === 'function') saveProgress(nextA, nextL);
@@ -587,7 +596,6 @@ function gameLoop() {
         ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(e.x + e.width/2 - 4, e.y + 8, 4, 0, Math.PI*2); ctx.fill();
         ctx.fillStyle = "black"; ctx.beginPath(); ctx.arc(e.x + e.width/2 - 5, e.y + 8, 2, 0, Math.PI*2); ctx.fill();
 
-        // THE ENEMY LEGS RESTORED 
         ctx.fillStyle = (e.type === "flyer") ? "purple" : (e.type === "jumper" ? "orange" : `hsl(${currentAreaIdx * 35}, 80%, 40%)`);
         let legOff = (Math.floor(Date.now() / 100) % 2 === 0) ? 3 : 0;
         ctx.fillRect(e.x + 10, e.y + e.height - 10, 6, 10 - legOff);
@@ -601,8 +609,12 @@ function gameLoop() {
 
     ctx.font = "16px Arial";
     projectiles.forEach(p => { 
-        if (p.icon) { ctx.fillText(p.icon, p.x, p.y + 15); } 
-        else { ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.width, p.height); } 
+        if (p.icon) { 
+            ctx.fillText(p.icon, p.x, p.y + 15); 
+        } else { 
+            ctx.fillStyle = p.color; 
+            ctx.fillRect(p.x, p.y, p.width, p.height); 
+        } 
     });
     
     enemyProjectiles.forEach(p => { 
@@ -612,13 +624,23 @@ function gameLoop() {
     let playersToDraw = p2.active ? [p1, p2] : [p1];
     playersToDraw.forEach(pObj => {
         if ((pObj.invulnTimer % 10 < 5 || pObj.invulnTimer === 0) && engineState !== "GAMEOVER") { 
-            ctx.fillStyle = pObj.color; ctx.fillRect(pObj.x + 5, pObj.y + 15, pObj.width - 10, pObj.height - 25); 
+            ctx.fillStyle = pObj.color; 
+            ctx.fillRect(pObj.x + 5, pObj.y + 15, pObj.width - 10, pObj.height - 25); 
             ctx.beginPath(); ctx.arc(pObj.x + pObj.width/2, pObj.y + 10, 12, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = pObj.powerup ? pObj.powerup.color : "red"; ctx.fillRect(pObj.x + 2, pObj.y + 4, pObj.width - 4, 6);
+            
+            ctx.fillStyle = pObj.powerup ? pObj.powerup.color : "red"; 
+            ctx.fillRect(pObj.x + 2, pObj.y + 4, pObj.width - 4, 6);
+            
             ctx.fillStyle = "black";
             let lookX = pObj.vx > 0 ? 4 : (pObj.vx < 0 ? -4 : 0);
             ctx.fillRect(pObj.x + pObj.width/2 - 4 + lookX, pObj.y + 8, 3, 3);
             ctx.fillRect(pObj.x + pObj.width/2 + 2 + lookX, pObj.y + 8, 3, 3);
+
+            // PLAYER LEGS ADDED HERE
+            ctx.fillStyle = pObj.color;
+            let legOff = (pObj.vx !== 0 && Math.floor(Date.now() / 100) % 2 === 0) ? 4 : 0;
+            ctx.fillRect(pObj.x + 8, pObj.y + pObj.height - 10, 6, 10 - legOff);
+            ctx.fillRect(pObj.x + 16, pObj.y + pObj.height - 10, 6, 10 + legOff);
         }
     });
 

@@ -1013,21 +1013,18 @@ window.openProjectDetails = function(projectId) {
 const playableWebGames = [
   {
     id: "crzy-journeyBETA0.74",
-    title: "The Crzy JourneyBETA0.74",
+    title: "The Crzy Journey BETA 0.74",
     folderName: "the_crzy_journey_full_rebuild", // The exact name of the folder you uploaded for this game
     image: "TheCrzyJourneyCover.png", // The thumbnail image uploaded to your root folder
     desc: "A custom 2D platformer built for CRZYCLAN. Battle through 10 unique areas, master elemental powers, and defeat the Void Warlords to retrieve the Golden Skull!"
+  },
+  {
+    id: "crzy-journeyBETA-0.89",
+    title: "The Crzy Journey BETA 0.89",
+    folderName: "TheCrzyJourneyV0.89", // CHANGE THIS to match the folder of the new version
+    image: "TheCrzyJourneyCover.png", // CHANGE THIS if you have a new cover image
+    desc: "The updated version of The Crzy Journey! Check out the newest features, mechanics, and bug fixes."
   }
-  
-  /* --- EXAMPLE OF HOW TO ADD ANOTHER GAME ---
-  , {
-    id: "your-next-game",
-    title: "Next Game Title",
-    folderName: "next-game-folder",
-    image: "next_game_image.png",
-    desc: "Description of your next game goes here."
-  }
-  ------------------------------------------- */
 ];
 
 // ==========================================

@@ -1013,8 +1013,8 @@ window.openProjectDetails = function(projectId) {
 const playableWebGames = [
   {
     id: "crzy-journey",
-    title: "The Crzy Journey",
-    folderName: "game", // The exact name of the folder you uploaded for this game
+    title: "The Crzy JourneyBETA0.74",
+    folderName: "the_crzy_journey_full_rebuild", // The exact name of the folder you uploaded for this game
     image: "image_543213.png", // The thumbnail image uploaded to your root folder
     desc: "A custom 2D platformer built for CRZYCLAN. Battle through 10 unique areas, master elemental powers, and defeat the Void Warlords to retrieve the Golden Skull!"
   }

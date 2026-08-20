@@ -1,0 +1,18 @@
+{
+  "name": "The Crzy Journey",
+  "version": "rebuild-1.0",
+  "entry": "index.html",
+  "folders": [
+    "assets/backgrounds",
+    "assets/images",
+    "assets/sprites",
+    "assets/audio/music",
+    "assets/audio/sfx",
+    "assets/fonts",
+    "assets/data",
+    "js",
+    "css",
+    "levels",
+    "saves"
+  ]
+}

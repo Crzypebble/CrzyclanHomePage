@@ -11,11 +11,17 @@ const gameContainer = document.getElementById("game-container");
 const completeScreen = document.getElementById("level-complete-screen");
 const gameOverScreen = document.getElementById("game-over-screen");
 
-// FIX HUD OVERLAP VIA JS
+// FIX HUD OVERLAP VIA JS (NO HTML EDITS NEEDED)
 const hud = document.getElementById("game-hud");
 if (hud) {
     hud.style.flexWrap = "wrap";
     hud.style.gap = "10px";
+}
+
+// PUSH BOSS HP BAR DOWN TO PREVENT OVERLAP
+const bossHpCont = document.getElementById("boss-hp-container");
+if (bossHpCont) {
+    bossHpCont.style.top = "120px"; // Moves it safely below the expanded HUD
 }
 
 // AGGRESSIVE POINTER LOCK TO TRAP THE CONSOLE CURSOR
@@ -54,15 +60,13 @@ levelAudio.loop = true;
 const keys = {};
 window.addEventListener("keydown", e => {
     keys[e.code] = true;
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) e.preventDefault();
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "Enter"].includes(e.code)) e.preventDefault();
 });
 window.addEventListener("keyup", e => keys[e.code] = false);
 
 // Mute physical mouse clicks on the canvas to stop browser hijacking
 window.addEventListener("pointerdown", e => {
-    if (e.pointerType === "mouse" && engineState === "PLAYING") {
-        e.preventDefault();
-    }
+    if (e.pointerType === "mouse" && engineState === "PLAYING") e.preventDefault();
 }, { capture: true });
 
 function bindTouch(id, code) {
@@ -120,7 +124,6 @@ function isActionPressed(action, playerNum = 1) {
 
         const gp2 = navigator.getGamepads ? navigator.getGamepads()[1] : null;
         if (gp2) {
-            // ONLY physical controller Start button allowed for joining
             if (action === "join" && gp2.buttons[9]?.pressed) return true; 
             if (action === "jump" && gp2.buttons[0]?.pressed) return true; 
             if (action === "attack" && (gp2.buttons[2]?.pressed || gp2.buttons[1]?.pressed)) return true; 
@@ -201,8 +204,8 @@ window.nextLevel = function() {
 }
 
 function resetLevel() {
-    p1.x = 100; p1.y = 100; p1.vx = 0; p1.vy = 0; p1.invulnTimer = 0;
-    if (p2.active) { p2.x = 140; p2.y = 100; p2.vx = 0; p2.vy = 0; p2.invulnTimer = 0; }
+    p1.x = 100; p1.y = 100; p1.vx = 0; p1.vy = 0; p1.invulnTimer = 150; // Spawn protection
+    if (p2.active) { p2.x = 140; p2.y = 100; p2.vx = 0; p2.vy = 0; p2.invulnTimer = 150; }
     
     cameraX = 0; maxCameraX = 0; cameraLocked = false; lockedCameraX = 0;
     projectiles = []; enemyProjectiles = []; enemies = []; platforms = []; physicalDrops = []; boss = null; secretWarp = null;
@@ -264,11 +267,16 @@ function resetLevel() {
 
     if (currentLevelData && (currentLevelData.hasMiniBoss || currentLevelData.isAreaBoss)) {
         let bX = currentLevelData.isAreaBoss ? finishLineX - 1500 : finishLineX - 1200;
+        
         boss = {
             name: currentLevelData.isAreaBoss ? currentLevelData.name.toUpperCase() : "Mini Boss", 
-            x: bX, y: floorY - (120 * bScale), width: 100 * bScale, height: 120 * bScale,
-            hp: (currentLevelData.isAreaBoss ? bHP : bHP / 2) * difficultyMult, maxHp: (currentLevelData.isAreaBoss ? bHP : bHP / 2) * difficultyMult, 
-            phase: 1, shootTimer: 0, spikeTimer: 0, stompImmune: false, hasSpikes: currentAreaIdx > 1 
+            type: currentAreaIdx === 8 ? "eyeball" : "normal", // Area 8 gets the Eyeball
+            x: bX, y: currentAreaIdx === 8 ? floorY - 250 : floorY - (120 * bScale), 
+            width: currentAreaIdx === 8 ? 120 : 100 * bScale, 
+            height: currentAreaIdx === 8 ? 120 : 120 * bScale,
+            hp: (currentLevelData.isAreaBoss ? bHP : bHP / 2) * difficultyMult, 
+            maxHp: (currentLevelData.isAreaBoss ? bHP : bHP / 2) * difficultyMult, 
+            phase: 1, shootTimer: 0, beamTimer: 0, spikeTimer: 0, stompImmune: false, hasSpikes: currentAreaIdx > 1 
         };
     }
     updateHUD();
@@ -294,12 +302,23 @@ function triggerGameOver() {
 
 function takeDamage(playerObj) {
     if (playerObj.invulnTimer > 0 || engineState !== "PLAYING") return false;
-    if (playerObj.powerup) { playerObj.powerup = null; playerObj.invulnTimer = 90; updateHUD(); return false; } 
-    else { 
+    if (playerObj.powerup) { 
+        playerObj.powerup = null; 
+        playerObj.invulnTimer = 90; 
+        updateHUD(); 
+        return false; 
+    } else { 
         sharedLives -= 1; 
         updateHUD(); 
-        if (sharedLives <= 0) triggerGameOver(); 
-        else resetLevel(); 
+        
+        if (sharedLives <= 0) {
+            triggerGameOver(); 
+        } else {
+            // DEATH FREEZE FIX: Immediately apply heavy i-frames so the engine doesn't crash from double-deaths
+            p1.invulnTimer = 150; 
+            if (p2.active) p2.invulnTimer = 150;
+            resetLevel(); 
+        }
         return true; 
     }
 }
@@ -326,13 +345,19 @@ function shoot(playerObj) {
 }
 
 function updateHUD() {
-    const uiLives = document.getElementById("ui-lives"); if (uiLives) uiLives.textContent = "❤️".repeat(Math.max(0, sharedLives));
-    const uiLevel = document.getElementById("ui-level"); if (uiLevel) uiLevel.textContent = currentLevelData.name;
+    const uiLives = document.getElementById("ui-lives"); 
+    if (uiLives) uiLives.textContent = "❤️".repeat(Math.max(0, sharedLives));
+    
+    const uiLevel = document.getElementById("ui-level"); 
+    if (uiLevel && currentLevelData) uiLevel.textContent = currentLevelData.name;
     
     const pwrUI = document.getElementById("ui-powerup"); 
     if (pwrUI) { 
-        if (p1.powerup) { pwrUI.textContent = "P1: " + p1.powerup.icon + (p2.active && p2.powerup ? " | P2: " + p2.powerup.icon : ""); pwrUI.style.color = p1.powerup.color; } 
-        else { pwrUI.textContent = "None"; pwrUI.style.color = "#ccc"; } 
+        // CLEAN UI FIX: Separates Power and Reserve for both players neatly
+        let p1Text = "P1: " + (p1.powerup ? p1.powerup.icon : "None") + " (Res: " + (p1.reservePowerup ? p1.reservePowerup.icon : "None") + ")";
+        let p2Text = p2.active ? " | P2: " + (p2.powerup ? p2.powerup.icon : "None") + " (Res: " + (p2.reservePowerup ? p2.reservePowerup.icon : "None") + ")" : "";
+        pwrUI.textContent = "Equipped: " + p1Text + p2Text;
+        pwrUI.style.color = "#ffffff";
     }
 }
 
@@ -345,11 +370,7 @@ function winLevel() {
     if (codeEl) codeEl.textContent = `CRZY-${nextA}-${nextL}`;
 
     if (!DISABLE_SAVING) {
-        try {
-            if (typeof saveProgress === 'function') saveProgress(nextA, nextL);
-        } catch(e) {
-            console.log("Save blocked or unavailable.");
-        }
+        try { if (typeof saveProgress === 'function') saveProgress(nextA, nextL); } catch(e) { console.log("Save blocked."); }
     }
     
     if (document.exitPointerLock) document.exitPointerLock();
@@ -375,17 +396,23 @@ function updatePlayerPhysics(pObj, pNum) {
     }
 
     pObj.x += pObj.vx;
+    
+    // HARD SCREEN BOUNDARY COLLISION
     let leftBound = cameraLocked ? lockedCameraX : maxCameraX;
-    if (pObj.x < leftBound) { pObj.x = leftBound; if (pObj.vx < 0) pObj.vx = 0; }
-    if (cameraLocked && pObj.x + pObj.width > lockedCameraX + canvas.width) { pObj.x = lockedCameraX + canvas.width - pObj.width; if (pObj.vx > 0) pObj.vx = 0; }
+    if (pObj.x < leftBound) { pObj.x = leftBound; pObj.vx = 0; }
+    if (pObj.x + pObj.width > finishLineX + 800) { pObj.x = finishLineX + 800 - pObj.width; pObj.vx = 0; }
 
     const floorY = canvas.height - 60;
+    
+    // HARD HORIZONTAL WALL COLLISION
     for (let plat of platforms) {
         if (plat.y < floorY) continue; 
-        if (pObj.y + pObj.height <= plat.y + 12) continue; 
-        if (pObj.x < plat.x + plat.w && pObj.x + pObj.width > plat.x && pObj.y < plat.y + plat.h && pObj.y + pObj.height > plat.y) {
-            if (pObj.vx > 0) pObj.x = plat.x - pObj.width; else if (pObj.vx < 0) pObj.x = plat.x + plat.w;
-            pObj.vx = 0;
+        if (pObj.y + pObj.height > plat.y + 15 && pObj.y < plat.y + plat.h) {
+            if (pObj.x < plat.x + plat.w && pObj.x + pObj.width > plat.x) {
+                if (pObj.vx > 0) pObj.x = plat.x - pObj.width; 
+                else if (pObj.vx < 0) pObj.x = plat.x + plat.w;
+                pObj.vx = 0;
+            }
         }
     }
 
@@ -521,49 +548,78 @@ function gameLoop() {
             if (boss.hp <= 0) { winLevel(); boss = null; }
             
             if (boss) { 
-                if (boss.hasSpikes && boss.phase !== 2) {
-                    boss.spikeTimer++;
-                    if (boss.spikeTimer > 150) { boss.stompImmune = !boss.stompImmune; boss.spikeTimer = 0; }
-                } else { boss.stompImmune = boss.phase === 2; }
-
-                if (boss.phase === 2) { 
-                    boss.x += 8; 
-                    if (boss.x >= finishLineX - 200) { boss.x = finishLineX - 200; boss.phase = 3; }
-                }
-
-                if (cameraLocked || boss.phase === 2 || boss.phase === 3) {
-                    boss.shootTimer++;
-                    let fireThresh = 150 - (currentAreaIdx * 4); 
-                    if (difficultyMult === 0.6) fireThresh *= 1.5; 
-                    if (boss.phase === 2 || boss.phase === 3) fireThresh *= 0.35; 
-
-                    if (boss.shootTimer > fireThresh) {
-                        let target = p1;
-                        if (p2.active && Math.abs(p2.x - boss.x) < Math.abs(p1.x - boss.x)) target = p2;
-                        
-                        let dx = (target.x + target.width/2) - (boss.x + boss.width/2);
-                        let dy = (target.y + target.height/2) - (boss.y + boss.height/2);
-                        let dist = Math.sqrt(dx*dx + dy*dy);
-                        let pSpeed = 7 * difficultyMult;
-                        enemyProjectiles.push({x: boss.x + 20, y: boss.y + 40, vx: (dx/dist)*pSpeed, vy: (dy/dist)*pSpeed, width: 20, height: 20, color: "red"}); 
-                        boss.shootTimer = 0;
+                
+                // AREA 8 EYEBALL BOSS LOGIC
+                if (boss.type === "eyeball") {
+                    boss.y = (floorY - 250) + Math.sin(Date.now() / 500) * 100; // Floats up and down smoothly
+                    boss.beamTimer++;
+                    if (boss.beamTimer > 200) boss.beamTimer = 0; // Reset loop
+                    
+                    if (boss.beamTimer > 150) { // Active Beam Phase
+                        let beamY = boss.y + boss.height/2 - 20;
+                        let players = p2.active ? [p1, p2] : [p1];
+                        for (let pObj of players) {
+                            if (pObj.y + pObj.height > beamY && pObj.y < beamY + 40 && pObj.x < boss.x) {
+                                takeDamage(pObj);
+                            }
+                        }
                     }
-                }
-
-                for (let j = projectiles.length - 1; j >= 0; j--) {
-                    let p = projectiles[j];
-                    if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
-                        boss.hp -= 1; projectiles.splice(j, 1);
+                    
+                    for (let j = projectiles.length - 1; j >= 0; j--) {
+                        let p = projectiles[j];
+                        if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
+                            boss.hp -= 1; projectiles.splice(j, 1);
+                        }
                     }
-                }
+                    
+                } else {
+                    // NORMAL BOSS LOGIC
+                    if (boss.hasSpikes && boss.phase !== 2) {
+                        boss.spikeTimer++;
+                        if (boss.spikeTimer > 150) { boss.stompImmune = !boss.stompImmune; boss.spikeTimer = 0; }
+                    } else { boss.stompImmune = boss.phase === 2; }
 
-                let players = p2.active ? [p1, p2] : [p1];
-                for (let pObj of players) {
-                    if (pObj.x < boss.x + boss.width && pObj.x + pObj.width > boss.x && pObj.y < boss.y + boss.height && pObj.y + pObj.height > boss.y) {
-                        if (pObj.vy > 0 && pObj.y + pObj.height - pObj.vy <= boss.y + 20) {
-                            if (boss.stompImmune) { takeDamage(pObj); } 
-                            else { boss.hp -= 1; pObj.vy = -16; pObj.vx = -12; }
-                        } else { takeDamage(pObj); }
+                    if (boss.phase === 2) { 
+                        boss.x += 8; 
+                        if (boss.x >= finishLineX - 200) { boss.x = finishLineX - 200; boss.phase = 3; }
+                    }
+
+                    if (cameraLocked || boss.phase === 2 || boss.phase === 3) {
+                        boss.shootTimer++;
+                        let fireThresh = 150 - (currentAreaIdx * 4); 
+                        if (difficultyMult === 0.6) fireThresh *= 1.5; 
+                        if (boss.phase === 2 || boss.phase === 3) fireThresh *= 0.35; 
+
+                        if (boss.shootTimer > fireThresh) {
+                            // BOSS AIMING FIX: Explicitly recalculates angle to nearest player every single shot
+                            let target = p1;
+                            if (p2.active && Math.abs(p2.x - boss.x) < Math.abs(p1.x - boss.x)) target = p2;
+                            
+                            let dx = (target.x + target.width/2) - (boss.x + boss.width/2);
+                            let dy = (target.y + target.height/2) - (boss.y + boss.height/2);
+                            let dist = Math.sqrt(dx*dx + dy*dy);
+                            let pSpeed = 7 * difficultyMult;
+                            
+                            enemyProjectiles.push({x: boss.x + 20, y: boss.y + 40, vx: (dx/dist)*pSpeed, vy: (dy/dist)*pSpeed, width: 20, height: 20, color: "red"}); 
+                            boss.shootTimer = 0;
+                        }
+                    }
+
+                    for (let j = projectiles.length - 1; j >= 0; j--) {
+                        let p = projectiles[j];
+                        if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
+                            boss.hp -= 1; projectiles.splice(j, 1);
+                        }
+                    }
+
+                    let players = p2.active ? [p1, p2] : [p1];
+                    for (let pObj of players) {
+                        if (pObj.x < boss.x + boss.width && pObj.x + pObj.width > boss.x && pObj.y < boss.y + boss.height && pObj.y + pObj.height > boss.y) {
+                            if (pObj.vy > 0 && pObj.y + pObj.height - pObj.vy <= boss.y + 20) {
+                                if (boss.stompImmune) { takeDamage(pObj); } 
+                                else { boss.hp -= 1; pObj.vy = -16; pObj.vx = -12; }
+                            } else { takeDamage(pObj); }
+                        }
                     }
                 }
             }
@@ -603,8 +659,30 @@ function gameLoop() {
     });
 
     if (boss) {
-        ctx.fillStyle = `hsl(${currentAreaIdx * 45}, 100%, 30%)`;
-        ctx.fillRect(boss.x + 20, boss.y + 40, boss.width - 40, boss.height - 40);
+        if (boss.type === "eyeball") {
+            // RENDERING EYEBALL BOSS
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath(); ctx.arc(boss.x + boss.width/2, boss.y + boss.height/2, boss.width/2, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#ff0000"; // Iris
+            ctx.beginPath(); ctx.arc(boss.x + boss.width/2, boss.y + boss.height/2, boss.width/4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#000000"; // Pupil
+            ctx.beginPath(); ctx.arc(boss.x + boss.width/2, boss.y + boss.height/2, boss.width/8, 0, Math.PI*2); ctx.fill();
+
+            // BEAM RENDERING
+            if (boss.beamTimer > 100 && boss.beamTimer <= 150) { // Warning phase
+                ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+                ctx.fillRect(0, boss.y + boss.height/2 - 20, boss.x, 40);
+            } else if (boss.beamTimer > 150) { // Active thick beam
+                ctx.fillStyle = "rgba(255, 0, 0, 0.9)";
+                ctx.fillRect(0, boss.y + boss.height/2 - 20, boss.x, 40);
+                ctx.fillStyle = "#ffffff"; // White hot core
+                ctx.fillRect(0, boss.y + boss.height/2 - 10, boss.x, 20);
+            }
+        } else {
+            // NORMAL BOSS RENDER
+            ctx.fillStyle = `hsl(${currentAreaIdx * 45}, 100%, 30%)`;
+            ctx.fillRect(boss.x + 20, boss.y + 40, boss.width - 40, boss.height - 40);
+        }
     }
 
     ctx.font = "16px Arial";
@@ -636,7 +714,7 @@ function gameLoop() {
             ctx.fillRect(pObj.x + pObj.width/2 - 4 + lookX, pObj.y + 8, 3, 3);
             ctx.fillRect(pObj.x + pObj.width/2 + 2 + lookX, pObj.y + 8, 3, 3);
 
-            // PLAYER LEGS ADDED HERE
+            // PLAYER LEGS RESTORED
             ctx.fillStyle = pObj.color;
             let legOff = (pObj.vx !== 0 && Math.floor(Date.now() / 100) % 2 === 0) ? 4 : 0;
             ctx.fillRect(pObj.x + 8, pObj.y + pObj.height - 10, 6, 10 - legOff);

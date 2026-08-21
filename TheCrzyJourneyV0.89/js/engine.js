@@ -1,5 +1,5 @@
 // js/engine.js
-// CORE GAME ENGINE - Powered by levelData.js, physics.js & render.js
+// CORE GAME ENGINE - Powered by levelData.js, physics.js, render.js & levelLayouts.js
 
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas ? canvas.getContext("2d") : null;
@@ -30,12 +30,6 @@ window.addEventListener("keydown", e => keys[e.code] = true);
 window.addEventListener("keyup", e => keys[e.code] = false);
 
 let nightmareTimeFrames = -1;
-let currentSeed = 1;
-
-function seededRandom() {
-    let x = Math.sin(currentSeed++) * 10000;
-    return x - Math.floor(x);
-}
 
 function isActionPressed(action) {
     if (action === "moveLeft" && (keys["ArrowLeft"] || keys["KeyA"])) return true;
@@ -155,56 +149,24 @@ function resetLevel() {
     cameraX = 0; maxCameraX = 0; cameraLocked = false; lockedCameraX = 0;
     projectiles = []; enemyProjectiles = []; enemies = []; platforms = []; physicalDrops = []; boss = null;
     
-    currentSeed = (currentAreaIdx * 100) + currentLevelIdx;
-    finishLineX = currentLevelData.length || 3000;
     const floorY = canvas.height - 60;
     
-    const areaPowerObj = window.AREA_POWERUPS ? window.AREA_POWERUPS[Math.min(currentAreaIdx - 1, 9)] : null;
+    // --- LOAD PRESET LEVEL DESIGN ---
+    let layout = window.LevelLayouts.getLayout(currentAreaIdx, currentLevelIdx, currentLevelData, canvas.height);
     
-    if (currentLevelData.isAreaBoss || currentLevelData.hasMiniBoss) {
-        for(let i = 0; i < 2; i++) {
-            let randIndex = Math.floor(seededRandom() * currentAreaIdx);
-            let randPwr = window.AREA_POWERUPS[randIndex];
-            physicalDrops.push({ x: 300 + (i * 200), y: floorY - 300, vx: 0, vy: 0, type: "powerup", data: randPwr });
-        }
-    } else {
-        if (!currentLevelData.noPowerups && areaPowerObj) {
-            physicalDrops.push({ x: 400, y: floorY - 300, vx: 0, vy: 0, type: "powerup", data: areaPowerObj });
-        }
-        physicalDrops.push({ x: finishLineX / 2, y: floorY - 300, vx: 0, vy: 0, type: "heart" }); 
-    }
+    finishLineX = layout.length;
+    platforms = layout.platforms.map(p => ({ x: p.x, y: p.y, w: p.w, h: p.h }));
+    
+    let baseEnemySpeed = -2 * (1 + (currentAreaIdx * 0.05)) * difficultyMult;
+    enemies = layout.enemies.map(e => ({
+        x: e.x, y: e.y, width: 40, height: 40, vx: baseEnemySpeed, vy: 0, hp: 1, grounded: false
+    }));
+    
+    physicalDrops = layout.drops.map(d => ({
+        x: d.x, y: d.y, vx: 0, vy: 0, type: d.type, data: d.data
+    }));
 
-    platforms.push({ x: -100, y: floorY, w: 600, h: 60 }); 
-    platforms.push({ x: finishLineX - 600, y: floorY, w: 1200, h: 60 }); 
-    
-    let currentX = 500;
-    while (currentX < finishLineX - 600) {
-        let rng = seededRandom();
-        if (rng < 0.25 && !currentLevelData.isAreaBoss && !currentLevelData.hasMiniBoss) {
-            platforms.push({ x: currentX + 50, y: floorY - 150, w: 150, h: 20 });
-            currentX += 350; 
-        } else if (rng < 0.5) {
-            platforms.push({ x: currentX, y: floorY - 60, w: 150, h: 120 });
-            currentX += 150;
-        } else {
-            let w = 200 + (seededRandom() * 400);
-            platforms.push({ x: currentX, y: floorY, w: w, h: 60 });
-            currentX += w;
-        }
-    }
-    
-    for(let i = 1; i < (finishLineX / 800); i++) {
-        platforms.push({ x: 800 * i, y: floorY - 180, w: 150, h: 20 });
-        platforms.push({ x: 800 * i + 350, y: floorY - 250, w: 100, h: 20 });
-    }
-
-    if (!currentLevelData.isAreaBoss) {
-        for(let i = 1; i < (finishLineX / 600); i++) {
-            let eSpeed = -2 * (1 + (currentAreaIdx * 0.05)) * difficultyMult;
-            enemies.push({ x: 600 * i, y: floorY - 200, width: 40, height: 40, vx: eSpeed, vy: 0, hp: 1, grounded: false });
-        }
-    }
-    
+    // --- BOSS SETUP ---
     let isLateGame = currentAreaIdx >= 6;
     let bScale = isLateGame ? 2 : 1; 
     let bHP = isLateGame ? 80 : 20;
@@ -455,9 +417,7 @@ function gameLoop() {
                 }
             }
             
-            // --- UPDATED GENEROUS ENEMY STOMP LOGIC ---
             if (window.Physics.checkCollision(player, e)) {
-                // If falling and intersecting the top 60% of the enemy, favor the player
                 if (player.vy > 0 && player.y + player.height - player.vy <= e.y + (e.height * 0.6)) {
                     enemies.splice(i, 1);
                     player.vy = -14; player.vx = -8; 
@@ -545,9 +505,7 @@ function gameLoop() {
                 }
             }
             
-            // --- UPDATED GENEROUS BOSS STOMP LOGIC ---
             if (boss && window.Physics.checkCollision(player, boss)) {
-                // If falling and intersecting the top 40% of the boss, favor the player
                 if (player.vy > 0 && player.y + player.height - player.vy <= boss.y + (boss.height * 0.4)) {
                     if (boss.stompImmune) {
                         if(takeDamage()) { requestAnimationFrame(gameLoop); return; }

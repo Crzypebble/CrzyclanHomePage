@@ -44,6 +44,7 @@ function isActionPressed(action) {
     if (action === "jump" && (keys["ArrowUp"] || keys["KeyW"] || keys["Space"])) return true;
     if (action === "attack" && (keys["KeyZ"] || keys["Enter"] || keys["ShiftLeft"] || keys["KeyE"])) return true;
     if (action === "swap" && (keys["KeyQ"] || keys["KeyC"])) return true;
+    if (action === "parry" && (keys["KeyF"] || keys["KeyV"])) return true; // F or V to Parry
 
     const binds = window.getAllControlBindings ? window.getAllControlBindings() : {};
     const bind = binds[action];
@@ -64,7 +65,8 @@ let player = {
     x: 100, y: 100, vx: 0, vy: 0, width: 30, height: 50,
     speed: 6, jumpPower: -14, gravity: 0.6, grounded: false,
     maxJumps: 2, jumpsLeft: 2,
-    lives: 3, powerup: null, reservePowerup: null, invulnTimer: 0
+    lives: 3, powerup: null, reservePowerup: null, invulnTimer: 0,
+    parryTimer: 0, parryCooldown: 0, facingRight: true // Track facing for the animation
 };
 
 let projectiles = [];
@@ -149,7 +151,7 @@ function resetLevel() {
     }
 
     player.x = 100; player.y = 100; player.vx = 0; player.vy = 0; player.invulnTimer = 0;
-    player.jumpsLeft = player.maxJumps;
+    player.jumpsLeft = player.maxJumps; player.parryTimer = 0; player.parryCooldown = 0;
     cameraX = 0; maxCameraX = 0; cameraLocked = false; lockedCameraX = 0;
     projectiles = []; enemyProjectiles = []; enemies = []; platforms = []; physicalDrops = []; boss = null;
     
@@ -224,11 +226,10 @@ function resetLevel() {
             vy: 0
         };
 
-        // --- AREA 2 BIG CUBE OVERRIDES ---
         if (currentAreaIdx === 2) {
-            boss.maxHp = boss.maxHp * 3; // Triple health
+            boss.maxHp = boss.maxHp * 3; 
             boss.hp = boss.maxHp;
-            boss.stompImmune = false; // Allow players to jump on its head
+            boss.stompImmune = false; 
         }
 
         platforms.push({ x: finishLineX - 800, y: floorY - 150, w: 200, h: 20 });
@@ -258,9 +259,12 @@ function shoot() {
     if (projectiles.length > 3) return;
     
     let isGlock = player.powerup.type === "glock";
+    let dirMultiplier = player.facingRight ? 1 : -1;
+    
     projectiles.push({ 
-        x: player.x + player.width, y: player.y + 15, 
-        vx: player.powerup.projSpeed || 15, 
+        x: player.facingRight ? player.x + player.width : player.x - 20, 
+        y: player.y + 15, 
+        vx: (player.powerup.projSpeed || 15) * dirMultiplier, 
         vy: isGlock ? 0 : -5, 
         gravity: isGlock ? 0 : 0.6,
         width: 20, height: 20, 
@@ -315,9 +319,21 @@ function gameLoop() {
             if (nightmareTimeFrames <= 0) triggerGameOver();
         }
 
-        if (isActionPressed("moveLeft")) player.vx = -player.speed;
-        else if (isActionPressed("moveRight")) player.vx = player.speed;
-        else player.vx = 0;
+        // Manage Timers
+        if (player.parryTimer > 0) player.parryTimer--;
+        if (player.parryCooldown > 0) player.parryCooldown--;
+        if (player.invulnTimer > 0) player.invulnTimer--;
+
+        // Input Handling
+        if (isActionPressed("moveLeft")) {
+            player.vx = -player.speed;
+            player.facingRight = false;
+        } else if (isActionPressed("moveRight")) {
+            player.vx = player.speed;
+            player.facingRight = true;
+        } else {
+            player.vx = 0;
+        }
 
         let jumpPressed = isActionPressed("jump");
         if (jumpPressed && !lastJumpState && player.jumpsLeft > 0) {
@@ -339,6 +355,12 @@ function gameLoop() {
                 updateHUD(); 
                 lastSwapTime = Date.now();
             }
+        }
+
+        // Trigger Parry Action
+        if (isActionPressed("parry") && player.parryCooldown === 0) {
+            player.parryTimer = 12; // Active for 12 frames (parry window)
+            player.parryCooldown = 40; // Cooldown before next parry
         }
 
         if (!cameraLocked) {
@@ -363,15 +385,28 @@ function gameLoop() {
         }
 
         if (player.x > finishLineX && !boss) { winLevel(); }
-        if (player.invulnTimer > 0) player.invulnTimer--;
-
+        
         window.Physics.updateProjectiles(projectiles, platforms, cameraX, canvas.width, canvas.height);
         
+        // INTERCEPT & PARRY LOGIC FOR ENEMY PROJECTILES
         for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
             let p = enemyProjectiles[i]; p.x += p.vx; p.y += p.vy;
+            
             if (window.Physics.checkCollision(p, player)) {
-                enemyProjectiles.splice(i, 1);
-                if(takeDamage()) { requestAnimationFrame(gameLoop); return; }
+                // If parrying, deflect the projectile back!
+                if (player.parryTimer > 0) {
+                    p.vx = -p.vx * 1.5; // Shoot back 50% faster
+                    p.vy = -Math.abs(p.vy || 5); // Pop it slightly upward
+                    p.color = "#00ffff"; // Turn cyan to indicate it is deflected
+                    p.isGlock = false; 
+                    p.gravity = 0; 
+                    
+                    projectiles.push(p); // Move to friendly array
+                    enemyProjectiles.splice(i, 1); // Remove from enemy array
+                } else {
+                    enemyProjectiles.splice(i, 1);
+                    if(takeDamage()) { requestAnimationFrame(gameLoop); return; }
+                }
             } else if (p.x < cameraX - 100 || p.y > canvas.height + 100) {
                 enemyProjectiles.splice(i, 1);
             }
@@ -430,7 +465,9 @@ function gameLoop() {
                     player.vy = -14; player.vx = -8; 
                     player.jumpsLeft = player.maxJumps; 
                 } else {
-                    if(takeDamage()) { requestAnimationFrame(gameLoop); return; } 
+                    if (player.parryTimer === 0) { // Can't take melee damage while parrying frame is active
+                        if(takeDamage()) { requestAnimationFrame(gameLoop); return; } 
+                    }
                 }
             }
         }

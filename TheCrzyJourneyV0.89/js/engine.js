@@ -348,13 +348,6 @@ function gameLoop() {
             cameraX = maxCameraX;
         }
 
-        if (boss) {
-            let triggerX = boss.x - canvas.width + 100; 
-            if (!cameraLocked && cameraX >= triggerX) {
-                cameraLocked = true; lockedCameraX = cameraX;
-            }
-        }
-
         player.x += player.vx;
 
         let leftBound = cameraLocked ? lockedCameraX : maxCameraX;
@@ -451,25 +444,29 @@ function gameLoop() {
             if (nameUi) nameUi.textContent = boss.name;
             if (hpBar) hpBar.style.width = Math.max(0, (boss.hp / boss.maxHp) * 100) + "%";
 
-            // Specific Boss Behaviors
             if (currentAreaIdx === 2 && boss.name === "Mini Boss") {
-                // Blob Bouncing Logic
                 boss.vy += 0.4;
                 boss.y += boss.vy;
                 if (boss.y + boss.height >= floorY) {
                     boss.y = floorY - boss.height;
-                    boss.vy = -12; // Bounce!
+                    boss.vy = -12; 
                 }
             } else if (currentAreaIdx === 2 && boss.name !== "Mini Boss") {
-                // Slow Cube approach logic
                 if ((boss.phase === 1 || boss.phase === 3) && player.x < boss.x) {
                     boss.x -= 0.5 * difficultyMult; 
                 }
             }
 
-               if (cameraLocked) {
-                let fireThreshold = 150 - (currentAreaIdx * 4); 
-                if (boss.phase === 1 || boss.phase === 3) { 
+            let triggerX = boss.x - canvas.width + 100; 
+            if (!cameraLocked && cameraX >= triggerX && boss.phase !== 2) {
+                cameraLocked = true; 
+                lockedCameraX = cameraX;
+            }
+
+            let fireThreshold = 150 - (currentAreaIdx * 4); 
+            
+            if (boss.phase === 1 || boss.phase === 3) { 
+                if (cameraLocked) {
                     boss.shootTimer++;
                     if (boss.shootTimer > fireThreshold) {
                         let dx = (player.x + player.width/2) - (boss.x + boss.width/2);
@@ -482,13 +479,19 @@ function gameLoop() {
                         }); 
                         boss.shootTimer = 0;
                     }
-                    if (boss.hp <= boss.maxHp / 2 && boss.phase === 1) boss.phase = 2; 
-                    if (boss.hp <= 0) { winLevel(); boss = null; }
-                } else if (boss.phase === 2) { 
-                    // FIX: Unlock the camera so the player isn't dragged, let the boss run!
+                }
+                
+                if (boss.hp <= boss.maxHp / 2 && boss.phase === 1) { 
+                    boss.phase = 2; 
                     cameraLocked = false; 
-                    boss.x += 12; // Let him sprint away quickly
-                    if (boss.x >= finishLineX - 200) boss.phase = 3;
+                }
+                if (boss.hp <= 0) { winLevel(); boss = null; }
+                
+            } else if (boss.phase === 2) { 
+                boss.x += 10; 
+                if (boss.x >= finishLineX - 200) {
+                    boss.x = finishLineX - 200; 
+                    boss.phase = 3; 
                 }
             }
 

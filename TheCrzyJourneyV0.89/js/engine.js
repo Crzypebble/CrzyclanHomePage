@@ -44,7 +44,7 @@ function isActionPressed(action) {
     if (action === "jump" && (keys["ArrowUp"] || keys["KeyW"] || keys["Space"])) return true;
     if (action === "attack" && (keys["KeyZ"] || keys["Enter"] || keys["ShiftLeft"] || keys["KeyE"])) return true;
     if (action === "swap" && (keys["KeyQ"] || keys["KeyC"])) return true;
-    if (action === "parry" && (keys["KeyF"] || keys["KeyV"])) return true; // F or V to Parry
+    if (action === "parry" && (keys["KeyF"] || keys["KeyV"])) return true; 
 
     const binds = window.getAllControlBindings ? window.getAllControlBindings() : {};
     const bind = binds[action];
@@ -66,7 +66,7 @@ let player = {
     speed: 6, jumpPower: -14, gravity: 0.6, grounded: false,
     maxJumps: 2, jumpsLeft: 2,
     lives: 3, powerup: null, reservePowerup: null, invulnTimer: 0,
-    parryTimer: 0, parryCooldown: 0, facingRight: true // Track facing for the animation
+    parryTimer: 0, parryCooldown: 0, facingRight: true 
 };
 
 let projectiles = [];
@@ -215,7 +215,7 @@ function resetLevel() {
             width: 80 * bScale, height: 100 * bScale,
             hp: (bHP / 2) * difficultyMult, maxHp: (bHP / 2) * difficultyMult, 
             phase: 3, shootTimer: 0, stompImmune: false, isLateGame: isLateGame,
-            vy: 0 
+            vy: 0, hasTimedSpikes: false, spikeTimer: 0
         };
     } else if (currentLevelData.isAreaBoss) {
         boss = {
@@ -223,13 +223,14 @@ function resetLevel() {
             width: 100 * bScale, height: 120 * bScale,
             hp: bHP * difficultyMult, maxHp: bHP * difficultyMult, 
             phase: 1, shootTimer: 0, stompImmune: true, isLateGame: isLateGame,
-            vy: 0
+            vy: 0, hasTimedSpikes: true, spikeTimer: 0 // Enabled for standard bosses
         };
 
         if (currentAreaIdx === 2) {
             boss.maxHp = boss.maxHp * 3; 
             boss.hp = boss.maxHp;
             boss.stompImmune = false; 
+            boss.hasTimedSpikes = false; // Disable spikes entirely for the Area 2 Cube
         }
 
         platforms.push({ x: finishLineX - 800, y: floorY - 150, w: 200, h: 20 });
@@ -319,12 +320,10 @@ function gameLoop() {
             if (nightmareTimeFrames <= 0) triggerGameOver();
         }
 
-        // Manage Timers
         if (player.parryTimer > 0) player.parryTimer--;
         if (player.parryCooldown > 0) player.parryCooldown--;
         if (player.invulnTimer > 0) player.invulnTimer--;
 
-        // Input Handling
         if (isActionPressed("moveLeft")) {
             player.vx = -player.speed;
             player.facingRight = false;
@@ -357,10 +356,9 @@ function gameLoop() {
             }
         }
 
-        // Trigger Parry Action
         if (isActionPressed("parry") && player.parryCooldown === 0) {
-            player.parryTimer = 12; // Active for 12 frames (parry window)
-            player.parryCooldown = 40; // Cooldown before next parry
+            player.parryTimer = 12; 
+            player.parryCooldown = 40; 
         }
 
         if (!cameraLocked) {
@@ -388,21 +386,19 @@ function gameLoop() {
         
         window.Physics.updateProjectiles(projectiles, platforms, cameraX, canvas.width, canvas.height);
         
-        // INTERCEPT & PARRY LOGIC FOR ENEMY PROJECTILES
         for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
             let p = enemyProjectiles[i]; p.x += p.vx; p.y += p.vy;
             
             if (window.Physics.checkCollision(p, player)) {
-                // If parrying, deflect the projectile back!
                 if (player.parryTimer > 0) {
-                    p.vx = -p.vx * 1.5; // Shoot back 50% faster
-                    p.vy = -Math.abs(p.vy || 5); // Pop it slightly upward
-                    p.color = "#00ffff"; // Turn cyan to indicate it is deflected
+                    p.vx = -p.vx * 1.5; 
+                    p.vy = -Math.abs(p.vy || 5); 
+                    p.color = "#00ffff"; 
                     p.isGlock = false; 
                     p.gravity = 0; 
                     
-                    projectiles.push(p); // Move to friendly array
-                    enemyProjectiles.splice(i, 1); // Remove from enemy array
+                    projectiles.push(p); 
+                    enemyProjectiles.splice(i, 1); 
                 } else {
                     enemyProjectiles.splice(i, 1);
                     if(takeDamage()) { requestAnimationFrame(gameLoop); return; }
@@ -465,7 +461,7 @@ function gameLoop() {
                     player.vy = -14; player.vx = -8; 
                     player.jumpsLeft = player.maxJumps; 
                 } else {
-                    if (player.parryTimer === 0) { // Can't take melee damage while parrying frame is active
+                    if (player.parryTimer === 0) { 
                         if(takeDamage()) { requestAnimationFrame(gameLoop); return; } 
                     }
                 }
@@ -480,6 +476,15 @@ function gameLoop() {
             if (hpCont) hpCont.style.display = "block";
             if (nameUi) nameUi.textContent = boss.name;
             if (hpBar) hpBar.style.width = Math.max(0, (boss.hp / boss.maxHp) * 100) + "%";
+
+            // --- TIMED SPIKES CYCLE ---
+            if (boss.hasTimedSpikes) {
+                boss.spikeTimer++;
+                if (boss.spikeTimer > 210) boss.spikeTimer = 0; // 210 frames total (3.5 seconds)
+                
+                // Spikes are ON for 120 frames (2 seconds), OFF for 90 frames (1.5 seconds)
+                boss.stompImmune = boss.spikeTimer < 120;
+            }
 
             if (currentAreaIdx === 2 && boss.name === "Mini Boss") {
                 boss.vy += 0.4;

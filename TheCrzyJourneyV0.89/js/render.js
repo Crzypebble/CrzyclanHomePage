@@ -16,8 +16,10 @@ window.Render = {
 
         // Eyes
         ctx.fillStyle = "#000";
-        ctx.beginPath(); ctx.arc(player.x + 11, player.y + 8, 2, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(player.x + 19, player.y + 8, 2, 0, Math.PI * 2); ctx.fill();
+        // Flip eyes based on facing direction
+        let eyeOffset = player.facingRight ? 0 : -4;
+        ctx.beginPath(); ctx.arc(player.x + 11 + eyeOffset, player.y + 8, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(player.x + 19 + eyeOffset, player.y + 8, 2, 0, Math.PI * 2); ctx.fill();
 
         // Headband / Powerup Indicator
         ctx.fillStyle = player.powerup ? player.powerup.color : "#555";
@@ -28,6 +30,38 @@ window.Render = {
         let legOffset = (Math.abs(player.vx) > 0 && Math.floor(Date.now() / 100) % 2 === 0) ? 5 : 0;
         ctx.fillRect(player.x + 5, player.y + 50, 6, 10 - legOffset);
         ctx.fillRect(player.x + 19, player.y + 50, 6, 10 + legOffset);
+
+        // --- PARRY ANIMATION ---
+        if (player.parryTimer > 0) {
+            ctx.save();
+            ctx.translate(player.x + 15, player.y + 35); // Anchor to center-chest
+            
+            // Calculate a swift swing arc from high to low based on the 12-frame timer
+            let swingProgress = (12 - player.parryTimer) / 12; 
+            let swingAngle = (swingProgress * Math.PI) - (Math.PI / 2); // Swings from top to bottom
+            let dirMultiplier = player.facingRight ? 1 : -1;
+            
+            ctx.rotate(swingAngle * dirMultiplier);
+            
+            // Draw the swinging arm (looks like a swift backhand/deflect motion)
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, -4, 25 * dirMultiplier, 8);
+            
+            ctx.restore();
+
+            // Add a cyan energy swoosh effect that expands outward
+            ctx.save();
+            ctx.strokeStyle = `rgba(0, 255, 255, ${player.parryTimer / 12})`; // Fades out
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            let arcCenter = player.facingRight ? player.x + 30 : player.x;
+            // Draw a sweeping semi-circle facing the direction of the parry
+            let startAngle = player.facingRight ? -Math.PI/2 : Math.PI/2;
+            let endAngle = player.facingRight ? Math.PI/2 : (3*Math.PI)/2;
+            ctx.arc(arcCenter, player.y + 30, 20 + (swingProgress * 15), startAngle, endAngle);
+            ctx.stroke();
+            ctx.restore();
+        }
     },
 
     enemy: function(ctx, e, currentAreaIdx) {

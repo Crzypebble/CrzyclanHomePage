@@ -223,14 +223,14 @@ function resetLevel() {
             width: 100 * bScale, height: 120 * bScale,
             hp: bHP * difficultyMult, maxHp: bHP * difficultyMult, 
             phase: 1, shootTimer: 0, stompImmune: true, isLateGame: isLateGame,
-            vy: 0, hasTimedSpikes: true, spikeTimer: 0 // Enabled for standard bosses
+            vy: 0, hasTimedSpikes: true, spikeTimer: 0 
         };
 
         if (currentAreaIdx === 2) {
             boss.maxHp = boss.maxHp * 3; 
             boss.hp = boss.maxHp;
             boss.stompImmune = false; 
-            boss.hasTimedSpikes = false; // Disable spikes entirely for the Area 2 Cube
+            boss.hasTimedSpikes = false; 
         }
 
         platforms.push({ x: finishLineX - 800, y: floorY - 150, w: 200, h: 20 });
@@ -455,8 +455,10 @@ function gameLoop() {
                 }
             }
             
+            // --- UPDATED GENEROUS ENEMY STOMP LOGIC ---
             if (window.Physics.checkCollision(player, e)) {
-                if (player.vy > 0 && player.y + player.height - player.vy <= e.y + 20) {
+                // If falling and intersecting the top 60% of the enemy, favor the player
+                if (player.vy > 0 && player.y + player.height - player.vy <= e.y + (e.height * 0.6)) {
                     enemies.splice(i, 1);
                     player.vy = -14; player.vx = -8; 
                     player.jumpsLeft = player.maxJumps; 
@@ -480,9 +482,8 @@ function gameLoop() {
             // --- TIMED SPIKES CYCLE ---
             if (boss.hasTimedSpikes) {
                 boss.spikeTimer++;
-                if (boss.spikeTimer > 210) boss.spikeTimer = 0; // 210 frames total (3.5 seconds)
+                if (boss.spikeTimer > 210) boss.spikeTimer = 0; 
                 
-                // Spikes are ON for 120 frames (2 seconds), OFF for 90 frames (1.5 seconds)
                 boss.stompImmune = boss.spikeTimer < 120;
             }
 
@@ -544,8 +545,10 @@ function gameLoop() {
                 }
             }
             
+            // --- UPDATED GENEROUS BOSS STOMP LOGIC ---
             if (boss && window.Physics.checkCollision(player, boss)) {
-                if (player.vy > 0 && player.y + player.height - player.vy <= boss.y + 20) {
+                // If falling and intersecting the top 40% of the boss, favor the player
+                if (player.vy > 0 && player.y + player.height - player.vy <= boss.y + (boss.height * 0.4)) {
                     if (boss.stompImmune) {
                         if(takeDamage()) { requestAnimationFrame(gameLoop); return; }
                     } else {

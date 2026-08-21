@@ -62,7 +62,6 @@ window.Render = {
                 // The Bouncing Red Blob
                 ctx.fillStyle = "#ff3333";
                 ctx.beginPath();
-                // Squish effect based on vertical velocity
                 let squish = boss.vy > 0 ? 10 : (boss.vy < 0 ? -10 : 0);
                 ctx.ellipse(boss.x + boss.width/2, boss.y + boss.height/2 + squish, boss.width/2, boss.height/2 - squish, 0, 0, Math.PI * 2);
                 ctx.fill();

@@ -1,5 +1,5 @@
 // js/levelLayouts.js
-// Preset level designs, thematic styling, and length scaling
+// Preset level designs and thematic styling. Auto-generation removed for strict level control.
 
 window.LevelLayouts = {
     // Area Color Schemes for Platforms
@@ -19,34 +19,48 @@ window.LevelLayouts = {
     getLayout: function(areaIdx, levelIdx, levelData, canvasHeight) {
         let layoutId = `Area${areaIdx}_Level${levelIdx}`;
         
+        // 1. Check if the level has been hand-crafted
         if (this.presets[layoutId]) {
-            return this.presets[layoutId](canvasHeight);
+            return this.presets[layoutId](canvasHeight, levelData);
         }
         
-        return this.buildStandardLayout(areaIdx, levelIdx, levelData, canvasHeight);
+        // 2. Strict Lockout: If not hand-crafted, boot the player back to menu.
+        alert(`Area ${areaIdx} - Level ${levelIdx} is currently under construction!`);
+        setTimeout(() => {
+            if (window.quitGame) window.quitGame();
+        }, 10);
+        
+        // Return a dummy layout just to prevent engine crashes before the quit executes
+        return { 
+            length: 800, 
+            platforms: [{ x: 0, y: canvasHeight - 60, w: 800, h: 60 }], 
+            enemies: [], 
+            drops: [] 
+        };
     },
 
     // ---------------------------------------------------------
-    // HAND-CRAFTED PRESETS
+    // HAND-CRAFTED PRESETS (Area 1 Complete)
     // ---------------------------------------------------------
     presets: {
-        "Area1_Level1": function(canvasHeight) {
+        // Level 1 - Intro: Getting a feel for jumps and combat
+        "Area1_Level1": function(canvasHeight, levelData) {
             const floorY = canvasHeight - 60;
             return {
-                length: 4500, // Stretched out intro level
+                length: 4500,
                 platforms: [
-                    { x: -100, y: floorY, w: 800, h: 60 },
-                    { x: 800, y: floorY - 120, w: 250, h: 20 },
-                    { x: 1200, y: floorY, w: 900, h: 60 },
-                    { x: 1400, y: floorY - 160, w: 200, h: 20 },
-                    { x: 1800, y: floorY - 240, w: 200, h: 20 },
+                    { x: -100, y: floorY, w: 800, h: 60 }, // Start
+                    { x: 800, y: floorY - 120, w: 250, h: 20 }, // First hop
+                    { x: 1200, y: floorY, w: 900, h: 60 }, // Main stretch
+                    { x: 1400, y: floorY - 160, w: 200, h: 20 }, 
+                    { x: 1800, y: floorY - 240, w: 200, h: 20 }, // High route
                     { x: 2200, y: floorY, w: 1000, h: 60 },
                     { x: 2500, y: floorY - 140, w: 300, h: 20 },
-                    { x: 3300, y: floorY, w: 1400, h: 60 }
+                    { x: 3400, y: floorY, w: 1200, h: 60 } // End platform
                 ],
                 enemies: [
                     { x: 1000, y: floorY - 100 },
-                    { x: 1500, y: floorY - 220 },
+                    { x: 1600, y: floorY - 220 },
                     { x: 2400, y: floorY - 100 },
                     { x: 2700, y: floorY - 200 }
                 ],
@@ -55,77 +69,65 @@ window.LevelLayouts = {
                     { x: 2600, y: floorY - 220, type: "heart" }
                 ]
             };
+        },
+
+        // Level 2 - Mini-Boss: Longer run ending in a dedicated mini-boss arena
+        "Area1_Level2": function(canvasHeight, levelData) {
+            const floorY = canvasHeight - 60;
+            return {
+                length: 6000,
+                platforms: [
+                    { x: -100, y: floorY, w: 600, h: 60 }, // Start
+                    { x: 650, y: floorY - 80, w: 200, h: 20 }, 
+                    { x: 1000, y: floorY - 150, w: 200, h: 20 },
+                    { x: 1350, y: floorY, w: 800, h: 60 }, 
+                    { x: 1600, y: floorY - 120, w: 150, h: 20 },
+                    { x: 1800, y: floorY - 240, w: 150, h: 20 }, 
+                    { x: 2300, y: floorY, w: 500, h: 60 },
+                    { x: 2950, y: floorY, w: 500, h: 60 },
+                    { x: 3600, y: floorY - 100, w: 300, h: 20 },
+                    // 4500 to 6000 is the flat Mini-Boss Arena
+                    { x: 4500, y: floorY, w: 1600, h: 60 }, 
+                    { x: 4900, y: floorY - 150, w: 200, h: 20 }, // Tactical platform 1
+                    { x: 5400, y: floorY - 150, w: 200, h: 20 }  // Tactical platform 2
+                ],
+                enemies: [
+                    { x: 1500, y: floorY - 100 },
+                    { x: 1850, y: floorY - 300 },
+                    { x: 2500, y: floorY - 100 },
+                    { x: 3100, y: floorY - 100 },
+                    { x: 3750, y: floorY - 150 }
+                ],
+                drops: [
+                    { x: 1050, y: floorY - 250, type: "powerup", data: window.AREA_POWERUPS ? window.AREA_POWERUPS[0] : null },
+                    { x: 3700, y: floorY - 200, type: "heart" },
+                    // Drops right before the mini-boss arena
+                    { x: 4600, y: floorY - 200, type: "heart" }
+                ]
+            };
+        },
+
+        // Level 3 - Main Boss Arena: Short, tactical enclosure
+        "Area1_Level3": function(canvasHeight, levelData) {
+            const floorY = canvasHeight - 60;
+            return {
+                length: 1500, // Small enclosed arena
+                platforms: [
+                    // One giant solid floor for the fight
+                    { x: -100, y: floorY, w: 2000, h: 60 },
+                    // Tactical dodge platforms
+                    { x: 400, y: floorY - 150, w: 200, h: 20 },
+                    { x: 900, y: floorY - 220, w: 200, h: 20 }
+                ],
+                enemies: [
+                    // No normal enemies here, engine spawns the Main Area Boss automatically
+                ],
+                drops: [
+                    // Give the player tools to win right at the start
+                    { x: 300, y: floorY - 100, type: "powerup", data: window.AREA_POWERUPS ? window.AREA_POWERUPS[0] : null },
+                    { x: 500, y: floorY - 100, type: "heart" }
+                ]
+            };
         }
-    },
-
-    // ---------------------------------------------------------
-    // AUTOMATIC SCALING FALLBACK
-    // ---------------------------------------------------------
-    buildStandardLayout: function(areaIdx, levelIdx, levelData, canvasHeight) {
-        const floorY = canvasHeight - 60;
-        
-        // Area 1 starts at 5,000px, Area 10 reaches 15,000px (~3x)
-        let levelLength = 4000 + (areaIdx * 1100); 
-        
-        let layout = {
-            length: levelLength,
-            platforms: [],
-            enemies: [],
-            drops: []
-        };
-
-        // Starting and Ending Platforms
-        layout.platforms.push({ x: -100, y: floorY, w: 800, h: 60 }); 
-        layout.platforms.push({ x: levelLength - 1000, y: floorY, w: 1800, h: 60 }); 
-
-        let currentX = 800;
-        let step = 0;
-        
-        while (currentX < levelLength - 1000) {
-            step++;
-            if (step % 4 === 0 && !levelData.isAreaBoss && !levelData.hasMiniBoss) {
-                // Gap with high platform
-                layout.platforms.push({ x: currentX + 100, y: floorY - 160, w: 220, h: 20 });
-                currentX += 500; 
-            } else if (step % 3 === 0) {
-                // Step-up structure
-                layout.platforms.push({ x: currentX, y: floorY, w: 350, h: 60 });
-                layout.platforms.push({ x: currentX + 100, y: floorY - 120, w: 150, h: 20 });
-                currentX += 450;
-            } else {
-                // Main floor block
-                layout.platforms.push({ x: currentX, y: floorY, w: 600, h: 60 });
-                currentX += 650;
-            }
-        }
-
-        // Add regular upper platforming tiers
-        for(let i = 1; i < (levelLength / 700); i++) {
-            layout.platforms.push({ x: 700 * i, y: floorY - 180, w: 180, h: 20 });
-            if (i % 2 === 0) {
-                layout.platforms.push({ x: 700 * i + 250, y: floorY - 270, w: 140, h: 20 });
-            }
-        }
-
-        // Enemies pacing
-        if (!levelData.isAreaBoss) {
-            for(let i = 1; i < (levelLength / 500); i++) {
-                layout.enemies.push({ x: 500 * i + 200, y: floorY - 200 });
-            }
-        }
-
-        // Powerups / Hearts
-        const areaPowerObj = window.AREA_POWERUPS ? window.AREA_POWERUPS[Math.min(areaIdx - 1, 9)] : null;
-        if (levelData.isAreaBoss || levelData.hasMiniBoss) {
-            layout.drops.push({ x: 300, y: floorY - 300, type: "powerup", data: areaPowerObj });
-            layout.drops.push({ x: 600, y: floorY - 300, type: "heart" });
-        } else {
-            if (!levelData.noPowerups && areaPowerObj) {
-                layout.drops.push({ x: 500, y: floorY - 300, type: "powerup", data: areaPowerObj });
-            }
-            layout.drops.push({ x: levelLength / 2, y: floorY - 300, type: "heart" }); 
-        }
-
-        return layout;
     }
 };

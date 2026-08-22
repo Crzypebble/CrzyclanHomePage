@@ -439,7 +439,6 @@ function gameLoop() {
             if (nameUi) nameUi.textContent = boss.name;
             if (hpBar) hpBar.style.width = Math.max(0, (boss.hp / boss.maxHp) * 100) + "%";
 
-            // --- TIMED SPIKES CYCLE ---
             if (boss.hasTimedSpikes) {
                 boss.spikeTimer++;
                 if (boss.spikeTimer > 210) boss.spikeTimer = 0; 
@@ -533,8 +532,22 @@ function gameLoop() {
 
     ctx.save(); ctx.translate(-cameraX, 0);
 
-    ctx.fillStyle = "#333"; 
-    platforms.forEach(plat => ctx.fillRect(plat.x, plat.y, plat.w, plat.h));
+    // --- THEMED PLATFORM RENDERING ---
+    const theme = window.LevelLayouts.areaThemes[currentAreaIdx] || window.LevelLayouts.areaThemes[1];
+    platforms.forEach(plat => {
+        // Main block body
+        ctx.fillStyle = theme.body; 
+        ctx.fillRect(plat.x, plat.y, plat.w, plat.h);
+
+        // Top Grass/Surface Cap
+        ctx.fillStyle = theme.top;
+        ctx.fillRect(plat.x, plat.y, plat.w, 6);
+
+        // Subtle Border Accent
+        ctx.strokeStyle = theme.border;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(plat.x, plat.y, plat.w, plat.h);
+    });
 
     if (!boss || boss.phase === 3) {
         ctx.fillStyle = "gold"; ctx.fillRect(finishLineX, floorY - 200, 10, 200);

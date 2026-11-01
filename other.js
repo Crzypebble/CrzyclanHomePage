@@ -1008,23 +1008,39 @@ window.openProjectDetails = function(projectId) {
 // ==========================================
 // --- WEB GAMES CONFIGURATION ARRAY ---
 // ==========================================
-// To add a new game, copy everything from the { to the } 
-// and paste it below the previous game, separated by a comma.
 const playableWebGames = [
   {
     id: "crzy-journeyBETA0.74",
     title: "The Crzy Journey BETA 0.74",
-    folderName: "the_crzy_journey_full_rebuild", // The exact name of the folder you uploaded for this game
-    image: "TheCrzyJourneyCover.png", // The thumbnail image uploaded to your root folder
+    folderName: "the_crzy_journey_full_rebuild", 
+    image: "TheCrzyJourneyCover.png", 
     desc: "A custom 2D platformer built for CRZYCLAN. Battle through 10 unique areas, master elemental powers, and defeat the Void Warlords to retrieve the Golden Skull!"
   },
   {
     id: "crzy-journeyBETA-0.89",
     title: "The Crzy Journey BETA 0.89",
-    folderName: "TheCrzyJourneyV0.89", // CHANGE THIS to match the folder of the new version
-    image: "TheCrzyJourneyCover.png", // CHANGE THIS if you have a new cover image
+    folderName: "TheCrzyJourneyV0.89", 
+    image: "TheCrzyJourneyCover.png", 
     desc: "The updated version of The Crzy Journey! Check out the newest features, mechanics, and bug fixes."
   }
+];
+
+// ==========================================
+// --- TREEHOUSE AI GAMES CONFIGURATION ---
+// ==========================================
+// Any external game links you have go here!
+const treehouseGames = [
+  {
+    id: "skibidi-flush-coin-dropper",
+    title: "Skibidi Flush Coin Dropper",
+    url: "https://playtreehouse.com/play/skibidi-flush-coin-dropper-7pAQarQdGvFZU7D5?ref=WYPMP8XT"
+  }
+  // To add a new game:
+  // {
+  //   id: "game-id",
+  //   title: "Game Title",
+  //   url: "https://playtreehouse.com/play/..."
+  // }
 ];
 
 // ==========================================
@@ -1049,15 +1065,65 @@ function renderWebGames() {
   });
 }
 
+
+// --- TREEHOUSE MODAL & FILTER FUNCTIONS ---
+
+window.openTreehousePanel = function() {
+  document.getElementById('treehouse-panel-modal').style.display = 'flex';
+  renderTreehouseGames(treehouseGames);
+};
+
+window.renderTreehouseGames = function(gamesToRender) {
+  const container = document.getElementById('treehouse-games-list');
+  container.innerHTML = '';
+  
+  if (gamesToRender.length === 0) {
+    container.innerHTML = '<p style="color: #888; text-align: center; padding: 20px;">No games found.</p>';
+    return;
+  }
+  
+  gamesToRender.forEach(game => {
+    const div = document.createElement('div');
+    div.style.cssText = "background: #1a1a1a; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333;";
+    div.innerHTML = `
+      <strong style="color: #fff; font-size: 1.05rem;">${game.title}</strong>
+      <button class="sleek-btn" style="background: #ff0000; border: none; color: #fff; padding: 8px 20px; font-size: 0.9rem;" onclick="openTreehouseGame('${game.url}', '${game.title}')">▶ Play</button>
+    `;
+    container.appendChild(div);
+  });
+};
+
+window.filterTreehouseGames = function() {
+  const query = document.getElementById('treehouse-search').value.toLowerCase();
+  const filtered = treehouseGames.filter(g => g.title.toLowerCase().includes(query));
+  renderTreehouseGames(filtered);
+};
+
+
+// --- GAME LAUNCHERS ---
+
 window.openWebGame = function(folderPath, gameTitle) {
   const modal = document.getElementById('web-game-modal');
   const iframe = document.getElementById('web-game-iframe');
   const titleEl = document.getElementById('web-game-title');
 
   titleEl.textContent = gameTitle;
-  
-  // FIX: Removed the leading slash so it respects the GitHub Pages repo path!
   iframe.src = `${folderPath}/index.html`; 
+  modal.style.display = 'flex';
+};
+
+window.openTreehouseGame = function(url, gameTitle) {
+  // Hide the library panel first
+  closeModal('treehouse-panel-modal');
+  
+  const modal = document.getElementById('web-game-modal');
+  const iframe = document.getElementById('web-game-iframe');
+  const titleEl = document.getElementById('web-game-title');
+  
+  titleEl.textContent = gameTitle;
+  
+  // Directly pipes the external Treehouse URL into the existing local player frame!
+  iframe.src = url; 
   modal.style.display = 'flex';
 };
 
@@ -1066,6 +1132,5 @@ window.closeWebGame = function() {
   const iframe = document.getElementById('web-game-iframe');
 
   modal.style.display = 'none';
-  
   iframe.src = ""; 
 };

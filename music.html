@@ -7,6 +7,16 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="music.css">
   <link rel="stylesheet" href="player.css">
+  <style>
+    /* --- CSS LOCK FOR GLOBAL BACKGROUND --- 
+       This stops the image from zooming in or glitching when changing tabs */
+    body {
+      background-size: cover !important;
+      background-position: center center !important;
+      background-attachment: fixed !important;
+      background-repeat: no-repeat !important;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -14,7 +24,7 @@
     <p>Home of Chaos, Music, and Mayhem</p>
     <nav>
       <a href="index.html">Home</a>
-      <a href="other.html">Other</a>
+      <a href="other.html">Social</a>
       <a href="music.html" class="active">Music</a>
       <a href="shop.html">Shop</a>
       <a href="settings.html">Settings</a>

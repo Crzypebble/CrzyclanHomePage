@@ -1116,15 +1116,8 @@ window.openTreehouseGame = function(url, gameTitle) {
   // Hide the library panel first
   closeModal('treehouse-panel-modal');
   
-  const modal = document.getElementById('web-game-modal');
-  const iframe = document.getElementById('web-game-iframe');
-  const titleEl = document.getElementById('web-game-title');
-  
-  titleEl.textContent = gameTitle;
-  
-  // Directly pipes the external Treehouse URL into the existing local player frame!
-  iframe.src = url; 
-  modal.style.display = 'flex';
+  // Play Treehouse restricts iframe embedding, so we open external games in a new tab
+  window.open(url, '_blank');
 };
 
 window.closeWebGame = function() {

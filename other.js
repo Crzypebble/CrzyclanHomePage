@@ -1028,19 +1028,32 @@ const playableWebGames = [
 // ==========================================
 // --- TREEHOUSE AI GAMES CONFIGURATION ---
 // ==========================================
-// Any external game links you have go here!
 const treehouseGames = [
   {
     id: "skibidi-flush-coin-dropper",
     title: "Skibidi Flush Coin Dropper",
     url: "https://playtreehouse.com/play/skibidi-flush-coin-dropper-7pAQarQdGvFZU7D5?ref=WYPMP8XT"
+  },
+  {
+    id: "frog-logging-co",
+    title: "Frog Logging Co.",
+    url: "https://playtreehouse.com/game/frog-logging-co-rGNPKDhWPDEdxNB0?ref=WYPMP8XT&via=game_link"
+  },
+  {
+    id: "crzyclan-klaxicarian-liberation",
+    title: "Crzyclan - Klaxicarian Liberation",
+    url: "https://playtreehouse.com/game/crzyclan-klaxicarian-liberation-eB4fBhgCqzZ0Z4L1?ref=WYPMP8XT&via=game_link"
+  },
+  {
+    id: "crzyclan-stolen-treasures",
+    title: "Crzyclan - Stolen Treasures",
+    url: "https://playtreehouse.com/game/crzyclan-stolen-treasures-mp5A93QrSWvpCY0j?ref=WYPMP8XT&via=game_link"
+  },
+  {
+    id: "crzy-claw-condo-norman-s-will",
+    title: "Crzy Claw Condo (Norman's Will)",
+    url: "https://playtreehouse.com/game/crzy-claw-condo-norman-s-will-G7EYXyLlKSHZOKcy?ref=WYPMP8XT&via=game_link"
   }
-  // To add a new game:
-  // {
-  //   id: "game-id",
-  //   title: "Game Title",
-  //   url: "https://playtreehouse.com/play/..."
-  // }
 ];
 
 // ==========================================
@@ -1066,9 +1079,14 @@ function renderWebGames() {
 }
 
 
-// --- TREEHOUSE MODAL & FILTER FUNCTIONS ---
+// --- EXTERNAL PLATFORMS & TREEHOUSE FLOW ---
+
+window.openPlatformsPanel = function() {
+  document.getElementById('platforms-panel-modal').style.display = 'flex';
+};
 
 window.openTreehousePanel = function() {
+  closeModal('platforms-panel-modal'); // hide intermediate hub
   document.getElementById('treehouse-panel-modal').style.display = 'flex';
   renderTreehouseGames(treehouseGames);
 };
@@ -1113,10 +1131,8 @@ window.openWebGame = function(folderPath, gameTitle) {
 };
 
 window.openTreehouseGame = function(url, gameTitle) {
-  // Hide the library panel first
   closeModal('treehouse-panel-modal');
-  
-  // Play Treehouse restricts iframe embedding, so we open external games in a new tab
+  // Opens in a new tab because Treehouse blocks cross-origin iframe embedding
   window.open(url, '_blank');
 };
 

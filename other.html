@@ -156,11 +156,11 @@
             </div>
           </div>
           
-          <!-- UPGRADED OTHER PLATFORMS / TREEHOUSE CARD -->
-          <div class="content-card" onclick="openTreehousePanel()">
+          <!-- UPGRADED OTHER PLATFORMS HUB CARD -->
+          <div class="content-card" onclick="openPlatformsPanel()">
             <div style="width: 100%; height: 180px; background: #1a0505; border: 2px dashed #ff0000; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; color: #ff0000; cursor: pointer; transition: 0.2s;">
-              <span style="font-size: 2.5rem; margin-bottom: 10px;">🌳</span>
-              <strong style="font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase;">Treehouse AI Library</strong>
+              <span style="font-size: 2.5rem; margin-bottom: 10px;">🌐</span>
+              <strong style="font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase;">External Platforms</strong>
               <span style="font-size: 0.8rem; color: #aaa; margin-top: 5px;">Click to browse</span>
             </div>
             <h3 style="color: #ff0000;">Other Platforms</h3>
@@ -297,11 +297,39 @@
 
   <input type="file" id="bg-uploader" accept="image/*" style="display: none;">
 
+  <!-- MODAL: PLATFORMS PANEL (Intermediate Hub) -->
+  <div id="platforms-panel-modal" class="custom-modal">
+    <div class="custom-modal-inner">
+      <h3 style="margin-top: 0; color: #fff;">External Platforms</h3>
+      <p style="color: #aaa; font-size: 0.9rem; margin-top: 0; margin-bottom: 20px;">Select a platform to view our hosted games and projects.</p>
+      
+      <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        
+        <!-- Treehouse AI Button -->
+        <div style="background: #1a1a1a; border: 1px solid #ff0000; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s;" onclick="openTreehousePanel()" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#1a1a1a'">
+          <span style="font-size: 2rem; display: block; margin-bottom: 10px;">🌳</span>
+          <strong style="color: #fff; font-size: 1.1rem;">Treehouse AI</strong>
+          <p style="color: #888; font-size: 0.8rem; margin: 5px 0 0 0;">AI-generated web games</p>
+        </div>
+        
+        <!-- Placeholder Button -->
+        <div style="background: #1a1a1a; border: 1px dashed #555; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s;" onclick="alert('More platforms coming soon!')" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#1a1a1a'">
+          <span style="font-size: 2rem; display: block; margin-bottom: 10px;">❓</span>
+          <strong style="color: #aaa; font-size: 1.1rem;">Coming Soon</strong>
+          <p style="color: #666; font-size: 0.8rem; margin: 5px 0 0 0;">Future platforms</p>
+        </div>
+        
+      </div>
+      
+      <button class="sleek-btn" style="width: 100%;" onclick="closeModal('platforms-panel-modal')">Close</button>
+    </div>
+  </div>
+
   <!-- MODAL: TREEHOUSE GAMES PANEL -->
   <div id="treehouse-panel-modal" class="custom-modal">
     <div class="custom-modal-inner">
       <h3 style="margin-top: 0; color: #fff;">Treehouse AI Games</h3>
-      <p style="color: #aaa; font-size: 0.9rem; margin-top: 0; margin-bottom: 15px;">Play random stand-alone web games built by Crzyclan.</p>
+      <p style="color: #aaa; font-size: 0.9rem; margin-top: 0; margin-bottom: 15px;">Play stand-alone web games built by Crzyclan.</p>
       
       <input type="text" id="treehouse-search" class="sleek-input" placeholder="Search games..." onkeyup="filterTreehouseGames()" style="margin-bottom: 15px;">
       
@@ -309,7 +337,7 @@
         <!-- Injected via JS -->
       </div>
       
-      <button class="sleek-btn" style="width: 100%; margin-top: 15px;" onclick="closeModal('treehouse-panel-modal')">Close</button>
+      <button class="sleek-btn" style="width: 100%; margin-top: 15px;" onclick="closeModal('treehouse-panel-modal'); openPlatformsPanel();">Back to Platforms</button>
     </div>
   </div>
 
@@ -379,7 +407,7 @@
     </div>
   </div>
 
-  <!-- MODAL: PLAY WEB GAME (Universal for local & Treehouse) -->
+  <!-- MODAL: PLAY WEB GAME (Universal for local) -->
   <div id="web-game-modal" class="custom-modal">
     <div class="custom-modal-inner" style="max-width: 1000px; width: 95%; height: 85vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; border: 2px solid #ff0000;">
       
@@ -389,7 +417,7 @@
         <button style="background: transparent; color: #ff0000; border: none; font-size: 1.5rem; font-weight: bold; cursor: pointer; padding: 0 10px; transition: 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ff0000'" onclick="closeWebGame()">✕</button>
       </div>
 
-      <!-- The Game Screen (Iframe) - Allow extra permissions for web games! -->
+      <!-- The Game Screen (Iframe) -->
       <iframe id="web-game-iframe" src="" allow="autoplay; fullscreen; focus-without-user-activation" style="width: 100%; flex-grow: 1; border: none; background: #000;"></iframe>
 
     </div>
